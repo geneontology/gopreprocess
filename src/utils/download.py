@@ -1,5 +1,26 @@
-import aiohttp
-import asyncio
+import gzip
+import shutil
+import os
+import requests
+
+
+def unzip_gz(filepath, output_dir=None):
+    if output_dir is None:
+        output_dir = os.path.dirname(filepath)
+
+    try:
+        filename = os.path.basename(filepath)
+        output_path = os.path.join(output_dir, filename[:-3])  # Remove the '.gz' extension
+
+        with gzip.open(filepath, 'rb') as gz_file:
+            with open(output_path, 'wb') as unzipped_file:
+                shutil.copyfileobj(gz_file, unzipped_file)
+
+        return output_path
+    except IOError as e:
+        print(f"Failed to unzip .gz file: {e}")
+
+    return None
 
 
 class FileDownloader:
@@ -7,30 +28,16 @@ class FileDownloader:
         self.url = url
         self.destination = destination
 
-    async def download_file(self):
-        async with aiohttp.ClientSession() as session:
-            async with session.get(self.url) as response:
-                if response.status == 200:
-                    with open(self.destination, 'wb') as file:
-                        while True:
-                            chunk = await response.content.read(1024)
-                            if not chunk:
-                                break
-                            file.write(chunk)
-                    print(f"Download complete: {self.destination}")
-                else:
-                    print(f"Failed to download file from {self.url}")
+    def download_file(self):
+        response = requests.get(self.url)
+        if response.status_code == 200:
+            with open(self.destination, 'wb') as file:
+                for chunk in response.iter_content(chunk_size=1024):
+                    if chunk:
+                        file.write(chunk)
+            print(f"Download complete: {self.destination}")
+            expanded_file = unzip_gz(self.destination)
+            return expanded_file
+        else:
+            print(f"Failed to download file from {self.url}")
 
-    async def start_download(self):
-        await self.download_file()
-
-
-# Example usage:
-if __name__ == '__main__':
-    url = "https://example.com/examplefile.txt"
-    destination = "localfile.txt"
-
-    downloader = FileDownloader(url, destination)
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(downloader.start_download())
-    loop.close()

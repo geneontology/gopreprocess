@@ -12,6 +12,8 @@ click = "*"
 importlib-metadata = "^4.8.0"
 coloredlogs = "^15.0.1"
 aiohttp = "^3.8.4"
+pystow = "^0.5.0"
+ontobio = "^2.8.8"
 
 [tool.poetry.group.dev.dependencies]
 pytest = {version = ">=7.1.2", optional = true}
