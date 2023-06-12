@@ -20,6 +20,12 @@ def get_mgi_gaf_url():
     return config["MGI"]["mgi_goa_url"]
 
 
+def get_mgi_gpi_url():
+    with open(CONFIG, "r") as f:
+        config = yaml.load(f, Loader=yaml.FullLoader)
+    return config["MGI"]["mgi_gpi_url"]
+
+
 def get_rgd_gpad_url():
     with open(CONFIG, "r") as f:
         config = yaml.load(f, Loader=yaml.FullLoader)

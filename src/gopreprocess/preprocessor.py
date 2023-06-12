@@ -1,13 +1,15 @@
 import pystow
 from src.processors.orthoprocessor import OrthoProcessor
 from src.processors.gafprocessor import GafProcessor
-from src.utils.settings import get_alliance_ortho_url, get_rgd_gpad_url
+from src.processors.gpiprocessor import GpiProcessor
+from src.utils.settings import get_alliance_ortho_url, get_rgd_gpad_url, get_mgi_gpi_url
 from typing import List, Dict
 from pprint import pprint
 
 
 def preprocess():
     rat_genes = preprocess_alliance_ortho()
+    mouse_genes = preprocess_mgi_gpi()
     for annotation in preprocess_rgd():
         print(annotation)
 
@@ -27,6 +29,13 @@ def preprocess_rgd() -> Dict[str, List[str]]:
     rgd_gaf_processor = GafProcessor(rgd_gaf_path)
     namespaces = ["RGD", "UniProtKB"]
     data = rgd_gaf_processor.get_data(namespaces)
+    return data
+
+
+def preprocess_mgi_gpi() -> List[str]:
+    mgi_gpi_path = pystow.ensure_gunzip('MGI', url=get_mgi_gpi_url())  # autoclean=True, force=True)
+    mgi_gpi_processor = GpiProcessor(mgi_gpi_path)
+    data = mgi_gpi_processor.parse_gpi()
     return data
 
 

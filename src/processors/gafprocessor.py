@@ -1,7 +1,5 @@
 from ontobio.ecomap import EcoMap
 from ontobio.io.gafparser import GafParser
-from pprint import pprint
-import csv
 from typing import List
 
 
