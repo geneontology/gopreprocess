@@ -25,11 +25,11 @@ jobs:
         
     - name: Build documentation.
       run: |
-        echo ${{ secrets.GH_TOKEN }} >> src/{{ cookiecutter.project_name|lower()|replace(' ', '_')|replace('-', '_') }}/token.txt
+        echo ${{ secrets.GH_TOKEN }} >> src/go-preprocess/token.txt
         mkdir gh-pages
         touch gh-pages/.nojekyll
         cd docs/
-        poetry run sphinx-apidoc -o . ../src/{{ cookiecutter.project_name|lower()|replace(' ', '_')|replace('-', '_') }}/ --ext-autodoc -f
+        poetry run sphinx-apidoc -o . ../src/go-preprocess/ --ext-autodoc -f
         poetry run sphinx-build -b html . _build
         cp -r _build/html/* ../gh-pages/
     
