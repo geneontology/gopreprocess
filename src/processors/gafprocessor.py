@@ -45,6 +45,8 @@ class GafProcessor:
                                                 self.convertable_annotations.append(rgd_assoc)
                                             else:
                                                 continue
+                                        else:
+                                            continue
                                 else:
                                     continue
                             else:
