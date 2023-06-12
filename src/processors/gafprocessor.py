@@ -33,8 +33,8 @@ def parse_gaf_generator(filepath):
                     if rgd_assoc.subject.id.namespace in ["RGD", "UniProtKB"]:  # only RGD or UniProtKB annotations
                         if rgd_assoc.evidence not in experimental_evidence_codes:  # only non-experimental evidence codes
                             if rgd_assoc.provided_by != 'MGI':  # no tail eating
-                                if rgd_assoc.evidence.has_supporting_reference.id.startswith("PMID:"):
-                                    print(rgd_assoc)
+                                print(rgd_assoc.evidence.has_supporting_reference)
+                                if "PMID" in rgd_assoc.evidence.has_supporting_reference:
                                     yield rgd_assoc
 
 
