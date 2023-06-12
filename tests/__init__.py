@@ -1,1 +1,1 @@
-"""Tests for go_preprocess."""
+"""Tests for gopreprocess."""

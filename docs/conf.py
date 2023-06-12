@@ -11,7 +11,7 @@ from {{ cookiecutter.project_name|lower()|replace(' ', '_')|replace('-', '_') }}
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'go_preprocess'
+project = 'gopreprocess'
 copyright = f"{date.today().year}, {{cookiecutter.full_name}} <{{cookiecutter.email}}>"
 author = '{{cookiecutter.full_name}} <{{cookiecutter.email}}>'
 release = __version__

@@ -1,9 +1,9 @@
-"""Command line interface for go_preprocess."""
+"""Command line interface for gopreprocess."""
 import click
 import logging
 
-from {{ cookiecutter.project_name|lower()|replace(' ', '_')|replace('-', '_') }} import __version__
-from {{ cookiecutter.project_name|lower()|replace(' ', '_')|replace('-', '_') }}.main import demo
+from gopreprocess import __version__
+from gopreprocess.preprocessor import preprocess
 
 __all__ = [
     "main",
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 @click.option("-q", "--quiet")
 @click.version_option(__version__)
 def main(verbose: int, quiet: bool):
-    """CLI for go_preprocess.
+    """CLI for gopreprocess.
 
     :param verbose: Verbosity while running.
     :param quiet: Boolean to be quiet or verbose.
@@ -32,8 +32,8 @@ def main(verbose: int, quiet: bool):
 
 @main.command()
 def run():
-    """Run the go_preprocess's demo command."""
-    demo()
+    """Run the gopreprocess's demo command."""
+    preprocess()
      
 
 
