@@ -40,6 +40,14 @@ class GafProcessor:
                             if rgd_assoc.evidence not in experimental_evidence_codes:  # only non-experimental evidence codes
                                 if rgd_assoc.provided_by != 'MGI':  # no tail eating
                                     for reference in rgd_assoc.evidence.has_supporting_reference:
-                                        if reference.namespace == "PMID":
-                                            if rgd_assoc.object.id not in ['GO:0005515', 'GO:0005488']:  # exclude list
+                                        if reference.namespace == "PMID":  # must have a PMID
+                                            if rgd_assoc.object.id not in ['GO:0005515', 'GO:0005488']:  # exclude GO list
                                                 self.convertable_annotations.append(rgd_assoc)
+                                            else:
+                                                continue
+                                else:
+                                    continue
+                            else:
+                                continue
+                        else:
+                            continue
