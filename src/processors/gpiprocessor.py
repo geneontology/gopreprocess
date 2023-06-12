@@ -10,7 +10,12 @@ class GpiProcessor:
 
     def parse_gpi(self):
         p = GpiParser()
+
         with open(self.filepath, 'r') as file:
             for line in file:
-                _, gpi_object = p.parse_line(line)
-                self.mgi_genes.append(gpi_object.id)
+                original_line, gpi_object = p.parse_line(line)
+                if original_line.startswith("!"):
+                    continue
+                else:
+                    for gene in gpi_object:
+                        self.mgi_genes.append(gene.get("id")[4:])  # remove MGI:MGI: prefix
