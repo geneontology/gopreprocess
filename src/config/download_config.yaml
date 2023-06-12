@@ -2,4 +2,5 @@ MGI:
   mgi_goa_url: ftp.ebi.ac.uk/pub/databases/GO/goa/MOUSE/goa_mouse.gaf.gz
 Ortho:
   alliance_ortho_url: https://fms.alliancegenome.org/download/ORTHOLOGY-ALLIANCE-JSON_COMBINED.json.gz
-
+RGD:
+  rgd_gpi_url: http://snapshot.geneontology.org/annotations/rgd.gpi.gz
