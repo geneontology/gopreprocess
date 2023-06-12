@@ -9,7 +9,6 @@ def parse_data(filepath):
 
     try:
         results = p.parse(open(filepath, "r"), skipheader=True)
-        print(results[0])
         return results
     except IOError as e:
         print(f"Failed to parse GAF file: {e}")

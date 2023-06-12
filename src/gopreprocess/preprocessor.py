@@ -10,17 +10,24 @@ def preprocess():
     rat_genes = preprocess_alliance_ortho()
     rat_annotations = preprocess_rgd()
     for annotation in rat_annotations:
-        if annotation.subject.id in rat_genes:
+        if annotation.object.id.startswith("RGD:") or annotation.object.id.startswith("UniProtKB:"):  # only RGD or UniProtKB annotations
+            if annotation.evidence_code not in ["IDA", "IPI", "IGI", "IMP", "EXP"]:  # only non-experimental evidence codes
+                if annotation.assigned_by != 'MGI':  # no tail eating
+                    if annotation.reference.id.startswith("PMID:"):
+                        if annotation.object.id in rat_genes.keys():  # must be in alliance ortho file with MGI as gene1 and RGD as gene2
+                            annotation.object.id = rat_genes[annotation.object.id]  # use the rat gene to get the mouse gene and replace
+                            annotation.evidence_code = "ISO"
+                            annotation.reference.id = "GO_REF:0000096"
+                            pprint(annotation)
 
 
-
-def preprocess_alliance_ortho() -> List[str]:
+def preprocess_alliance_ortho() -> Dict[str, str]:
     path = pystow.ensure_gunzip('ORTHO', url=get_alliance_ortho_url())  # autoclean=True, force=False)
     ortho_processor = OrthoProcessor(path)
-    rat_genes = []
+    rat_genes = {}
     for pair in ortho_processor.get_data().get('data'):
         if pair.get('Gene1SpeciesTaxonID') == 'NCBITaxon:10090' and pair.get('Gene2SpeciesTaxonID') == 'NCBITaxon:10116':
-            rat_genes.append({"rgd_gene": pair.get('Gene2ID'), "mgi_gene": pair.get('Gene1ID')})
+            rat_genes[pair.get('Gene2ID')] = pair.get('Gene1ID')  # rat gene id: mouse gene id
     return rat_genes
 
 
