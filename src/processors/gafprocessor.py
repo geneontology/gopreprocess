@@ -18,29 +18,27 @@ def configure_parser() -> GafParser:
     return p
 
 
-def parse_gaf_generator(filepath, namespaces):
-    p = configure_parser()
-    experimental_evidence_codes = get_experimental_eco_codes(EcoMap())
-    with open(filepath, 'r') as file:
-        for line in file:
-            annotation = p.parse_line(line)
-            for rgd_assoc in annotation.associations:
-                if (type(rgd_assoc)) == dict:
-                    continue
-                else:
-                    if rgd_assoc.subject.id.namespace in namespaces:  # only RGD or UniProtKB annotations
-                        if rgd_assoc.evidence not in experimental_evidence_codes:  # only non-experimental evidence codes
-                            if rgd_assoc.provided_by != 'MGI':  # no tail eating
-                                if "PMID" in rgd_assoc.evidence.has_supporting_reference:
-                                    if rgd_assoc.object.id not in ['GO:0005515', 'GO:0005488']:  # skip if in exclude list
-                                        yield rgd_assoc
-
-
 class GafProcessor:
-    def __init__(self, filepath):
+    def __init__(self, filepath, namespaces):
         self.filepath = filepath
+        self.namespaces = namespaces
 
-    def get_data(self, namespaces):
-        data = parse_gaf_generator(self.filepath, namespaces)
-        return data
+        self.annotations = self.parse_gaf_generator()
 
+    def parse_gaf_generator(self):
+        p = configure_parser()
+        experimental_evidence_codes = get_experimental_eco_codes(EcoMap())
+        with open(self.filepath, 'r') as file:
+            for line in file:
+                annotation = p.parse_line(line)
+                for rgd_assoc in annotation.associations:
+                    if (type(rgd_assoc)) == dict:
+                        continue
+                    else:
+                        if rgd_assoc.subject.id.namespace in self.namespaces:  # only RGD or UniProtKB annotations
+                            if rgd_assoc.evidence not in experimental_evidence_codes:  # only non-experimental evidence codes
+                                if rgd_assoc.provided_by != 'MGI':  # no tail eating
+                                    if "PMID" in rgd_assoc.evidence.has_supporting_reference:
+                                        if rgd_assoc.object.id not in ['GO:0005515',
+                                                                       'GO:0005488']:  # skip if in exclude list
+                                            yield rgd_assoc

@@ -6,6 +6,7 @@ class GpiProcessor:
     def __init__(self, filepath):
         self.filepath = filepath
         self.mgi_genes: List[str] = []
+        self.parse_gpi()
 
     def parse_gpi(self):
         p = GpiParser()
@@ -13,4 +14,3 @@ class GpiProcessor:
             for line in file:
                 _, gpi_object = p.parse_line(line)
                 self.mgi_genes.append(gpi_object.id)
-        return self.mgi_genes
