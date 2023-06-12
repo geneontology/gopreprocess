@@ -5,7 +5,7 @@ from typing import List
 class GpiProcessor:
     def __init__(self, filepath):
         self.filepath = filepath
-        self.mgi_genes: List[str] = []
+        self.genes: List[str] = []
         self.parse_gpi()
 
     def parse_gpi(self):
@@ -18,4 +18,4 @@ class GpiProcessor:
                     continue
                 else:
                     for gene in gpi_object:
-                        self.mgi_genes.append(gene.get("id")[4:])  # remove MGI:MGI: prefix
+                        self.genes.append(gene.get("id")[4:])  # remove MGI:MGI: prefix
