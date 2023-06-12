@@ -25,7 +25,8 @@ def preprocess_alliance_ortho() -> Dict[str, str]:
 def preprocess_rgd() -> Dict[str, List[str]]:
     rgd_gaf_path = pystow.ensure_gunzip('RGD', url=get_rgd_gpad_url())  # autoclean=True, force=True)
     rgd_gaf_processor = GafProcessor(rgd_gaf_path)
-    data = rgd_gaf_processor.get_data()
+    namespaces = ["RGD", "UniProtKB"]
+    data = rgd_gaf_processor.get_data(namespaces)
     return data
 
 
