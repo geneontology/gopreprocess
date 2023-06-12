@@ -1,6 +1,6 @@
 import pystow
 from src.processors.orthoprocessor import OrthoProcessor
-from src.processors.gpadprocessor import GpiProcessor
+from src.processors.gpadprocessor import GpadProcessor
 from src.utils.settings import get_alliance_ortho_url, get_rgd_gpad_url
 
 
@@ -19,7 +19,7 @@ def preprocess_alliance_ortho():
 
 def preprocess_rgd():
     rgd_gpad_path = pystow.ensure_gunzip('RGD', url=get_rgd_gpad_url())  # autoclean=True, force=True)
-    rgd_gpi_processor = GpadProcessor(rgd_gpi_path)
+    rgd_gpad_processor = GpadProcessor(rgd_gpad_path)
     data = rgd_gpad_processor.get_data()
     print(data)
 
