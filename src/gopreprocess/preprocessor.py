@@ -14,8 +14,11 @@ def preprocess():
     mouse_genes = GpiProcessor(mgi_gpi_path).genes
     rat_genes = OrthoProcessor(mouse_genes, ortho_path, mouse_taxon, rat_taxon).genes
     rgd_annotations = GafProcessor(rat_genes, rgd_gaf_path, namespaces=namespaces).convertable_annotations
+    rat_gene_set = set(rat_genes.keys())
     for annotation in rgd_annotations:
         print(annotation)
+        if annotation.subject.id in rat_gene_set:
+            print("True")
 
 
 if __name__ == '__main__':

@@ -36,14 +36,10 @@ class GafProcessor:
                     if (type(rgd_assoc)) == dict:
                         continue
                     else:
-                        if rgd_assoc.subject.id in self.ortho_genes:
-                            if rgd_assoc.subject.id.namespace in self.namespaces:  # only RGD or UniProtKB annotations
-                                if rgd_assoc.evidence not in experimental_evidence_codes:  # only non-experimental evidence codes
-                                    if rgd_assoc.provided_by != 'MGI':  # no tail eating
-                                        for reference in rgd_assoc.evidence.has_supporting_reference:
-                                            print(reference.namespace)
-                                            if reference.namespace == "PMID":
-                                                print("rat id found", rgd_assoc.subject.id)
-                                                if rgd_assoc.object.id not in ['GO:0005515', 'GO:0005488']:  # exclude list
-                                                    print("rat id found", rgd_assoc.subject.id)
-                                                    self.convertable_annotations.append(rgd_assoc)
+                        if rgd_assoc.subject.id.namespace in self.namespaces:  # only RGD or UniProtKB annotations
+                            if rgd_assoc.evidence not in experimental_evidence_codes:  # only non-experimental evidence codes
+                                if rgd_assoc.provided_by != 'MGI':  # no tail eating
+                                    for reference in rgd_assoc.evidence.has_supporting_reference:
+                                        if reference.namespace == "PMID":
+                                            if rgd_assoc.object.id not in ['GO:0005515', 'GO:0005488']:  # exclude list
+                                                self.convertable_annotations.append(rgd_assoc)
