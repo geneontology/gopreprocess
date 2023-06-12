@@ -22,10 +22,10 @@ class GafProcessor:
     def __init__(self, filepath, namespaces):
         self.filepath = filepath
         self.namespaces = namespaces
+        self.convertable_annotations = []
+        self.parse_gaf()
 
-        self.annotations = self.parse_gaf_generator()
-
-    def parse_gaf_generator(self):
+    def parse_gaf(self):
         p = configure_parser()
         experimental_evidence_codes = get_experimental_eco_codes(EcoMap())
         with open(self.filepath, 'r') as file:
@@ -41,4 +41,4 @@ class GafProcessor:
                                     if "PMID" in rgd_assoc.evidence.has_supporting_reference:
                                         if rgd_assoc.object.id not in ['GO:0005515',
                                                                        'GO:0005488']:  # skip if in exclude list
-                                            yield rgd_assoc
+                                            self.convertable_annotations.append(rgd_assoc)
