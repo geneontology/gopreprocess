@@ -3,4 +3,4 @@ MGI:
 Ortho:
   alliance_ortho_url: https://fms.alliancegenome.org/download/ORTHOLOGY-ALLIANCE-JSON_COMBINED.json.gz
 RGD:
-  rgd_gpi_url: http://snapshot.geneontology.org/annotations/rgd.gpi.gz
+  rgd_gpad_url: http://snapshot.geneontology.org/annotations/rgd.gpad.gz

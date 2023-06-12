@@ -2,7 +2,7 @@ from ontobio.io.gafparser import GafParser
 from ontobio.ecomap import EcoMap
 
 
-def parse_gaf(filepath):
+def parse_data(filepath):
     p = GafParser()
     p.config.ecomap = EcoMap()
     p.config.remove_double_prefixes = True
@@ -21,6 +21,6 @@ class GafProcessor:
         self.filepath = filepath
 
     def get_data(self):
-        data = parse_gaf(self.filepath)
+        data = parse_data(self.filepath)
         return data
 
