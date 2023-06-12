@@ -8,17 +8,8 @@ from pprint import pprint
 
 def preprocess():
     rat_genes = preprocess_alliance_ortho()
-    rat_annotations = preprocess_rgd()
-    for annotation in rat_annotations:
-        if annotation.object.id.startswith("RGD:") or annotation.object.id.startswith("UniProtKB:"):  # only RGD or UniProtKB annotations
-            if annotation.evidence_code not in ["IDA", "IPI", "IGI", "IMP", "EXP"]:  # only non-experimental evidence codes
-                if annotation.assigned_by != 'MGI':  # no tail eating
-                    if annotation.reference.id.startswith("PMID:"):
-                        if annotation.object.id in rat_genes.keys():  # must be in alliance ortho file with MGI as gene1 and RGD as gene2
-                            annotation.object.id = rat_genes[annotation.object.id]  # use the rat gene to get the mouse gene and replace
-                            annotation.evidence_code = "ISO"
-                            annotation.reference.id = "GO_REF:0000096"
-                            pprint(annotation)
+    for annotation in preprocess_rgd():
+        print(annotation)
 
 
 def preprocess_alliance_ortho() -> Dict[str, str]:
