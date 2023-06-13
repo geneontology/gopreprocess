@@ -18,12 +18,9 @@ def preprocess():
             del rat_genes[k]
     rgd_annotations = GafProcessor(rat_genes, rgd_gaf_path, namespaces=namespaces).convertable_annotations
     rat_gene_set = set(rat_genes.keys())
-    print(list(rat_gene_set)[0])
-    print(list(rat_gene_set)[1])
     for annotation in rgd_annotations:
-        print(annotation.subject.id)
-        if annotation.subject.id in rat_gene_set:
-            print("True")
+        if str(annotation.subject.id) in rat_gene_set:
+            print(annotation)
 
 
 if __name__ == '__main__':
