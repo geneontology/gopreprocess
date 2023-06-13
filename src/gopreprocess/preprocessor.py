@@ -18,14 +18,14 @@ ortho_reference = "0000096"
 
 def preprocess() -> None:
     """
-    Preprocesses the annotations by converting them based on orthology relationships.
+    Preprocesses the annotations by converting them based on ortholog relationships.
 
     :returns: None
     """
     start = time.time()
     converted_mgi_annotations = []
 
-    # assemble data structures needed to convert annotations via orthology
+    # assemble data structures needed to convert annotations via ortholog relationships.
     ortho_path, rgd_gaf_path, mgi_gpi_path = download_files()
     mouse_genes = GpiProcessor(mgi_gpi_path).genes
     rat_genes = OrthoProcessor(mouse_genes, ortho_path, mouse_taxon, rat_taxon).genes
