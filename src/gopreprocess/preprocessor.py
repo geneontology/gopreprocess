@@ -3,9 +3,11 @@ from src.processors.gafprocessor import GafProcessor
 from src.processors.gpiprocessor import GpiProcessor
 from src.utils.download import download_files
 from ontobio.model.association import GoAssociation, Curie, Subject
+from ontobio.io.assocwriter import GpadWriter
 import time
 import pandas as pd
 import pystow
+from typing import Mapping
 
 namespaces = ["RGD", "UniProtKB"]
 mouse_taxon = "NCBITaxon:10090"
@@ -35,14 +37,20 @@ def preprocess() -> None:
     # just for performance of the check below for rat genes in the RGD GAF file that have
     # the appropriate ortholog relationship to a mouse gene in the MGI GPI file
     rat_gene_set = set(rat_genes.keys())
-
+    converted_mgi_annotations.append(["!gpa-version: 2.0"])
     for annotation in rgd_annotations:
         if str(annotation.subject.id) in rat_gene_set:
             new_annotation = generate_annotation(annotation, rat_genes)  # generate the annotation based on orthology
             converted_mgi_annotations.append(new_annotation.to_gpad_2_0_tsv())
 
+    # using pandas in order to take advantage of pystow in terms of file location and handling
+    # again; pandas is a bit overkill.
     df = pd.DataFrame(converted_mgi_annotations)
-    pystow.dump_df(key="MGI", obj=df, name="MGI.gpad")
+    pystow.dump_df(key="MGI",
+                   obj=df,
+                   name="mgi.gpad",
+                   to_csv_kwargs={"index": "False", "header": "False", "compression": "gzip"},
+                   sep="\t")
 
     end = time.time()
 
