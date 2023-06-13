@@ -48,7 +48,7 @@ class GafProcessor:
         self.filepath = filepath
         self.ortho_genes = genes
         self.namespaces = namespaces
-        self.convertable_annotations = []
+        self.convertible_annotations = []
         self.parse_gaf()
 
     def parse_gaf(self):
@@ -63,26 +63,21 @@ class GafProcessor:
             for line in file:
                 annotation = p.parse_line(line)
                 for rgd_assoc in annotation.associations:
-                    if (type(rgd_assoc)) == dict:
+                    if isinstance(rgd_assoc, dict):
                         continue
-                    else:
-                        if rgd_assoc.negated:  # no negated annotations from ortho sources
-                            continue
-                        else:
-                            if rgd_assoc.subject.id.namespace in self.namespaces:  # only RGD or UniProtKB annotations
-                                if rgd_assoc.evidence not in experimental_evidence_codes:  # only non-experimental evidence codes
-                                    if rgd_assoc.provided_by != 'MGI':  # no tail eating
-                                        for reference in rgd_assoc.evidence.has_supporting_reference:
-                                            if reference.namespace == "PMID":  # must have a PMID
-                                                if rgd_assoc.object.id not in ['GO:0005515', 'GO:0005488']:  # exclude GO list
-                                                    self.convertable_annotations.append(rgd_assoc)
-                                                else:
-                                                    continue
-                                            else:
-                                                continue
-                                    else:
-                                        continue
-                                else:
-                                    continue
-                            else:
-                                continue
+                    if rgd_assoc.negated:
+                        continue
+                    if rgd_assoc.subject.id.namespace not in self.namespaces:
+                        continue
+                    if rgd_assoc.evidence in experimental_evidence_codes:
+                        continue
+                    if rgd_assoc.provided_by == 'MGI':
+                        continue
+                    has_pmid_reference = any(
+                        reference.namespace == "PMID" for reference in rgd_assoc.evidence.has_supporting_reference)
+                    if not has_pmid_reference:
+                        continue
+                    if rgd_assoc.object.id in ['GO:0005515', 'GO:0005488']:
+                        continue
+
+                    self.convertible_annotations.append(rgd_assoc)

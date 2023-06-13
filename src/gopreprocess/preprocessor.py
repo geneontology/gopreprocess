@@ -29,7 +29,7 @@ def preprocess() -> None:
     ortho_path, rgd_gaf_path, mgi_gpi_path = download_files()
     mouse_genes = GpiProcessor(mgi_gpi_path).genes
     rat_genes = OrthoProcessor(mouse_genes, ortho_path, mouse_taxon, rat_taxon).genes
-    rgd_annotations = GafProcessor(rat_genes, rgd_gaf_path, namespaces=namespaces).convertable_annotations
+    rgd_annotations = GafProcessor(rat_genes, rgd_gaf_path, namespaces=namespaces).convertible_annotations
 
     # just for performance of the check below for rat genes in the RGD GAF file that have
     # the appropriate orthology relationship to a mouse gene in the MGI GPI file
