@@ -18,21 +18,25 @@ ortho_reference = "0000096"
 
 def preprocess():
     start = time.time()
+    converted_mgi_annotations = []
 
+    # assemble data structures needed to convert annotations via orthology
     ortho_path, rgd_gaf_path, mgi_gpi_path = download_files()
     mouse_genes = GpiProcessor(mgi_gpi_path).genes
     rat_genes = OrthoProcessor(mouse_genes, ortho_path, mouse_taxon, rat_taxon).genes
     rgd_annotations = GafProcessor(rat_genes, rgd_gaf_path, namespaces=namespaces).convertable_annotations
+
+    # just for performance of the check below for rat genes in the RGD GAF file that have
+    # the appropriate orthology relationship to a mouse gene in the MGI GPI file
     rat_gene_set = set(rat_genes.keys())
 
-    converted_mgi_annotations = []
     for annotation in rgd_annotations:
         if str(annotation.subject.id) in rat_gene_set:
-            new_annotation = generate_annotation(annotation, rat_genes)
+            new_annotation = generate_annotation(annotation, rat_genes)  # generate the annotation based on orthology
             converted_mgi_annotations.append(new_annotation.to_gpad_2_0_tsv())
 
     df = pd.DataFrame(converted_mgi_annotations)
-    pystow.dump_df(key="MGI", obj=df)
+    pystow.dump_df(key="MGI", obj=df, name="MGI.gpad")
 
     end = time.time()
 
