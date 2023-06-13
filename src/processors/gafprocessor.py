@@ -4,6 +4,15 @@ from typing import List
 
 
 def get_experimental_eco_codes(ecomap) -> List[str]:
+    """
+    Retrieves a list of experimental evidence codes from the given EcoMap.
+
+    :param ecomap: The EcoMap object containing the evidence code mappings.
+    :type ecomap: EcoMap
+
+    :return: A list of experimental evidence codes.
+    :rtype: List[str]
+    """
     experimental_evidence_codes = []
     for code, _, eco_id in ecomap.mappings():
         if code in ['EXP', 'IDA', 'IPI', 'IMP', 'IGI']:
@@ -12,6 +21,12 @@ def get_experimental_eco_codes(ecomap) -> List[str]:
 
 
 def configure_parser() -> GafParser:
+    """
+    Configures and returns a GafParser object.
+
+    :return: A configured GafParser object.
+    :rtype: GafParser
+    """
     p = GafParser()
     p.config.ecomap = EcoMap()
     p.config.remove_double_prefixes = True
@@ -20,6 +35,16 @@ def configure_parser() -> GafParser:
 
 class GafProcessor:
     def __init__(self, genes, filepath, namespaces):
+        """
+        Initializes a GafProcessor object.
+
+        :param genes: A list of genes.
+        :type genes: Any
+        :param filepath: The path to the GAF file.
+        :type filepath: str
+        :param namespaces: A list of namespaces.
+        :type namespaces: List[str]
+        """
         self.filepath = filepath
         self.ortho_genes = genes
         self.namespaces = namespaces
@@ -27,6 +52,11 @@ class GafProcessor:
         self.parse_gaf()
 
     def parse_gaf(self):
+        """
+        Parses the GAF file and processes the annotations.
+
+        :return: None
+        """
         p = configure_parser()
         experimental_evidence_codes = get_experimental_eco_codes(EcoMap())
         with open(self.filepath, 'r') as file:
