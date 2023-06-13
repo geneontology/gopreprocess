@@ -7,6 +7,7 @@ import yaml
 CONFIG = path.join(path.dirname(path.abspath(__file__)), "../config/download_config.yaml")
 logger = logging.getLogger(__name__)
 
+
 def get_alliance_ortho_url():
     """
     Retrieves the Alliance orthology URL from the configuration file.
