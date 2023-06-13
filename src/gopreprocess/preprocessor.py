@@ -4,13 +4,13 @@ from src.processors.gpiprocessor import GpiProcessor
 from src.utils.download import download_files
 from ontobio.model.association import GoAssociation, Evidence, Curie, Subject
 import time
-from ontobio.ecomap import EcoMap
 
 namespaces = ["RGD", "UniProtKB"]
 mouse_taxon = "NCBITaxon:10090"
 rat_taxon = "NCBITaxon:10116"
 human_taxon = "NCBITaxon:9606"
 iso_code = "0000266"
+protein_coding_gene = "SO:0001217"
 
 def preprocess():
     start = time.time()
@@ -38,8 +38,11 @@ def generate_annotation(annotation: GoAssociation, gene_map: dict) -> GoAssociat
     # subject=Subject(id=Curie(namespace='RGD', identity='1586174')
     new_evidence_type = Curie(namespace='ECO', identity=iso_code)  # all annotations via ortho should have this ECO code
     new_subject = Subject(id=Curie(namespace='MGI', identity=gene_map[str(annotation.subject.id)]),
-                          type=Curie.from_str("SO:0001217"),
-                          taxon=Curie.from_str("NCBITaxon:10090"))  # rewrite with MGI gene ID
+                          type=Curie.from_str(protein_coding_gene),
+                          taxon=Curie.from_str(mouse_taxon),
+                          fullname=[],
+                          label="",
+                          synonyms=[])  # rewrite with MGI gene ID
     annotation.evidence.type = new_evidence_type
     annotation.subject = new_subject
 
