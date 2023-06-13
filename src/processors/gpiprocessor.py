@@ -3,12 +3,33 @@ from typing import List
 
 
 class GpiProcessor:
-    def __init__(self, filepath):
+    """
+    A class for processing GPI (Gene Product Information) files.
+
+    Attributes:
+        filepath (str): The path to the GPI file.
+        genes (List[str]): A list of gene IDs extracted from the GPI file.
+
+    Methods:
+        __init__(self, filepath): Initializes a new instance of GpiProcessor.
+        parse_gpi(self): Parses the GPI file and extracts the gene IDs.
+    """
+
+    def __init__(self, filepath: str):
+        """
+        Initializes a new instance of GpiProcessor.
+
+        :param filepath: The path to the GPI file.
+        :type filepath: str
+        """
         self.filepath = filepath
         self.genes: List[str] = []
         self.parse_gpi()
 
     def parse_gpi(self):
+        """
+        Parses the GPI file and extracts the gene IDs.
+        """
         p = GpiParser()
 
         with open(self.filepath, 'r') as file:
