@@ -48,8 +48,13 @@ def preprocess() -> None:
     df = pd.DataFrame(converted_mgi_annotations)
     pystow.dump_df(key="MGI",
                    obj=df,
-                   name="mgi.gpad",
-                   to_csv_kwargs={"index": "False", "header": "False", "compression": "gzip"},
+                   name="mgi.gpad.gz",
+                   to_csv_kwargs={"index": False, "header": False, "compression": "gzip"},
+                   sep="\t")
+    pystow.dump_df(key="MGI",
+                   obj=df,
+                   name="mgi-test.gpad",
+                   to_csv_kwargs={"index": False, "header": False},
                    sep="\t")
 
     end = time.time()
