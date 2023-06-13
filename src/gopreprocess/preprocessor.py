@@ -2,7 +2,7 @@ from src.processors.orthoprocessor import OrthoProcessor
 from src.processors.gafprocessor import GafProcessor
 from src.processors.gpiprocessor import GpiProcessor
 from src.utils.download import download_files
-from ontobio.model.association import GoAssociation, Evidence, Curie, Subject
+from ontobio.model.association import GoAssociation, Curie, Subject
 import time
 import pandas as pd
 import pystow
@@ -23,7 +23,7 @@ def preprocess() -> None:
     :returns: None
     """
     start = time.time()
-    
+
     converted_mgi_annotations = []
 
     # assemble data structures needed to convert annotations via ortholog relationships.
@@ -51,7 +51,7 @@ def preprocess() -> None:
 
 def generate_annotation(annotation: GoAssociation, gene_map: dict) -> GoAssociation:
     """
-    Generates a new annotation based on orthology.
+    Generates a new annotation based on ortholog assignments.
 
     :param annotation: The original annotation.
     :param gene_map: A dictionary mapping rat gene IDs to mouse gene IDs.
