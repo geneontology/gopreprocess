@@ -11,6 +11,7 @@ rat_taxon = "NCBITaxon:10116"
 human_taxon = "NCBITaxon:9606"
 iso_code = "0000266"
 protein_coding_gene = "SO:0001217"
+ortho_reference = "0000096"
 
 def preprocess():
     start = time.time()
@@ -38,11 +39,13 @@ def generate_annotation(annotation: GoAssociation, gene_map: dict) -> GoAssociat
     # subject=Subject(id=Curie(namespace='RGD', identity='1586174')
     new_evidence_type = Curie(namespace='ECO', identity=iso_code)  # all annotations via ortho should have this ECO code
     new_subject = Subject(id=Curie(namespace='MGI', identity=gene_map[str(annotation.subject.id)]),
-                          type=Curie.from_str(protein_coding_gene),
+                          type=[protein_coding_gene],
                           taxon=Curie.from_str(mouse_taxon),
                           fullname=[],
                           label="",
                           synonyms=[])  # rewrite with MGI gene ID
+    new_has_supporting_reference = Curie(namespace='GO_REF', identity=ortho_reference)
+    annotation.evidence.has_supporting_reference = [new_has_supporting_reference]
     annotation.evidence.type = new_evidence_type
     annotation.subject = new_subject
 
