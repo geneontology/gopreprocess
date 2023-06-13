@@ -22,9 +22,6 @@ def preprocess():
     ortho_path, rgd_gaf_path, mgi_gpi_path = download_files()
     mouse_genes = GpiProcessor(mgi_gpi_path).genes
     rat_genes = OrthoProcessor(mouse_genes, ortho_path, mouse_taxon, rat_taxon).genes
-    for k, v in rat_genes.items():  # exclude any rat genes whose orthologs are not in the mouse GPI file.
-        if v not in mouse_genes:
-            del rat_genes[k]
     rgd_annotations = GafProcessor(rat_genes, rgd_gaf_path, namespaces=namespaces).convertable_annotations
     rat_gene_set = set(rat_genes.keys())
 
