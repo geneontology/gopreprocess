@@ -2,6 +2,7 @@ from src.processors.orthoprocessor import OrthoProcessor
 from src.processors.gafprocessor import GafProcessor
 from src.processors.gpiprocessor import GpiProcessor
 from src.utils.download import download_files
+from ontobio.model.association import GoAssociation
 
 namespaces = ["RGD", "UniProtKB"]
 mouse_taxon = "NCBITaxon:10090"
@@ -20,7 +21,11 @@ def preprocess():
     rat_gene_set = set(rat_genes.keys())
     for annotation in rgd_annotations:
         if str(annotation.subject.id) in rat_gene_set:
-            print(annotation)
+            new_annotation = generate_annotation(annotation)
+
+
+def generate_annotation(annotation: GoAssociation) -> GoAssociation:
+    return annotation
 
 
 if __name__ == '__main__':
