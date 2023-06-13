@@ -4,6 +4,8 @@ from src.processors.gpiprocessor import GpiProcessor
 from src.utils.download import download_files
 from ontobio.model.association import GoAssociation, Evidence, Curie, Subject
 import time
+import pandas as pd
+import pystow
 
 namespaces = ["RGD", "UniProtKB"]
 mouse_taxon = "NCBITaxon:10090"
@@ -12,6 +14,7 @@ human_taxon = "NCBITaxon:9606"
 iso_code = "0000266"
 protein_coding_gene = "SO:0001217"
 ortho_reference = "0000096"
+
 
 def preprocess():
     start = time.time()
@@ -24,10 +27,15 @@ def preprocess():
             del rat_genes[k]
     rgd_annotations = GafProcessor(rat_genes, rgd_gaf_path, namespaces=namespaces).convertable_annotations
     rat_gene_set = set(rat_genes.keys())
+
+    converted_mgi_annotations = []
     for annotation in rgd_annotations:
         if str(annotation.subject.id) in rat_gene_set:
             new_annotation = generate_annotation(annotation, rat_genes)
-            print(new_annotation.to_gpad_2_0_tsv())
+            converted_mgi_annotations.append(new_annotation.to_gpad_2_0_tsv())
+
+    df = pd.DataFrame(converted_mgi_annotations)
+    pystow.dump_df(key="MGI", obj=df)
 
     end = time.time()
 
