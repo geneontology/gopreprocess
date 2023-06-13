@@ -1,4 +1,6 @@
 import json
+from typing import List
+from pathlib import Path
 
 
 class OrthoProcessor:
@@ -11,7 +13,7 @@ class OrthoProcessor:
     :param taxon2: Taxon ID of the second species.
     """
 
-    def __init__(self, partner_genes, filepath, taxon1, taxon2):
+    def __init__(self, partner_genes: List[str], filepath: Path, taxon1: str, taxon2: str):
         """
         Initializes an instance of the OrthoProcessor.
 

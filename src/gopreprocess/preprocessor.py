@@ -23,6 +23,7 @@ def preprocess() -> None:
     :returns: None
     """
     start = time.time()
+    
     converted_mgi_annotations = []
 
     # assemble data structures needed to convert annotations via ortholog relationships.
@@ -32,7 +33,7 @@ def preprocess() -> None:
     rgd_annotations = GafProcessor(rat_genes, rgd_gaf_path, namespaces=namespaces).convertible_annotations
 
     # just for performance of the check below for rat genes in the RGD GAF file that have
-    # the appropriate orthology relationship to a mouse gene in the MGI GPI file
+    # the appropriate ortholog relationship to a mouse gene in the MGI GPI file
     rat_gene_set = set(rat_genes.keys())
 
     for annotation in rgd_annotations:

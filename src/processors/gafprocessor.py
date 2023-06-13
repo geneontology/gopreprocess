@@ -1,7 +1,7 @@
 from ontobio.ecomap import EcoMap
 from ontobio.io.gafparser import GafParser
 from typing import List
-
+from pathlib import Path
 
 def get_experimental_eco_codes(ecomap) -> List[str]:
     """
@@ -34,7 +34,7 @@ def configure_parser() -> GafParser:
 
 
 class GafProcessor:
-    def __init__(self, genes, filepath, namespaces):
+    def __init__(self, genes: List, filepath: Path, namespaces: List):
         """
         Initializes a GafProcessor object.
 

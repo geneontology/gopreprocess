@@ -1,6 +1,6 @@
 from ontobio.io.entityparser import GpiParser
 from typing import List
-
+from pathlib import Path
 
 class GpiProcessor:
     """
@@ -15,7 +15,7 @@ class GpiProcessor:
         parse_gpi(self): Parses the GPI file and extracts the gene IDs.
     """
 
-    def __init__(self, filepath: str):
+    def __init__(self, filepath: Path):
         """
         Initializes a new instance of GpiProcessor.
 
