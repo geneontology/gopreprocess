@@ -54,3 +54,17 @@ def get_rgd_gpad_url():
     with open(CONFIG, "r") as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
     return config["RGD"]["rgd_gaf_url"]
+
+
+def get_url(key: str) -> str:
+    """
+    Retrieves the URL corresponding to the given key from the configuration file.
+
+    :param key: The key to retrieve the URL for.
+    :type key: str
+    :return: The URL corresponding to the given key.
+    :rtype: str
+    """
+    with open(CONFIG, "r") as f:
+        config = yaml.load(f, Loader=yaml.FullLoader)
+    return config[key]["url"]

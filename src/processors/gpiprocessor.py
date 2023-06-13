@@ -2,6 +2,7 @@ from ontobio.io.entityparser import GpiParser
 from typing import List
 from pathlib import Path
 
+
 class GpiProcessor:
     """
     A class for processing GPI (Gene Product Information) files.

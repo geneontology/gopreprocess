@@ -1,7 +1,8 @@
-MGI:
-  mgi_goa_url: ftp.ebi.ac.uk/pub/databases/GO/goa/MOUSE/goa_mouse.gaf.gz
-  mgi_gpi_url: http://snapshot.geneontology.org/annotations/mgi.gpi.gz
-Ortho:
-  alliance_ortho_url: https://fms.alliancegenome.org/download/ORTHOLOGY-ALLIANCE-JSON_COMBINED.json.gz
+MGI_GAF:
+  url: ftp.ebi.ac.uk/pub/databases/GO/goa/MOUSE/goa_mouse.gaf.gz
+MGI_GPI:
+  url: http://snapshot.geneontology.org/annotations/mgi.gpi.gz
+ORTHO:
+  url: https://fms.alliancegenome.org/download/ORTHOLOGY-ALLIANCE-JSON_COMBINED.json.gz
 RGD:
-  rgd_gaf_url: http://snapshot.geneontology.org/annotations/rgd.gaf.gz
+  url: http://snapshot.geneontology.org/annotations/rgd.gaf.gz
