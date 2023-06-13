@@ -36,7 +36,7 @@ class GafProcessor:
                     if (type(rgd_assoc)) == dict:
                         continue
                     else:
-                        if rgd_assoc.negated:
+                        if rgd_assoc.negated:  # no negated annotations from ortho sources
                             continue
                         else:
                             if rgd_assoc.subject.id.namespace in self.namespaces:  # only RGD or UniProtKB annotations
