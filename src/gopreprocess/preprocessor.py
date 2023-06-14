@@ -109,7 +109,6 @@ def generate_annotation(annotation: GoAssociation, gene_map: dict, target_genes:
     annotation.subject.label = target_genes[str(annotation.subject.id)]["label"]
     annotation.subject.type = target_genes[str(annotation.subject.id)].get("type")
 
-    print(annotation)
     return annotation
 
 
