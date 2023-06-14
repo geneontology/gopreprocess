@@ -13,7 +13,6 @@ mouse_taxon = "NCBITaxon:10090"
 rat_taxon = "NCBITaxon:10116"
 human_taxon = "NCBITaxon:9606"
 iso_code = "0000266"
-protein_coding_gene = "SO:0001217"
 ortho_reference = "0000096"
 
 
@@ -34,7 +33,7 @@ def preprocess() -> None:
     print("time to execute", end - start)
 
     print("target species gpi parsing...")
-    target_genes = GpiProcessor(mgi_gpi_path).genes
+    target_genes = GpiProcessor(mgi_gpi_path).target_genes
     end = time.time()
     print("time to execute", end - start)
 
