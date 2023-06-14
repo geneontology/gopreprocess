@@ -32,15 +32,18 @@ def preprocess() -> None:
     ortho_path, rgd_gaf_path, mgi_gpi_path = download_files()
     end = time.time()
     print("time to execute", end - start)
-    print("source species gpi parsing...")
-    source_genes = GpiProcessor(mgi_gpi_path).genes
+
+    print("target species gpi parsing...")
+    target_genes = GpiProcessor(mgi_gpi_path).genes
     end = time.time()
     print("time to execute", end - start)
+
     print("orthology file parsing...")
-    rat_genes = OrthoProcessor(source_genes, ortho_path, mouse_taxon, rat_taxon).genes
+    rat_genes = OrthoProcessor(target_genes, ortho_path, mouse_taxon, rat_taxon).genes
     end = time.time()
     print("time to execute", end - start)
-    print("ortho species gaf file parsing...")
+
+    print("source gaf file parsing...")
     rgd_annotations = GafProcessor(rat_genes, rgd_gaf_path, namespaces=namespaces).convertible_annotations
     end = time.time()
     print("time to execute", end - start)
@@ -49,12 +52,14 @@ def preprocess() -> None:
     # the appropriate ortholog relationship to a mouse gene in the MGI GPI file
     rat_gene_set = set(rat_genes.keys())
     converted_mgi_annotations.append(["!gaf-version: 2.2"])
+
     print("converting annotations...")
     for annotation in rgd_annotations:
         if str(annotation.subject.id) in rat_gene_set:
-            new_annotation = generate_annotation(annotation, rat_genes, source_genes)  # generate the annotation based on orthology
+            new_annotation = generate_annotation(annotation, rat_genes, target_genes)  # generate the annotation based on orthology
             converted_mgi_annotations.append(new_annotation.to_gaf_2_2_tsv())
     end = time.time()
+
     print("time to execute", end - start)
     # using pandas in order to take advantage of pystow in terms of file location and handling
     # again; pandas is a bit overkill.
@@ -75,13 +80,13 @@ def preprocess() -> None:
     print("time to execute", end - start)
 
 
-def generate_annotation(annotation: GoAssociation, gene_map: dict, source_genes: dict) -> GoAssociation:
+def generate_annotation(annotation: GoAssociation, gene_map: dict, target_genes: dict) -> GoAssociation:
     """
     Generates a new annotation based on ortholog assignments.
 
     :param annotation: The original annotation.
     :param gene_map: A dictionary mapping rat gene IDs to mouse gene IDs.
-    :param source_genes: A dict of dictionaries containing the source gene details.
+    :param target_genes: A dict of dictionaries containing the target gene details.
     :returns: The new generated annotation.
 
     :raises KeyError: If the gene ID is not found in the gene map.
@@ -101,12 +106,9 @@ def generate_annotation(annotation: GoAssociation, gene_map: dict, source_genes:
     if annotation.provided_by == "RGD":
         annotation.provided_by = "MGI"
 
-    print(source_genes[str(annotation.subject.id)])
-
-    annotation.subject.fullname = source_genes[str(annotation.subject.id)]["fullname"]
-    annotation.subject.label = source_genes[str(annotation.subject.id)]["label"]
-    annotation.subject.synonyms = source_genes[str(annotation.subject.id)]["synonyms"]
-    annotation.subject.type = source_genes[str(annotation.subject.id)].get("type")
+    annotation.subject.fullname = target_genes[str(annotation.subject.id)]["fullname"]
+    annotation.subject.label = target_genes[str(annotation.subject.id)]["label"]
+    annotation.subject.type = target_genes[str(annotation.subject.id)].get("type")
 
     print(annotation)
     return annotation
