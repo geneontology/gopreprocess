@@ -2,7 +2,7 @@ from src.processors.orthoprocessor import OrthoProcessor
 from src.processors.gafprocessor import GafProcessor
 from src.processors.gpiprocessor import GpiProcessor
 from src.utils.download import download_files
-from ontobio.model.association import GoAssociation, Curie
+from ontobio.model.association import GoAssociation, Curie, map_gp_type_label_to_curie
 import time
 import pandas as pd
 import pystow
@@ -102,6 +102,7 @@ def generate_annotation(annotation: GoAssociation, gene_map: dict, target_genes:
     annotation.subject.label = ""
     annotation.subject.synonyms = []
     annotation.object.taxon = Curie.from_str(mouse_taxon)
+    annotation.subject.type = map_gp_type_label_to_curie(target_genes[str(annotation.subject.id)]["type"])
     if annotation.provided_by == "RGD":
         annotation.provided_by = "MGI"
 
