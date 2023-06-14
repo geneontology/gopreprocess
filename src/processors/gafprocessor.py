@@ -3,6 +3,7 @@ from ontobio.io.gafparser import GafParser
 from typing import List
 from pathlib import Path
 
+
 def get_experimental_eco_codes(ecomap) -> List[str]:
     """
     Retrieves a list of experimental evidence codes from the given EcoMap.

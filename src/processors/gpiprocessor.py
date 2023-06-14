@@ -39,7 +39,8 @@ class GpiProcessor:
                     continue
                 else:
                     for gene in gpi_object:
-                        genes[str(gene.get("id")[4:])] = {  # remove MGI:MGI: prefix
+                        genes[str(gene.get("id"))] = {
+                                    "id": gene.get("id"),
                                     "fullname": gene.get("full_name"),
                                     "label": gene.get("label"),
                                     "type": gene.get("type")
