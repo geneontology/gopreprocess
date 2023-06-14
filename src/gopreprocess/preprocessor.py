@@ -10,9 +10,9 @@ import pystow
 from typing import Mapping
 
 namespaces = ["RGD", "UniProtKB"]
-mouse_taxon = "NCBITaxon:10090"
-rat_taxon = "NCBITaxon:10116"
-human_taxon = "NCBITaxon:9606"
+mouse_taxon = "taxon:10090"
+rat_taxon = "taxon:10116"
+human_taxon = "taxon:9606"
 iso_code = "0000266"
 protein_coding_gene = "SO:0001217"
 ortho_reference = "0000096"
@@ -73,20 +73,20 @@ def generate_annotation(annotation: GoAssociation, gene_map: dict) -> GoAssociat
 
     :raises KeyError: If the gene ID is not found in the gene map.
     """
-    new_evidence_type = Curie(namespace='ECO', identity=iso_code)  # all annotations via ortho should have this ECO code
-    new_subject = Subject(
-        id=Curie(namespace='MGI', identity=gene_map[str(annotation.subject.id)]),
-        type=[protein_coding_gene],
-        taxon=Curie.from_str(mouse_taxon),
-        fullname=[],
-        label="",
-        synonyms=[]
-    )  # rewrite with MGI gene ID
-    new_has_supporting_reference = Curie(namespace='GO_REF', identity=ortho_reference)
-    annotation.evidence.has_supporting_reference = [new_has_supporting_reference]
-    annotation.evidence.type = new_evidence_type
-    annotation.subject = new_subject
+    # rewrite with MGI gene ID
+    annotation.evidence.has_supporting_reference = [Curie(namespace='GO_REF', identity=ortho_reference)]
+    annotation.evidence.type = Curie(namespace='ECO', identity=iso_code) # all annotations via ortho should have this ECO code
 
+    # not sure why this is necessary, but it is, else we get a Subject with an extra tuple wrapper
+    annotation.subject.id = Curie(namespace='MGI', identity=gene_map[str(annotation.subject.id)])
+    annotation.subject.taxon = Curie.from_str(mouse_taxon)
+    annotation.subject.fullname = []
+    annotation.subject.label = ""
+    annotation.subject.synonyms = []
+    annotation.object.taxon.namespace = 'taxon'
+    annotation.object.taxon = Curie.from_str(mouse_taxon)
+    if annotation.provided_by == "RGD":
+        annotation.provided_by = "MGI"
     return annotation
 
 
