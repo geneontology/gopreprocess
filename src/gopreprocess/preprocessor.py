@@ -38,24 +38,24 @@ def preprocess() -> None:
     print("time to execute", end - start)
 
     print("orthology file parsing...")
-    rat_genes = OrthoProcessor(target_genes, ortho_path, mouse_taxon, rat_taxon).genes
+    source_genes = OrthoProcessor(target_genes, ortho_path, mouse_taxon, rat_taxon).genes
     end = time.time()
     print("time to execute", end - start)
 
     print("source gaf file parsing...")
-    rgd_annotations = GafProcessor(rat_genes, rgd_gaf_path, namespaces=namespaces).convertible_annotations
+    rgd_annotations = GafProcessor(source_genes, rgd_gaf_path, namespaces=namespaces).convertible_annotations
     end = time.time()
     print("time to execute", end - start)
 
     # just for performance of the check below for rat genes in the RGD GAF file that have
     # the appropriate ortholog relationship to a mouse gene in the MGI GPI file
-    rat_gene_set = set(rat_genes.keys())
+    source_gene_set = set(source_genes.keys())
     converted_mgi_annotations.append(["!gaf-version: 2.2"])
 
     print("converting annotations...")
     for annotation in rgd_annotations:
-        if str(annotation.subject.id) in rat_gene_set:
-            new_annotation = generate_annotation(annotation, rat_genes, target_genes)  # generate the annotation based on orthology
+        if str(annotation.subject.id) in source_gene_set:
+            new_annotation = generate_annotation(annotation, source_genes, target_genes)  # generate the annotation based on orthology
             converted_mgi_annotations.append(new_annotation.to_gaf_2_2_tsv())
     end = time.time()
 
@@ -84,7 +84,7 @@ def generate_annotation(annotation: GoAssociation, gene_map: dict, target_genes:
     Generates a new annotation based on ortholog assignments.
 
     :param annotation: The original annotation.
-    :param gene_map: A dictionary mapping rat gene IDs to mouse gene IDs.
+    :param gene_map: A dictionary mapping source gene IDs to mouse gene IDs.
     :param target_genes: A dict of dictionaries containing the target gene details.
     :returns: The new generated annotation.
 
@@ -93,7 +93,7 @@ def generate_annotation(annotation: GoAssociation, gene_map: dict, target_genes:
 
     # rewrite with MGI gene ID
     annotation.evidence.has_supporting_reference = [Curie(namespace='GO_REF', identity=ortho_reference)]
-    annotation.evidence.type = Curie(namespace='ECO', identity=iso_code) # all annotations via ortho should have this ECO code
+    annotation.evidence.type = Curie(namespace='ECO', identity=iso_code)  # all annotations via ortho should have this ECO code
 
     # not sure why this is necessary, but it is, else we get a Subject with an extra tuple wrapper
     annotation.subject.id = Curie(namespace='MGI', identity=gene_map[str(annotation.subject.id)])
@@ -102,7 +102,11 @@ def generate_annotation(annotation: GoAssociation, gene_map: dict, target_genes:
     annotation.subject.label = ""
     annotation.subject.synonyms = []
     annotation.object.taxon = Curie.from_str(mouse_taxon)
-    annotation.subject.type = map_gp_type_label_to_curie(target_genes[str(annotation.subject.id)]["type"])
+
+    # have to convert these to curies in order for the conversion to GAF 2.2 type to return anything other than
+    # default 'gene_product' -- in ontobio, when this is a list, we just take the first item.
+    print(map_gp_type_label_to_curie(target_genes[str(annotation.subject.id)]["type"][0]))
+    annotation.subject.type = map_gp_type_label_to_curie(target_genes[str(annotation.subject.id)]["type"][0])
     if annotation.provided_by == "RGD":
         annotation.provided_by = "MGI"
 

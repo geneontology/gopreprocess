@@ -63,22 +63,22 @@ class GafProcessor:
         with open(self.filepath, 'r') as file:
             for line in file:
                 annotation = p.parse_line(line)
-                for rgd_assoc in annotation.associations:
-                    if isinstance(rgd_assoc, dict):
+                for source_assoc in annotation.associations:
+                    if isinstance(source_assoc, dict):
                         continue
-                    if rgd_assoc.negated:
+                    if source_assoc.negated:
                         continue
-                    if rgd_assoc.subject.id.namespace not in self.namespaces:
+                    if source_assoc.subject.id.namespace not in self.namespaces:
                         continue
-                    if rgd_assoc.evidence in experimental_evidence_codes:
+                    if source_assoc.evidence in experimental_evidence_codes:
                         continue
-                    if rgd_assoc.provided_by == 'MGI':
+                    if source_assoc.provided_by == 'MGI':
                         continue
                     has_pmid_reference = any(
-                        reference.namespace == "PMID" for reference in rgd_assoc.evidence.has_supporting_reference)
+                        reference.namespace == "PMID" for reference in source_assoc.evidence.has_supporting_reference)
                     if not has_pmid_reference:
                         continue
-                    if rgd_assoc.object.id in ['GO:0005515', 'GO:0005488']:
+                    if source_assoc.object.id in ['GO:0005515', 'GO:0005488']:
                         continue
 
-                    self.convertible_annotations.append(rgd_assoc)
+                    self.convertible_annotations.append(source_assoc)

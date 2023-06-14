@@ -44,6 +44,6 @@ class OrthoProcessor:
         target_gene_set = set(self.target_genes.keys())
         for pair in data.get('data'):
             if pair.get('Gene1SpeciesTaxonID') == self.taxon1 and pair.get('Gene2SpeciesTaxonID') == self.taxon2:
-                if "MGI:"+str(pair.get('Gene1ID')) in target_gene_set:  # Exclude any ortho pairs where the Mouse gene isn't in the GPI file.
-                    genes[pair.get('Gene2ID')] = pair.get('Gene1ID')  # rat gene id: mouse gene id
+                if "MGI:"+str(pair.get('Gene1ID')) in target_gene_set:  # Exclude any ortho pairs where the target gene (mouse) isn't in the GPI file.
+                    genes[pair.get('Gene2ID')] = pair.get('Gene1ID')  # source gene id: target gene id, e.g. rat gene id : mouse gene id
         return genes
