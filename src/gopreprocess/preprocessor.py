@@ -37,23 +37,23 @@ def preprocess() -> None:
     # just for performance of the check below for rat genes in the RGD GAF file that have
     # the appropriate ortholog relationship to a mouse gene in the MGI GPI file
     rat_gene_set = set(rat_genes.keys())
-    converted_mgi_annotations.append(["!gpa-version: 2.0"])
+    converted_mgi_annotations.append(["!gaf-version: 2.2"])
     for annotation in rgd_annotations:
         if str(annotation.subject.id) in rat_gene_set:
             new_annotation = generate_annotation(annotation, rat_genes)  # generate the annotation based on orthology
-            converted_mgi_annotations.append(new_annotation.to_gpad_2_0_tsv())
+            converted_mgi_annotations.append(new_annotation.to_gaf_2_2_tsv())
 
     # using pandas in order to take advantage of pystow in terms of file location and handling
     # again; pandas is a bit overkill.
     df = pd.DataFrame(converted_mgi_annotations)
     pystow.dump_df(key="MGI",
                    obj=df,
-                   name="mgi.gpad.gz",
+                   name="mgi-rgd-ortho.gaf.gz",
                    to_csv_kwargs={"index": False, "header": False, "compression": "gzip"},
                    sep="\t")
     pystow.dump_df(key="MGI",
                    obj=df,
-                   name="mgi-test.gpad",
+                   name="mgi-rgd-ortho-test.gaf",
                    to_csv_kwargs={"index": False, "header": False},
                    sep="\t")
 
