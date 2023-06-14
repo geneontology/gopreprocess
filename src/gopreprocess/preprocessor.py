@@ -40,7 +40,7 @@ def preprocess() -> None:
     converted_mgi_annotations.append(["!gaf-version: 2.2"])
     for annotation in rgd_annotations:
         if str(annotation.subject.id) in rat_gene_set:
-            new_annotation = generate_annotation(annotation, rat_genes)  # generate the annotation based on orthology
+            new_annotation = generate_annotation(annotation, rat_genes, source_genes)  # generate the annotation based on orthology
             converted_mgi_annotations.append(new_annotation.to_gaf_2_2_tsv())
 
     # using pandas in order to take advantage of pystow in terms of file location and handling

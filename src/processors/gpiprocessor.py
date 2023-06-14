@@ -24,15 +24,14 @@ class GpiProcessor:
         :type filepath: str
         """
         self.filepath = filepath
-        self.genes: List[str] = []
-        self.parse_gpi()
+        self.genes = self.parse_gpi()
 
-    def parse_gpi(self):
+    def parse_gpi(self) -> List[dict]:
         """
         Parses the GPI file and extracts the gene IDs.
         """
         p = GpiParser()
-
+        genes = []
         with open(self.filepath, 'r') as file:
             for line in file:
                 original_line, gpi_object = p.parse_line(line)
@@ -40,4 +39,9 @@ class GpiProcessor:
                     continue
                 else:
                     for gene in gpi_object:
-                        self.genes.append(gene.get("id")[4:])  # remove MGI:MGI: prefix
+                        genes.append({"id": gene.get("id")[4:],  # remove MGI:MGI: prefix
+                                           "fullname": gene.get("full_name"),
+                                           "label": gene.get("label"),
+                                           "type": gene.get("type")})
+
+        return genes
