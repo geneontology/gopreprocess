@@ -91,9 +91,10 @@ def generate_annotation(annotation: GoAssociation, gene_map: dict, source_genes:
     # get mouse gene details
     for gene in source_genes:
         if gene["id"] == str(annotation.subject.id):
-            annotation.subject.fullname = [gene["fullname"]]
-            annotation.subject.label = gene["label"]
-            annotation.subject.synonyms = gene["synonyms"]
+            annotation.subject.fullname = gene.get("fullname")
+            annotation.subject.label = gene.get("label")
+            annotation.subject.synonyms = gene.get("synonyms")
+            annotation.subject.type = gene.get("type")
             break
 
     return annotation
