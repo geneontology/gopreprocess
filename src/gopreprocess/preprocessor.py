@@ -2,12 +2,11 @@ from src.processors.orthoprocessor import OrthoProcessor
 from src.processors.gafprocessor import GafProcessor
 from src.processors.gpiprocessor import GpiProcessor
 from src.utils.download import download_files
-from ontobio.model.association import GoAssociation, Curie, Subject
-from ontobio.io.assocwriter import GpadWriter
+from ontobio.model.association import GoAssociation, Curie
 import time
 import pandas as pd
 import pystow
-from typing import List
+from typing import List, Dict
 
 namespaces = ["RGD", "UniProtKB"]
 mouse_taxon = "NCBITaxon:10090"
@@ -62,13 +61,13 @@ def preprocess() -> None:
     print("time to execute", end - start)
 
 
-def generate_annotation(annotation: GoAssociation, gene_map: dict, source_genes: List[dict]) -> GoAssociation:
+def generate_annotation(annotation: GoAssociation, gene_map: dict, source_genes: dict) -> GoAssociation:
     """
     Generates a new annotation based on ortholog assignments.
 
     :param annotation: The original annotation.
     :param gene_map: A dictionary mapping rat gene IDs to mouse gene IDs.
-
+    :param source_genes: A dict of dictionaries containing the source gene details.
     :returns: The new generated annotation.
 
     :raises KeyError: If the gene ID is not found in the gene map.
@@ -88,15 +87,11 @@ def generate_annotation(annotation: GoAssociation, gene_map: dict, source_genes:
     if annotation.provided_by == "RGD":
         annotation.provided_by = "MGI"
 
-    # get mouse gene details
-    for gene in source_genes:
-        if gene["id"] == str(annotation.subject.id):
-            annotation.subject.fullname = gene.get("fullname")
-            annotation.subject.label = gene.get("label")
-            annotation.subject.synonyms = gene.get("synonyms")
-            annotation.subject.type = gene.get("type")
-            break
-
+    annotation.subject.fullname = source_genes[str(annotation.subject.id)].get("fullname")
+    annotation.subject.label = source_genes[str(annotation.subject.id)].get("label")
+    annotation.subject.synonyms = source_genes[str(annotation.subject.id)].get("synonyms")
+    annotation.subject.type = source_genes[str(annotation.subject.id)].get("type")
+    print(annotation)
     return annotation
 
 

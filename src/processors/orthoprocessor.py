@@ -13,7 +13,7 @@ class OrthoProcessor:
     :param taxon2: Taxon ID of the second species.
     """
 
-    def __init__(self, source_genes: List[dict], filepath: Path, taxon1: str, taxon2: str):
+    def __init__(self, source_genes: dict, filepath: Path, taxon1: str, taxon2: str):
         """
         Initializes an instance of the OrthoProcessor.
 
@@ -41,7 +41,7 @@ class OrthoProcessor:
             data = json.load(file)
 
         genes = {}
-        source_gene_set = set([gene.get("id") for gene in self.source_genes])
+        source_gene_set = set(self.source_genes.keys())
         for pair in data.get('data'):
             if pair.get('Gene1SpeciesTaxonID') == self.taxon1 and pair.get('Gene2SpeciesTaxonID') == self.taxon2:
                 if pair.get('Gene1ID') in source_gene_set:  # Exclude any ortho pairs where the Mouse gene isn't in the GPI file.
