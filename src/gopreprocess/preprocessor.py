@@ -98,21 +98,20 @@ def generate_annotation(annotation: GoAssociation, gene_map: dict, target_genes:
     # not sure why this is necessary, but it is, else we get a Subject with an extra tuple wrapper
     annotation.subject.id = Curie(namespace='MGI', identity=gene_map[str(annotation.subject.id)])
     annotation.subject.taxon = Curie.from_str(mouse_taxon)
-    annotation.subject.fullname = []
-    annotation.subject.label = ""
     annotation.subject.synonyms = []
     annotation.object.taxon = Curie.from_str(mouse_taxon)
 
     # have to convert these to curies in order for the conversion to GAF 2.2 type to return anything other than
     # default 'gene_product' -- in ontobio, when this is a list, we just take the first item.
-    print(map_gp_type_label_to_curie(target_genes[str(annotation.subject.id)]["type"][0]))
-    annotation.subject.type = map_gp_type_label_to_curie(target_genes[str(annotation.subject.id)]["type"][0])
     if annotation.provided_by == "RGD":
         annotation.provided_by = "MGI"
 
     annotation.subject.fullname = target_genes[str(annotation.subject.id)]["fullname"]
     annotation.subject.label = target_genes[str(annotation.subject.id)]["label"]
-    annotation.subject.type = target_genes[str(annotation.subject.id)].get("type")
+
+    # have to convert these to curies in order for the conversion to GAF 2.2 type to return anything other than
+    # default 'gene_product' -- in ontobio, when this is a list, we just take the first item.
+    annotation.subject.type = map_gp_type_label_to_curie(target_genes[str(annotation.subject.id)].get("type")[0])
 
     return annotation
 
