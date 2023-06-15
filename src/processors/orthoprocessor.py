@@ -1,5 +1,4 @@
 import json
-from typing import List
 from pathlib import Path
 from src.utils.decorators import timer
 
@@ -34,7 +33,7 @@ class OrthoProcessor:
     @timer
     def retrieve_ortho_map(self):
         """
-        Retrieves orthology data between the two taxa.
+        Retrieves ortholog data between the two taxa.
 
         :return: A dictionary mapping rat gene IDs to corresponding mouse gene IDs.
         """
