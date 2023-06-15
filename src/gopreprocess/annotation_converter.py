@@ -27,12 +27,12 @@ def dump_converted_annotations(converted_target_annotations: List[List[str]],
     df = pd.DataFrame(converted_target_annotations)
     pystow.dump_df(key=taxon_to_provider[target_taxon],
                    obj=df,
-                   name=taxon_to_provider[target_taxon] + "-" + taxon_to_provider[source_taxon] + "ortho.gaf.gz",
+                   name=taxon_to_provider[target_taxon].lower() + "-" + taxon_to_provider[source_taxon].lower() + "ortho.gaf.gz",
                    to_csv_kwargs={"index": False, "header": False, "compression": "gzip"},
                    sep="\t")
     pystow.dump_df(key=taxon_to_provider[target_taxon],
                    obj=df,
-                   name=taxon_to_provider[target_taxon] + "-" + taxon_to_provider[source_taxon] + "ortho.gaf",
+                   name=taxon_to_provider[target_taxon].lower()  + "-" + taxon_to_provider[source_taxon].lower() + "ortho.gaf",
                    to_csv_kwargs={"index": False, "header": False},
                    sep="\t")
 
@@ -45,7 +45,7 @@ class AnnotationConverter:
         self.namespaces = namespaces
         self.target_taxon = target_taxon
         self.source_taxon = source_taxon
-        self.iso_code = iso_eco_code[4:]       # we always want the ECO code for "inferred from sequence similarity"
+        self.iso_code = iso_eco_code[4:]  # we always want the ECO code for "inferred from sequence similarity"
         self.ortho_reference = ortho_reference.split(":")[1]
 
     @timer
