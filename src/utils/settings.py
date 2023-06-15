@@ -1,5 +1,4 @@
 import logging
-from enum import Enum
 from os import path
 
 import yaml

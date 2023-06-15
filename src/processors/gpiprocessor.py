@@ -3,6 +3,7 @@ from typing import List
 from pathlib import Path
 from src.utils.decorators import timer
 
+
 class GpiProcessor:
     """
     A class for processing GPI (Gene Product Information) files.
