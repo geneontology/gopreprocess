@@ -3,12 +3,13 @@ from typing import List
 from pathlib import Path
 from src.utils.decorators import timer
 
+
 class OrthoProcessor:
     """
-    Represents a processor for orthology data between two taxa.
+    Represents a processor for ortholog data between two taxa.
 
     :param target_genes: List of partner genes.
-    :param filepath: Path to the orthology data file.
+    :param filepath: Path to the ortholog data file.
     :param taxon1: Taxon ID of the first species.
     :param taxon2: Taxon ID of the second species.
     """
@@ -18,7 +19,7 @@ class OrthoProcessor:
         Initializes an instance of the OrthoProcessor.
 
         :param target_genes: List of source genes.
-        :param filepath: Path to the orthology data file.
+        :param filepath: Path to the ortholog data file.
         :param taxon1: Taxon ID of the first species.
         :param taxon2: Taxon ID of the second species.
         """
