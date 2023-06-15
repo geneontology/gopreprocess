@@ -2,6 +2,7 @@ from ontobio.ecomap import EcoMap
 from ontobio.io.gafparser import GafParser
 from typing import List
 from pathlib import Path
+from ontobio.io.qc import GoRules, GoRule, GoRulesResults
 
 
 def get_experimental_eco_codes(ecomap) -> List[str]:

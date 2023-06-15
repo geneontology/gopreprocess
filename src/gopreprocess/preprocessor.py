@@ -6,7 +6,7 @@ from ontobio.model.association import GoAssociation, Curie, map_gp_type_label_to
 import time
 import pandas as pd
 import pystow
-from typing import List, Dict
+from src.utils.settings import get_url
 
 namespaces = ["RGD", "UniProtKB"]
 mouse_taxon = "NCBITaxon:10090"
@@ -56,6 +56,7 @@ def preprocess() -> None:
     for annotation in rgd_annotations:
         if str(annotation.subject.id) in source_gene_set:
             new_annotation = generate_annotation(annotation, source_genes, target_genes)  # generate the annotation based on orthology
+
             converted_mgi_annotations.append(new_annotation.to_gaf_2_2_tsv())
     end = time.time()
 
@@ -75,7 +76,6 @@ def preprocess() -> None:
                    sep="\t")
 
     end = time.time()
-
     print("time to execute", end - start)
 
 
@@ -111,8 +111,6 @@ def generate_annotation(annotation: GoAssociation, gene_map: dict, target_genes:
 
     # have to convert these to curies in order for the conversion to GAF 2.2 type to return anything other than
     # default 'gene_product' -- in ontobio, when this is a list, we just take the first item.
-    print(target_genes[str(annotation.subject.id)].get("type")[0])
-    print(map_gp_type_label_to_curie(target_genes[str(annotation.subject.id)].get("type")[0]))
     annotation.subject.type = [map_gp_type_label_to_curie(target_genes[str(annotation.subject.id)].get("type")[0])]
 
     return annotation
