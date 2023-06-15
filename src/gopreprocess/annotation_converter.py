@@ -71,15 +71,15 @@ class AnnotationConverter:
 
         # just for performance of the check below for rat genes in the RGD GAF file that have
         # the appropriate ortholog relationship to a mouse gene in the MGI GPI file
-
         source_gene_set = set(source_genes.keys())
         converted_target_annotations.append(["!gaf-version: 2.2"])
 
         for annotation in source_annotations:
             if str(annotation.subject.id) in source_gene_set:
+                # generate the target annotation based on the source annotation
                 new_annotation = self.generate_annotation(annotation,
                                                           source_genes,
-                                                          target_genes)  # generate the target annotation based on the source annotation
+                                                          target_genes)
                 converted_target_annotations.append(new_annotation.to_gaf_2_2_tsv())
 
         dump_converted_annotations(converted_target_annotations,
@@ -101,7 +101,7 @@ class AnnotationConverter:
         """
 
         # make with_from include original RGD id
-        subject_with_from = ConjunctiveSet(elements=[Curie(namespace=annotation.provided_by,
+        subject_with_from = ConjunctiveSet(elements=[Curie(namespace=annotation.subject.id.namespace,
                                                            identity=annotation.subject.id.identity)])
         annotation.evidence.with_support_from.append(subject_with_from)
         annotation.evidence.has_supporting_reference = [Curie(namespace='GO_REF', identity=self.ortho_reference)]

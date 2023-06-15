@@ -80,7 +80,6 @@ class GafProcessor:
                         continue
                     if source_assoc.evidence in experimental_evidence_codes:
                         continue
-                    # TODO: make this a parameter so that we can choose which sources to include
                     if source_assoc.provided_by == self.taxon_to_provider[self.target_taxon]:
                         continue
                     has_pmid_reference = any(
