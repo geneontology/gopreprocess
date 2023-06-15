@@ -36,7 +36,11 @@ def configure_parser() -> GafParser:
 
 
 class GafProcessor:
-    def __init__(self, genes: List, filepath: Path, namespaces: List):
+    def __init__(self, genes: List,
+                 filepath: Path,
+                 namespaces: List,
+                 taxon_to_provider: dict,
+                 target_taxon: str):
         """
         Initializes a GafProcessor object.
 
@@ -51,6 +55,8 @@ class GafProcessor:
         self.ortho_genes = genes
         self.namespaces = namespaces
         self.convertible_annotations = []
+        self.taxon_to_provider = taxon_to_provider
+        self.target_taxon = target_taxon
         self.parse_gaf()
 
     @timer
@@ -74,7 +80,8 @@ class GafProcessor:
                         continue
                     if source_assoc.evidence in experimental_evidence_codes:
                         continue
-                    if source_assoc.provided_by == 'MGI':
+                    # TODO: make this a parameter so that we can choose which sources to include
+                    if source_assoc.provided_by == self.taxon_to_provider[self.target_taxon]:
                         continue
                     has_pmid_reference = any(
                         reference.namespace == "PMID" for reference in source_assoc.evidence.has_supporting_reference)

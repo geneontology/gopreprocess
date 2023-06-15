@@ -65,6 +65,8 @@ class AnnotationConverter:
         source_genes = OrthoProcessor(target_genes, ortho_path, self.target_taxon, self.source_taxon).genes
         source_annotations = GafProcessor(source_genes,
                                           source_gaf_path,
+                                          taxon_to_provider=taxon_to_provider,
+                                          target_taxon=self.target_taxon,
                                           namespaces=self.namespaces).convertible_annotations
 
         # just for performance of the check below for rat genes in the RGD GAF file that have
