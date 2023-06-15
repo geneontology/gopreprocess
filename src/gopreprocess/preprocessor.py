@@ -1,99 +1,101 @@
 from src.processors.orthoprocessor import OrthoProcessor
 from src.processors.gafprocessor import GafProcessor
 from src.processors.gpiprocessor import GpiProcessor
+from ontobio.model.association import Curie
+from ontobio.model.association import map_gp_type_label_to_curie
 from src.utils.download import download_files
 from src.utils.decorators import timer
-from ontobio.model.association import GoAssociation, Curie, map_gp_type_label_to_curie
-import time
+from ontobio.model.association import GoAssociation
 import pandas as pd
 import pystow
-
-namespaces = ["RGD", "UniProtKB"]
-mouse_taxon = "NCBITaxon:10090"
-rat_taxon = "NCBITaxon:10116"
-human_taxon = "NCBITaxon:9606"
-iso_code = "0000266"
-ortho_reference = "0000096"
+from typing import List
 
 
-@timer
-def preprocess() -> None:
-    """
-    Preprocesses the annotations by converting them based on ortholog relationships.
+class AnnotationConverter:
+    def __init__(self, namespaces: List[str],
+                 target_taxon: str,
+                 source_taxon: str,
+                 iso_code: str,
+                 ortho_reference: str):
+        self.namespaces = namespaces
+        self.target_taxon = target_taxon
+        self.source_taxon = source_taxon
+        self.iso_code = iso_code
+        self.ortho_reference = ortho_reference
 
-    :returns: None
-    """
-    converted_mgi_annotations = []
+    @timer
+    def convert_annotations(self) -> None:
+        """
+        Convert source species annotations to target species annotations based on ortholog relationships
+        between the source and target species.
 
-    # assemble data structures needed to convert annotations via ortholog relationships.
-    ortho_path, rgd_gaf_path, mgi_gpi_path = download_files()
-    target_genes = GpiProcessor(mgi_gpi_path).target_genes
-    source_genes = OrthoProcessor(target_genes, ortho_path, mouse_taxon, rat_taxon).genes
+        :returns: None
+        """
+        converted_target_annotations = []
 
-    rgd_annotations = GafProcessor(source_genes, rgd_gaf_path, namespaces=namespaces).convertible_annotations
+        # assemble data structures needed to convert annotations: including the ortholog map,
+        # the target genes data structure, and the source genes data structure.
+        ortho_path, source_gaf_path, target_gpi_path = download_files()
+        target_genes = GpiProcessor(target_gpi_path).target_genes
+        source_genes = OrthoProcessor(target_genes, ortho_path, self.target_taxon, self.source_taxon).genes
+        source_annotations = GafProcessor(source_genes, source_gaf_path, namespaces=self.namespaces).convertible_annotations
 
-    # just for performance of the check below for rat genes in the RGD GAF file that have
-    # the appropriate ortholog relationship to a mouse gene in the MGI GPI file
-    source_gene_set = set(source_genes.keys())
-    converted_mgi_annotations.append(["!gaf-version: 2.2"])
+        # just for performance of the check below for rat genes in the RGD GAF file that have
+        # the appropriate ortholog relationship to a mouse gene in the MGI GPI file
 
-    for annotation in rgd_annotations:
-        if str(annotation.subject.id) in source_gene_set:
-            new_annotation = generate_annotation(annotation, source_genes, target_genes)  # generate the annotation based on orthology
+        source_gene_set = set(source_genes.keys())
+        converted_target_annotations.append(["!gaf-version: 2.2"])
 
-            converted_mgi_annotations.append(new_annotation.to_gaf_2_2_tsv())
+        for annotation in source_annotations:
+            if str(annotation.subject.id) in source_gene_set:
+                new_annotation = self.generate_annotation(annotation, source_genes, target_genes)  # generate the annotation based on
+                converted_target_annotations.append(new_annotation.to_gaf_2_2_tsv())
 
-    # using pandas in order to take advantage of pystow in terms of file location and handling
-    # again; pandas is a bit overkill.
-    df = pd.DataFrame(converted_mgi_annotations)
-    pystow.dump_df(key="MGI",
-                   obj=df,
-                   name="mgi-rgd-ortho.gaf.gz",
-                   to_csv_kwargs={"index": False, "header": False, "compression": "gzip"},
-                   sep="\t")
-    pystow.dump_df(key="MGI",
-                   obj=df,
-                   name="mgi-rgd-ortho-test.gaf",
-                   to_csv_kwargs={"index": False, "header": False},
-                   sep="\t")
+        # using pandas in order to take advantage of pystow in terms of file location and handling
+        # again; pandas is a bit overkill.
+        df = pd.DataFrame(converted_target_annotations)
+        pystow.dump_df(key="MGI",
+                       obj=df,
+                       name="mgi-rgd-ortho.gaf.gz",
+                       to_csv_kwargs={"index": False, "header": False, "compression": "gzip"},
+                       sep="\t")
+        pystow.dump_df(key="MGI",
+                       obj=df,
+                       name="mgi-rgd-ortho-test.gaf",
+                       to_csv_kwargs={"index": False, "header": False},
+                       sep="\t")
 
+    def generate_annotation(self, annotation: GoAssociation, gene_map: dict, target_genes: dict) -> GoAssociation:
+        """
+        Generates a new annotation based on ortholog assignments.
 
-def generate_annotation(annotation: GoAssociation, gene_map: dict, target_genes: dict) -> GoAssociation:
-    """
-    Generates a new annotation based on ortholog assignments.
+        :param annotation: The original annotation.
+        :param gene_map: A dictionary mapping source gene IDs to mouse gene IDs.
+        :param target_genes: A dict of dictionaries containing the target gene details.
+        :returns: The new generated annotation.
+        :raises KeyError: If the gene ID is not found in the gene map.
+        """
 
-    :param annotation: The original annotation.
-    :param gene_map: A dictionary mapping source gene IDs to mouse gene IDs.
-    :param target_genes: A dict of dictionaries containing the target gene details.
-    :returns: The new generated annotation.
+        # rewrite with MGI gene ID
+        annotation.evidence.has_supporting_reference = [Curie(namespace='GO_REF', identity=self.ortho_reference)]
+        annotation.evidence.type = Curie(namespace='ECO', identity=self.iso_code)  # all annotations via ortho should have this ECO c
 
-    :raises KeyError: If the gene ID is not found in the gene map.
-    """
+        # not sure why this is necessary, but it is, else we get a Subject with an extra tuple wrapper
+        annotation.subject.id = Curie(namespace='MGI', identity=gene_map[str(annotation.subject.id)])
+        annotation.subject.taxon = Curie.from_str(self.target_taxon)
+        annotation.subject.synonyms = []
+        annotation.object.taxon = Curie.from_str(self.target_taxon)
 
-    # rewrite with MGI gene ID
-    annotation.evidence.has_supporting_reference = [Curie(namespace='GO_REF', identity=ortho_reference)]
-    annotation.evidence.type = Curie(namespace='ECO', identity=iso_code)  # all annotations via ortho should have this ECO code
+        # have to convert these to curies in order for the conversion to GAF 2.2 type to return anything other than
+        # default 'gene_product' -- in ontobio, when this is a list, we just take the first item.
+        if annotation.provided_by == "RGD":
+            annotation.provided_by = "MGI"
 
-    # not sure why this is necessary, but it is, else we get a Subject with an extra tuple wrapper
-    annotation.subject.id = Curie(namespace='MGI', identity=gene_map[str(annotation.subject.id)])
-    annotation.subject.taxon = Curie.from_str(mouse_taxon)
-    annotation.subject.synonyms = []
-    annotation.object.taxon = Curie.from_str(mouse_taxon)
+        annotation.subject.fullname = target_genes[str(annotation.subject.id)]["fullname"]
+        annotation.subject.label = target_genes[str(annotation.subject.id)]["label"]
 
-    # have to convert these to curies in order for the conversion to GAF 2.2 type to return anything other than
-    # default 'gene_product' -- in ontobio, when this is a list, we just take the first item.
-    if annotation.provided_by == "RGD":
-        annotation.provided_by = "MGI"
+        # have to convert these to curies in order for the conversion to GAF 2.2 type to return anything other than
+        # default 'gene_product' -- in ontobio, when this is a list, we just take the first item.
+        annotation.subject.type = [map_gp_type_label_to_curie(target_genes[str(annotation.subject.id)].get("type")[0])]
 
-    annotation.subject.fullname = target_genes[str(annotation.subject.id)]["fullname"]
-    annotation.subject.label = target_genes[str(annotation.subject.id)]["label"]
-
-    # have to convert these to curies in order for the conversion to GAF 2.2 type to return anything other than
-    # default 'gene_product' -- in ontobio, when this is a list, we just take the first item.
-    annotation.subject.type = [map_gp_type_label_to_curie(target_genes[str(annotation.subject.id)].get("type")[0])]
-
-    return annotation
-
-
-if __name__ == '__main__':
-    preprocess()
+        return annotation

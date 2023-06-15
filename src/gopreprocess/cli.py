@@ -1,41 +1,18 @@
-"""Command line interface for gopreprocess."""
 import click
-import logging
-
-from gopreprocess import __version__
-from gopreprocess.preprocessor import preprocess
-
-__all__ = [
-    "main",
-]
-
-logger = logging.getLogger(__name__)
-
-@click.group()
-@click.option("-v", "--verbose", count=True)
-@click.option("-q", "--quiet")
-@click.version_option(__version__)
-def main(verbose: int, quiet: bool):
-    """CLI for gopreprocess.
-
-    :param verbose: Verbosity while running.
-    :param quiet: Boolean to be quiet or verbose.
-    """
-    if verbose >= 2:
-        logger.setLevel(level=logging.DEBUG)
-    elif verbose == 1:
-        logger.setLevel(level=logging.INFO)
-    else:
-        logger.setLevel(level=logging.WARNING)
-    if quiet:
-        logger.setLevel(level=logging.ERROR)
-
-@main.command()
-def run():
-    """Run the gopreprocess's demo command."""
-    preprocess()
-     
+from preprocessor import AnnotationConverter
 
 
-if __name__ == "__main__":
-    main()
+@click.command()
+@click.option("--namespaces", default=["RGD", "UniProtKB"], help="List of namespaces to use.")
+@click.option("--target_taxon", default="NCBITaxon:10090", help="Target taxon.")
+@click.option("--source_taxon", default="NCBITaxon:10116", help="Source taxon.")
+@click.option("--iso_code", default="0000266", help="ISO ECO code without prefix.")
+@click.option("--ortho_reference", default="0000096", help="Ortho reference.")
+def convert_annotations(namespaces, target_taxon, source_taxon, iso_code, ortho_reference):
+    converter = AnnotationConverter(namespaces, target_taxon, source_taxon, iso_code, ortho_reference)
+    converter.convert_annotations()
+
+
+if __name__ == '__main__':
+    convert_annotations()
+
