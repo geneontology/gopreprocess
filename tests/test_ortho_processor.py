@@ -16,8 +16,6 @@ class TestGPIProcessor(unittest.TestCase):
                                      target_genes={"MGI:1915549": "RGD:1311391"})
         self.assertTrue(type(ortho_genes.genes) == dict)
         print(type(ortho_genes.genes))
-        # print(len(ortho_genes.target_genes))
-        # self.assertTrue(len(ortho_genes.target_genes) > 0)
 
 
 if __name__ == '__main__':
