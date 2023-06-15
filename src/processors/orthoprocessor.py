@@ -28,10 +28,10 @@ class OrthoProcessor:
         self.taxon1 = taxon1
         self.taxon2 = taxon2
 
-        self.genes = self.get_data()
+        self.genes = self.retrieve_ortho_map()
 
     @timer
-    def get_data(self):
+    def retrieve_ortho_map(self):
         """
         Retrieves orthology data between the two taxa.
 
