@@ -15,7 +15,6 @@ class TestGPIProcessor(unittest.TestCase):
                                      taxon2="NCBITaxon:10090",
                                      target_genes={"MGI:1915549": "RGD:1311391"})
         self.assertTrue(type(ortho_genes.genes) == dict)
-        print(type(ortho_genes.genes))
 
 
 if __name__ == '__main__':
