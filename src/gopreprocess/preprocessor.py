@@ -42,7 +42,6 @@ def preprocess() -> None:
             new_annotation = generate_annotation(annotation, source_genes, target_genes)  # generate the annotation based on orthology
 
             converted_mgi_annotations.append(new_annotation.to_gaf_2_2_tsv())
-    end = time.time()
 
     # using pandas in order to take advantage of pystow in terms of file location and handling
     # again; pandas is a bit overkill.
