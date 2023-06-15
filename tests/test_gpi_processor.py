@@ -13,3 +13,7 @@ class TestGPIProcessor(unittest.TestCase):
         gpi_genes = GpiProcessor(file_path)
         self.assertTrue(type(gpi_genes.target_genes) == dict)
         self.assertTrue(len(gpi_genes.target_genes) > 0)
+
+
+if __name__ == '__main__':
+    unittest.main()
