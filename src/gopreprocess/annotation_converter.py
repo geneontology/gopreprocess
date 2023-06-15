@@ -10,17 +10,18 @@ import pandas as pd
 import pystow
 from typing import List
 
+iso_eco_code = "ISO:0000266"
+
 
 class AnnotationConverter:
     def __init__(self, namespaces: List[str],
                  target_taxon: str,
                  source_taxon: str,
-                 iso_code: str,
                  ortho_reference: str):
         self.namespaces = namespaces
         self.target_taxon = target_taxon
         self.source_taxon = source_taxon
-        self.iso_code = iso_code
+        self.iso_code = iso_eco_code[4:]       # we always want the ECO code for "inferred from sequence similarity"
         self.ortho_reference = ortho_reference
 
     @timer
