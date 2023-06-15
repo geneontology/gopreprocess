@@ -1,7 +1,7 @@
 from src.processors.orthoprocessor import OrthoProcessor
 from src.processors.gafprocessor import GafProcessor
 from src.processors.gpiprocessor import GpiProcessor
-from ontobio.model.association import Curie
+from ontobio.model.association import Curie, ConjunctiveSet
 from ontobio.model.association import map_gp_type_label_to_curie
 from src.utils.download import download_files
 from src.utils.decorators import timer
@@ -27,12 +27,12 @@ def dump_converted_annotations(converted_target_annotations: List[List[str]],
     df = pd.DataFrame(converted_target_annotations)
     pystow.dump_df(key=taxon_to_provider[target_taxon],
                    obj=df,
-                   name=taxon_to_provider[target_taxon].lower() + "-" + taxon_to_provider[source_taxon].lower() + "ortho.gaf.gz",
+                   name=taxon_to_provider[target_taxon].lower() + "-" + taxon_to_provider[source_taxon].lower() + "-ortho.gaf.gz",
                    to_csv_kwargs={"index": False, "header": False, "compression": "gzip"},
                    sep="\t")
     pystow.dump_df(key=taxon_to_provider[target_taxon],
                    obj=df,
-                   name=taxon_to_provider[target_taxon].lower()  + "-" + taxon_to_provider[source_taxon].lower() + "ortho.gaf",
+                   name=taxon_to_provider[target_taxon].lower()  + "-" + taxon_to_provider[source_taxon].lower() + "-ortho.gaf",
                    to_csv_kwargs={"index": False, "header": False},
                    sep="\t")
 
@@ -100,10 +100,12 @@ class AnnotationConverter:
         :raises KeyError: If the gene ID is not found in the gene map.
         """
 
-        # rewrite with MGI gene ID
+        # make with_from include original RGD id
+        subject_with_from = ConjunctiveSet(elements=[Curie(namespace=annotation.provided_by,
+                                                           identity=annotation.subject.id.identity)])
+        annotation.evidence.with_support_from.append(subject_with_from)
         annotation.evidence.has_supporting_reference = [Curie(namespace='GO_REF', identity=self.ortho_reference)]
         annotation.evidence.type = Curie(namespace='ECO', identity=iso_eco_code)  # inferred from sequence similarity
-
         # not sure why this is necessary, but it is, else we get a Subject with an extra tuple wrapper
         annotation.subject.id = Curie(namespace='MGI', identity=gene_map[str(annotation.subject.id)])
         annotation.subject.taxon = Curie.from_str(self.target_taxon)
@@ -112,8 +114,8 @@ class AnnotationConverter:
 
         # have to convert these to curies in order for the conversion to GAF 2.2 type to return anything other than
         # default 'gene_product' -- in ontobio, when this is a list, we just take the first item.
-        if annotation.provided_by == "RGD":
-            annotation.provided_by = "MGI"
+        if annotation.provided_by == taxon_to_provider[self.source_taxon]:
+            annotation.provided_by = taxon_to_provider[self.target_taxon]
 
         annotation.subject.fullname = target_genes[str(annotation.subject.id)]["fullname"]
         annotation.subject.label = target_genes[str(annotation.subject.id)]["label"]
