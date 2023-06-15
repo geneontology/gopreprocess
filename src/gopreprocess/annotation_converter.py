@@ -12,6 +12,30 @@ from typing import List
 
 iso_eco_code = "ISO:0000266"
 
+taxon_to_provider = {
+    "NCBITaxon:10116": "RGD",
+    "NCBITaxon:10090": "MGI",
+    "NCBITaxon:9606": "human"
+}
+
+
+def dump_converted_annotations(converted_target_annotations: List[List[str]],
+                               source_taxon: str,
+                               target_taxon: str) -> None:
+    # using pandas in order to take advantage of pystow in terms of file location and handling
+    # again; pandas is a bit overkill.
+    df = pd.DataFrame(converted_target_annotations)
+    pystow.dump_df(key=taxon_to_provider[target_taxon],
+                   obj=df,
+                   name=taxon_to_provider[target_taxon] + "-" + taxon_to_provider[source_taxon] + "ortho.gaf.gz",
+                   to_csv_kwargs={"index": False, "header": False, "compression": "gzip"},
+                   sep="\t")
+    pystow.dump_df(key=taxon_to_provider[target_taxon],
+                   obj=df,
+                   name=taxon_to_provider[target_taxon] + "-" + taxon_to_provider[source_taxon] + "ortho.gaf",
+                   to_csv_kwargs={"index": False, "header": False},
+                   sep="\t")
+
 
 class AnnotationConverter:
     def __init__(self, namespaces: List[str],
@@ -56,19 +80,9 @@ class AnnotationConverter:
                                                           target_genes)  # generate the target annotation based on the source annotation
                 converted_target_annotations.append(new_annotation.to_gaf_2_2_tsv())
 
-        # using pandas in order to take advantage of pystow in terms of file location and handling
-        # again; pandas is a bit overkill.
-        df = pd.DataFrame(converted_target_annotations)
-        pystow.dump_df(key="MGI",
-                       obj=df,
-                       name="mgi-rgd-ortho.gaf.gz",
-                       to_csv_kwargs={"index": False, "header": False, "compression": "gzip"},
-                       sep="\t")
-        pystow.dump_df(key="MGI",
-                       obj=df,
-                       name="mgi-rgd-ortho-test.gaf",
-                       to_csv_kwargs={"index": False, "header": False},
-                       sep="\t")
+        dump_converted_annotations(converted_target_annotations,
+                                   source_taxon=self.source_taxon,
+                                   target_taxon=self.target_taxon)
 
     def generate_annotation(self,
                             annotation: GoAssociation,
