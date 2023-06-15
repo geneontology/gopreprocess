@@ -38,7 +38,9 @@ class AnnotationConverter:
         ortho_path, source_gaf_path, target_gpi_path = download_files()
         target_genes = GpiProcessor(target_gpi_path).target_genes
         source_genes = OrthoProcessor(target_genes, ortho_path, self.target_taxon, self.source_taxon).genes
-        source_annotations = GafProcessor(source_genes, source_gaf_path, namespaces=self.namespaces).convertible_annotations
+        source_annotations = GafProcessor(source_genes,
+                                          source_gaf_path,
+                                          namespaces=self.namespaces).convertible_annotations
 
         # just for performance of the check below for rat genes in the RGD GAF file that have
         # the appropriate ortholog relationship to a mouse gene in the MGI GPI file
@@ -48,7 +50,9 @@ class AnnotationConverter:
 
         for annotation in source_annotations:
             if str(annotation.subject.id) in source_gene_set:
-                new_annotation = self.generate_annotation(annotation, source_genes, target_genes)  # generate the annotation based on
+                new_annotation = self.generate_annotation(annotation,
+                                                          source_genes,
+                                                          target_genes)  # generate the target annotation based on the source annotation
                 converted_target_annotations.append(new_annotation.to_gaf_2_2_tsv())
 
         # using pandas in order to take advantage of pystow in terms of file location and handling
@@ -65,7 +69,10 @@ class AnnotationConverter:
                        to_csv_kwargs={"index": False, "header": False},
                        sep="\t")
 
-    def generate_annotation(self, annotation: GoAssociation, gene_map: dict, target_genes: dict) -> GoAssociation:
+    def generate_annotation(self,
+                            annotation: GoAssociation,
+                            gene_map: dict,
+                            target_genes: dict) -> GoAssociation:
         """
         Generates a new annotation based on ortholog assignments.
 
