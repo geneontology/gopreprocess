@@ -1,10 +1,11 @@
 from pathlib import Path
-
+from src.utils.decorators import timer
 from src.utils.settings import get_url
 import pystow
 from typing import Tuple
 
 
+@timer
 def download_files() -> tuple[Path, Path, Path]:
     """
     Downloads and retrieves the required files for preprocessing.

@@ -2,7 +2,7 @@ from ontobio.ecomap import EcoMap
 from ontobio.io.gafparser import GafParser
 from typing import List
 from pathlib import Path
-from ontobio.io.qc import GoRules, GoRule, GoRulesResults
+from src.utils.decorators import timer
 
 
 def get_experimental_eco_codes(ecomap) -> List[str]:
@@ -53,6 +53,7 @@ class GafProcessor:
         self.convertible_annotations = []
         self.parse_gaf()
 
+    @timer
     def parse_gaf(self):
         """
         Parses the GAF file and processes the annotations.

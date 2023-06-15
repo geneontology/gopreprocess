@@ -2,11 +2,11 @@ from src.processors.orthoprocessor import OrthoProcessor
 from src.processors.gafprocessor import GafProcessor
 from src.processors.gpiprocessor import GpiProcessor
 from src.utils.download import download_files
+from src.utils.decorators import timer
 from ontobio.model.association import GoAssociation, Curie, map_gp_type_label_to_curie
 import time
 import pandas as pd
 import pystow
-from src.utils.settings import get_url
 
 namespaces = ["RGD", "UniProtKB"]
 mouse_taxon = "NCBITaxon:10090"
@@ -16,43 +16,27 @@ iso_code = "0000266"
 ortho_reference = "0000096"
 
 
+@timer
 def preprocess() -> None:
     """
     Preprocesses the annotations by converting them based on ortholog relationships.
 
     :returns: None
     """
-    start = time.time()
-
     converted_mgi_annotations = []
 
     # assemble data structures needed to convert annotations via ortholog relationships.
-    print("downloading files...")
     ortho_path, rgd_gaf_path, mgi_gpi_path = download_files()
-    end = time.time()
-    print("time to execute", end - start)
-
-    print("target species gpi parsing...")
     target_genes = GpiProcessor(mgi_gpi_path).target_genes
-    end = time.time()
-    print("time to execute", end - start)
-
-    print("orthology file parsing...")
     source_genes = OrthoProcessor(target_genes, ortho_path, mouse_taxon, rat_taxon).genes
-    end = time.time()
-    print("time to execute", end - start)
 
-    print("source gaf file parsing...")
     rgd_annotations = GafProcessor(source_genes, rgd_gaf_path, namespaces=namespaces).convertible_annotations
-    end = time.time()
-    print("time to execute", end - start)
 
     # just for performance of the check below for rat genes in the RGD GAF file that have
     # the appropriate ortholog relationship to a mouse gene in the MGI GPI file
     source_gene_set = set(source_genes.keys())
     converted_mgi_annotations.append(["!gaf-version: 2.2"])
 
-    print("converting annotations...")
     for annotation in rgd_annotations:
         if str(annotation.subject.id) in source_gene_set:
             new_annotation = generate_annotation(annotation, source_genes, target_genes)  # generate the annotation based on orthology
@@ -60,7 +44,6 @@ def preprocess() -> None:
             converted_mgi_annotations.append(new_annotation.to_gaf_2_2_tsv())
     end = time.time()
 
-    print("time to execute", end - start)
     # using pandas in order to take advantage of pystow in terms of file location and handling
     # again; pandas is a bit overkill.
     df = pd.DataFrame(converted_mgi_annotations)
@@ -74,9 +57,6 @@ def preprocess() -> None:
                    name="mgi-rgd-ortho-test.gaf",
                    to_csv_kwargs={"index": False, "header": False},
                    sep="\t")
-
-    end = time.time()
-    print("time to execute", end - start)
 
 
 def generate_annotation(annotation: GoAssociation, gene_map: dict, target_genes: dict) -> GoAssociation:

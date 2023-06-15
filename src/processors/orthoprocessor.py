@@ -1,7 +1,7 @@
 import json
 from typing import List
 from pathlib import Path
-
+from src.utils.decorators import timer
 
 class OrthoProcessor:
     """
@@ -30,6 +30,7 @@ class OrthoProcessor:
 
         self.genes = self.get_data()
 
+    @timer
     def get_data(self):
         """
         Retrieves orthology data between the two taxa.
