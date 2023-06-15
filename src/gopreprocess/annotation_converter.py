@@ -22,7 +22,7 @@ class AnnotationConverter:
         self.target_taxon = target_taxon
         self.source_taxon = source_taxon
         self.iso_code = iso_eco_code[4:]       # we always want the ECO code for "inferred from sequence similarity"
-        self.ortho_reference = ortho_reference
+        self.ortho_reference = ortho_reference.split(":")[1]
 
     @timer
     def convert_annotations(self) -> None:
@@ -86,7 +86,7 @@ class AnnotationConverter:
 
         # rewrite with MGI gene ID
         annotation.evidence.has_supporting_reference = [Curie(namespace='GO_REF', identity=self.ortho_reference)]
-        annotation.evidence.type = Curie(namespace='ECO', identity=self.iso_code)  # all annotations via ortho should have this ECO c
+        annotation.evidence.type = Curie(namespace='ECO', identity=iso_eco_code)  # inferred from sequence similarity
 
         # not sure why this is necessary, but it is, else we get a Subject with an extra tuple wrapper
         annotation.subject.id = Curie(namespace='MGI', identity=gene_map[str(annotation.subject.id)])
