@@ -60,7 +60,7 @@ class AnnotationConverter:
 
         # assemble data structures needed to convert annotations: including the ortholog map,
         # the target genes data structure, and the source genes data structure.
-        ortho_path, source_gaf_path, target_gpi_path = download_files()
+        ortho_path, source_gaf_path, target_gpi_path = download_files(self.source_taxon, self.target_taxon)
         target_genes = GpiProcessor(target_gpi_path).target_genes
         source_genes = OrthoProcessor(target_genes, ortho_path, self.target_taxon, self.source_taxon).genes
         source_annotations = GafProcessor(source_genes,
@@ -101,9 +101,10 @@ class AnnotationConverter:
         """
 
         # make with_from include original RGD id
-        subject_with_from = ConjunctiveSet(elements=[Curie(namespace=annotation.subject.id.namespace,
-                                                           identity=annotation.subject.id.identity)])
-        annotation.evidence.with_support_from.append(subject_with_from)
+
+        annotation.evidence.with_support_from.append(
+            ConjunctiveSet(elements=[Curie(namespace=annotation.subject.id.namespace,
+                                           identity=annotation.subject.id.identity)]))
         annotation.evidence.has_supporting_reference = [Curie(namespace='GO_REF', identity=self.ortho_reference)]
         annotation.evidence.type = Curie(namespace='ECO', identity=iso_eco_code)  # inferred from sequence similarity
         # not sure why this is necessary, but it is, else we get a Subject with an extra tuple wrapper
