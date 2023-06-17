@@ -6,3 +6,5 @@ ORTHO:
   url: https://fms.alliancegenome.org/download/ORTHOLOGY-ALLIANCE-JSON_COMBINED.json.gz
 RGD:
   url: http://snapshot.geneontology.org/annotations/rgd.gaf.gz
+HUMAN:
+  url: http://snapshot.geneontology.org/annotations/goa_human_isoform.gaf.gz

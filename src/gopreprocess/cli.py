@@ -13,6 +13,10 @@ from src.gopreprocess.annotation_converter import AnnotationConverter
 @click.option("--ortho_reference", default="GO_REF:0000096", help="Ortho reference in curie format. "
                                                                   "e.g. GO_REF:0000096")
 def convert_annotations(namespaces, target_taxon, source_taxon, ortho_reference):
+    print("namespaces: ", namespaces)
+    print("target_taxon: ", target_taxon)
+    print("source_taxon: ", source_taxon)
+    print("ortho_reference: ", ortho_reference)
     converter = AnnotationConverter(namespaces, target_taxon, source_taxon, ortho_reference)
     converter.convert_annotations()
 

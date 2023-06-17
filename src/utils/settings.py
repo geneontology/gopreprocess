@@ -7,6 +7,15 @@ CONFIG = path.join(path.dirname(path.abspath(__file__)), "../config/download_con
 logger = logging.getLogger(__name__)
 
 
+iso_eco_code = "ISO:0000266"
+
+taxon_to_provider = {
+    "NCBITaxon:10116": "RGD",
+    "NCBITaxon:10090": "MGI",
+    "NCBITaxon:9606": "human"
+}
+
+
 def get_url(key: str) -> str:
     """
     Retrieves the URL corresponding to the given key from the configuration file.

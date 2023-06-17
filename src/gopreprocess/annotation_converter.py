@@ -9,14 +9,7 @@ from ontobio.model.association import GoAssociation
 import pandas as pd
 import pystow
 from typing import List
-
-iso_eco_code = "ISO:0000266"
-
-taxon_to_provider = {
-    "NCBITaxon:10116": "RGD",
-    "NCBITaxon:10090": "MGI",
-    "NCBITaxon:9606": "human"
-}
+from src.utils.settings import taxon_to_provider, iso_eco_code
 
 
 def dump_converted_annotations(converted_target_annotations: List[List[str]],
@@ -32,7 +25,7 @@ def dump_converted_annotations(converted_target_annotations: List[List[str]],
                    sep="\t")
     pystow.dump_df(key=taxon_to_provider[target_taxon],
                    obj=df,
-                   name=taxon_to_provider[target_taxon].lower()  + "-" + taxon_to_provider[source_taxon].lower() + "-ortho.gaf",
+                   name=taxon_to_provider[target_taxon].lower()  + "-" + taxon_to_provider[source_taxon].lower() + "-ortho-test.gaf",
                    to_csv_kwargs={"index": False, "header": False},
                    sep="\t")
 
@@ -48,6 +41,8 @@ class AnnotationConverter:
         self.iso_code = iso_eco_code[4:]  # we always want the ECO code for "inferred from sequence similarity"
         self.ortho_reference = ortho_reference.split(":")[1]
 
+        print("namespaces:", namespaces)
+        print(type(namespaces))
     @timer
     def convert_annotations(self) -> None:
         """
