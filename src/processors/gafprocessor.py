@@ -3,6 +3,7 @@ from ontobio.io.gafparser import GafParser
 from typing import List
 from pathlib import Path
 from src.utils.decorators import timer
+from src.utils.settings import iso_eco_code
 
 
 def get_experimental_eco_codes(ecomap) -> List[str]:
@@ -68,17 +69,20 @@ class GafProcessor:
         """
         p = configure_parser()
         experimental_evidence_codes = get_experimental_eco_codes(EcoMap())
+        print(experimental_evidence_codes)
         with open(self.filepath, 'r') as file:
             for line in file:
                 annotation = p.parse_line(line)
                 for source_assoc in annotation.associations:
                     if isinstance(source_assoc, dict):
                         continue
+                    if source_assoc.evidence.type == iso_eco_code:
+                        continue
                     if source_assoc.negated:
                         continue
                     if source_assoc.subject.id.namespace not in self.namespaces:
                         continue
-                    if source_assoc.evidence in experimental_evidence_codes:
+                    if str(source_assoc.evidence.type) not in experimental_evidence_codes:
                         continue
                     if source_assoc.provided_by == self.taxon_to_provider[self.target_taxon]:
                         continue

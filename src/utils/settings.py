@@ -7,7 +7,7 @@ CONFIG = path.join(path.dirname(path.abspath(__file__)), "../config/download_con
 logger = logging.getLogger(__name__)
 
 
-iso_eco_code = "ISO:0000266"
+iso_eco_code = "ECO:0000266"
 
 taxon_to_provider = {
     "NCBITaxon:10116": "RGD",
