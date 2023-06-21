@@ -97,10 +97,10 @@ class AnnotationConverter:
 
         # make with_from include original RGD id
 
-        annotation.evidence.with_support_from = ConjunctiveSet(
+        annotation.evidence.with_support_from = [ConjunctiveSet(
             elements=[Curie(namespace=annotation.subject.id.namespace,
                             identity=annotation.subject.id.identity)]
-        )
+        )]
         annotation.evidence.has_supporting_reference = [Curie(namespace='GO_REF', identity=self.ortho_reference)]
         annotation.evidence.type = Curie(namespace='ECO', identity=iso_eco_code)  # inferred from sequence similarity
         # not sure why this is necessary, but it is, else we get a Subject with an extra tuple wrapper

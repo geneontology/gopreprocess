@@ -3,7 +3,6 @@ from ontobio.io.gafparser import GafParser
 from typing import List
 from pathlib import Path
 from src.utils.decorators import timer
-from src.utils.settings import iso_eco_code
 
 
 def get_experimental_eco_codes(ecomap) -> List[str]:
@@ -76,8 +75,6 @@ class GafProcessor:
                 for source_assoc in annotation.associations:
                     if isinstance(source_assoc, dict):
                         continue
-                    if source_assoc.evidence.type == iso_eco_code:
-                        continue
                     if source_assoc.negated:
                         continue
                     if source_assoc.subject.id.namespace not in self.namespaces:
@@ -90,7 +87,7 @@ class GafProcessor:
                         reference.namespace == "PMID" for reference in source_assoc.evidence.has_supporting_reference)
                     if not has_pmid_reference:
                         continue
-                    if source_assoc.object.id in ['GO:0005515', 'GO:0005488']:
+                    if str(source_assoc.object.id) in ['GO:0005515', 'GO:0005488']:
                         continue
 
                     self.convertible_annotations.append(source_assoc)
