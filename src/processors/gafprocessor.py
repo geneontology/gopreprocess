@@ -3,7 +3,6 @@ from ontobio.io.gafparser import GafParser
 from typing import List
 from pathlib import Path
 from src.utils.decorators import timer
-from src.utils.settings import get_url
 from src.utils.download import download_file
 from ontobio.model.association import Curie
 
