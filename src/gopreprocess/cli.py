@@ -2,6 +2,7 @@ import click
 
 from src.converters.annotation_converter import AnnotationConverter
 
+
 @click.command()
 @click.option("--namespaces", default=["RGD", "UniProtKB"], help="List of providers in the source GAF that should be "
                                                                  "used to retrieve source annotations for conversion. "

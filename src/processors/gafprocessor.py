@@ -84,19 +84,25 @@ class GafProcessor:
         """
         p = configure_parser()
         experimental_evidence_codes = get_experimental_eco_codes(EcoMap())
+        gene_protein_map = None
         with open(self.filepath, 'r') as file:
             for line in file:
                 annotation = p.parse_line(line)
                 for source_assoc in annotation.associations:
-                    if source_assoc.subject.id.namespace.startswith("UniProtKB"):
-                        print("found UniProtKB in the subject, convert to HGNC to map to Alliance orthology")
-                        gene_protein_map = generate_gene_protein_map()
-                        print(source_assoc.subject.id)
-                        mapped_id = gene_protein_map[source_assoc.subject.id]
-                        source_assoc.subject.id = mapped_id
-                        print(source_assoc.subject.id)
                     if isinstance(source_assoc, dict):
                         continue
+                    if source_assoc.subject.id.namespace == "UniProtKB":
+                        print("found UniProtKB in the subject, convert to HGNC to map to Alliance ortholog")
+                        if gene_protein_map is None:
+                            gene_protein_map = generate_gene_protein_map()
+                        print(source_assoc.subject.id)
+                        if str(source_assoc.subject.id) not in gene_protein_map.keys():
+                            continue
+                        else:
+                            mapped_id = gene_protein_map[str(source_assoc.subject.id)]
+                            source_assoc.subject.id = Curie(namespace=mapped_id.split(":")[0],
+                                                        identity=mapped_id.split(":")[1])
+                            print(source_assoc.subject.id)
                     if source_assoc.negated:
                         continue
                     if source_assoc.subject.id.namespace not in self.namespaces:
