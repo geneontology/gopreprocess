@@ -91,18 +91,6 @@ class GafProcessor:
                 for source_assoc in annotation.associations:
                     if isinstance(source_assoc, dict):
                         continue
-                    if source_assoc.subject.id.namespace == "UniProtKB":
-                        print("found UniProtKB in the subject, convert to HGNC to map to Alliance ortholog")
-                        if gene_protein_map is None:
-                            gene_protein_map = generate_gene_protein_map()
-                        print(source_assoc.subject.id)
-                        if str(source_assoc.subject.id) not in gene_protein_map.keys():
-                            continue
-                        else:
-                            mapped_id = gene_protein_map[str(source_assoc.subject.id)]
-                            source_assoc.subject.id = Curie(namespace=mapped_id.split(":")[0],
-                                                        identity=mapped_id.split(":")[1])
-                            print(source_assoc.subject.id)
                     if source_assoc.negated:
                         continue
                     if source_assoc.subject.id.namespace not in self.namespaces:
@@ -117,5 +105,18 @@ class GafProcessor:
                         continue
                     if str(source_assoc.object.id) in ['GO:0005515', 'GO:0005488']:
                         continue
+                    if source_assoc.subject.id.namespace == "UniProtKB":
+                        # TODO convert prints to report files
+                        # print("found UniProtKB in the subject, convert to HGNC to map to Alliance ortholog")
+                        if gene_protein_map is None:
+                            gene_protein_map = generate_gene_protein_map()
+                        # print(source_assoc.subject.id)
+                        if str(source_assoc.subject.id) not in gene_protein_map.keys():
+                            continue
+                        else:
+                            mapped_id = gene_protein_map[str(source_assoc.subject.id)]
+                            source_assoc.subject.id = Curie(namespace=mapped_id.split(":")[0],
+                                                        identity=mapped_id.split(":")[1])
+                            # print(source_assoc.subject.id)
 
                     self.convertible_annotations.append(source_assoc)
