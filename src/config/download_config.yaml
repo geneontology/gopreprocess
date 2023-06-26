@@ -2,11 +2,11 @@ MGI_GAF:
   url: ftp.ebi.ac.uk/pub/databases/GO/goa/MOUSE/goa_mouse.gaf.gz
 MGI_GPI:
   url: http://snapshot.geneontology.org/annotations/mgi.gpi.gz
-ORTHO:
+ALLIANCE_ORTHO:
   url: https://fms.alliancegenome.org/download/ORTHOLOGY-ALLIANCE-JSON_COMBINED.json.gz
 RGD:
   url: http://snapshot.geneontology.org/annotations/rgd.gaf.gz
 HUMAN:
   url: http://snapshot.geneontology.org/annotations/goa_human_isoform.gaf.gz
-XREF_MAP:
+ALLIANCE_XREF:
   url: https://fms.alliancegenome.org/download/GENECROSSREFERENCE_COMBINED.tsv.gz

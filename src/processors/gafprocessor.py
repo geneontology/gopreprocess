@@ -3,6 +3,9 @@ from ontobio.io.gafparser import GafParser
 from typing import List
 from pathlib import Path
 from src.utils.decorators import timer
+from src.utils.settings import get_url
+from src.utils.download import download_file
+from ontobio.model.association import Curie
 
 
 def get_experimental_eco_codes(ecomap) -> List[str]:
@@ -35,24 +38,17 @@ def configure_parser() -> GafParser:
     return p
 
 
-def generate_uniprot_map() -> dict:
-    """
-    Generates a dictionary mapping UniProtKB IDs to HGNC IDs.
-
-    :return: A dictionary mapping UniProtKB IDs to HGNC IDs.
-    :rtype: dict
-    """
-    uniprot_map = {}
-    with open("data/uniprot_map.txt", "r") as f:
-        for line in f:
-            line = line.strip().split()
-            uniprot_map[line[0]] = line[1]
-    return uniprot_map
-
-
 def generate_gene_protein_map() -> dict:
-
-    return {}
+    uniprot_map = {}
+    cross_reference_filepath = download_file("ALLIANCE", "ALLIANCE_XREF")
+    with open(cross_reference_filepath, "r") as f:
+        for line in f:
+            if line.startswith("#"):
+                continue
+            line = line.strip().split("\t")
+            # UniProtKB ID is in column 1, HGNC ID is in column 0
+            uniprot_map[line[1]] = line[0]
+    return uniprot_map
 
 
 class GafProcessor:
@@ -94,7 +90,11 @@ class GafProcessor:
                 for source_assoc in annotation.associations:
                     if source_assoc.subject.id.namespace.startswith("UniProtKB"):
                         print("found UniProtKB in the subject, convert to HGNC to map to Alliance orthology")
-                        generate_gene_protein_map()
+                        gene_protein_map = generate_gene_protein_map()
+                        print(source_assoc.subject.id)
+                        mapped_id = gene_protein_map[source_assoc.subject.id]
+                        source_assoc.subject.id = mapped_id
+                        print(source_assoc.subject.id)
                     if isinstance(source_assoc, dict):
                         continue
                     if source_assoc.negated:

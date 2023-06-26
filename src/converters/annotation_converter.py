@@ -1,4 +1,4 @@
-from src.processors.orthoprocessor import OrthoProcessor
+from src.processors.alliance_ortho_processor import OrthoProcessor
 from src.processors.gafprocessor import GafProcessor
 from src.processors.gpiprocessor import GpiProcessor
 from ontobio.model.association import Curie, ConjunctiveSet
