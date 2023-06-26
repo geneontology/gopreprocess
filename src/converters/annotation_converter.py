@@ -41,8 +41,6 @@ class AnnotationConverter:
         self.iso_code = iso_eco_code[4:]  # we always want the ECO code for "inferred from sequence similarity"
         self.ortho_reference = ortho_reference.split(":")[1]
 
-        print("namespaces:", namespaces)
-        print(type(namespaces))
     @timer
     def convert_annotations(self) -> None:
         """
@@ -102,7 +100,7 @@ class AnnotationConverter:
                             identity=annotation.subject.id.identity)]
         )]
         annotation.evidence.has_supporting_reference = [Curie(namespace='GO_REF', identity=self.ortho_reference)]
-        annotation.evidence.type = Curie(namespace='ECO', identity=iso_eco_code)  # inferred from sequence similarity
+        annotation.evidence.type = Curie(namespace='ECO', identity=iso_eco_code.split(":")[1])  # inferred from sequence similarity
         # not sure why this is necessary, but it is, else we get a Subject with an extra tuple wrapper
         annotation.subject.id = Curie(namespace='MGI', identity=gene_map[str(annotation.subject.id)])
         annotation.subject.taxon = Curie.from_str(self.target_taxon)

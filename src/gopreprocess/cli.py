@@ -1,6 +1,6 @@
 import click
-from src.gopreprocess.annotation_converter import AnnotationConverter
 
+from src.converters.annotation_converter import AnnotationConverter
 
 @click.command()
 @click.option("--namespaces", default=["RGD", "UniProtKB"], help="List of providers in the source GAF that should be "

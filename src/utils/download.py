@@ -26,3 +26,18 @@ def download_files(source_taxon: str, target_taxon: str) -> tuple[Path, Path, Pa
     mgi_gpi_path = pystow.ensure_gunzip(taxon_to_provider[target_taxon],
                                         url=get_url(taxon_to_provider[target_taxon] + "_GPI"), autoclean=True)
     return ortho_path, rgd_gaf_path, mgi_gpi_path
+
+
+def download_file(target_directory_name: str, config_key: str) -> Path:
+    """
+    Downloads a file from the given URL.
+
+    :param target_directory_name: The name of the directory to download the file to.
+    :param config_key: The key in the config file that contains the URL to download the file from.
+    :return: None
+
+    """
+    file_path = pystow.ensure_gunzip(target_directory_name,
+                                     url=get_url(config_key),
+                                     autoclean=True)
+    return file_path

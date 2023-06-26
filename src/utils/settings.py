@@ -12,7 +12,7 @@ iso_eco_code = "ECO:0000266"
 taxon_to_provider = {
     "NCBITaxon:10116": "RGD",
     "NCBITaxon:10090": "MGI",
-    "NCBITaxon:9606": "human"
+    "NCBITaxon:9606": "HUMAN"
 }
 
 

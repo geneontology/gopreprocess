@@ -35,6 +35,26 @@ def configure_parser() -> GafParser:
     return p
 
 
+def generate_uniprot_map() -> dict:
+    """
+    Generates a dictionary mapping UniProtKB IDs to HGNC IDs.
+
+    :return: A dictionary mapping UniProtKB IDs to HGNC IDs.
+    :rtype: dict
+    """
+    uniprot_map = {}
+    with open("data/uniprot_map.txt", "r") as f:
+        for line in f:
+            line = line.strip().split()
+            uniprot_map[line[0]] = line[1]
+    return uniprot_map
+
+
+def generate_gene_protein_map() -> dict:
+
+    return {}
+
+
 class GafProcessor:
     def __init__(self, genes: List,
                  filepath: Path,
@@ -68,11 +88,13 @@ class GafProcessor:
         """
         p = configure_parser()
         experimental_evidence_codes = get_experimental_eco_codes(EcoMap())
-        print(experimental_evidence_codes)
         with open(self.filepath, 'r') as file:
             for line in file:
                 annotation = p.parse_line(line)
                 for source_assoc in annotation.associations:
+                    if source_assoc.subject.id.namespace.startswith("UniProtKB"):
+                        print("found UniProtKB in the subject, convert to HGNC to map to Alliance orthology")
+                        generate_gene_protein_map()
                     if isinstance(source_assoc, dict):
                         continue
                     if source_assoc.negated:
