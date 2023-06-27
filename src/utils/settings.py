@@ -28,3 +28,5 @@ def get_url(key: str) -> str:
     with open(CONFIG, "r") as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
     return config[key]["url"]
+
+

@@ -37,25 +37,13 @@ def configure_parser() -> GafParser:
     return p
 
 
-def generate_gene_protein_map() -> dict:
-    uniprot_map = {}
-    cross_reference_filepath = download_file("ALLIANCE", "ALLIANCE_XREF")
-    with open(cross_reference_filepath, "r") as f:
-        for line in f:
-            if line.startswith("#"):
-                continue
-            line = line.strip().split("\t")
-            # UniProtKB ID is in column 1, HGNC ID is in column 0
-            uniprot_map[line[1]] = line[0]
-    return uniprot_map
-
-
 class GafProcessor:
     def __init__(self, genes: List,
                  filepath: Path,
                  namespaces: List,
                  taxon_to_provider: dict,
-                 target_taxon: str):
+                 target_taxon: str,
+                 uniprot_to_hgnc_map: dict = None):
         """
         Initializes a GafProcessor object.
 
@@ -72,6 +60,7 @@ class GafProcessor:
         self.convertible_annotations = []
         self.taxon_to_provider = taxon_to_provider
         self.target_taxon = target_taxon
+        self.uniprot_to_hgnc_map = uniprot_to_hgnc_map
         self.parse_gaf()
 
     @timer
@@ -83,7 +72,6 @@ class GafProcessor:
         """
         p = configure_parser()
         experimental_evidence_codes = get_experimental_eco_codes(EcoMap())
-        gene_protein_map = None
         with open(self.filepath, 'r') as file:
             for line in file:
                 annotation = p.parse_line(line)
@@ -105,17 +93,12 @@ class GafProcessor:
                     if str(source_assoc.object.id) in ['GO:0005515', 'GO:0005488']:
                         continue
                     if source_assoc.subject.id.namespace == "UniProtKB":
-                        # TODO convert prints to report files
-                        # print("found UniProtKB in the subject, convert to HGNC to map to Alliance ortholog")
-                        if gene_protein_map is None:
-                            gene_protein_map = generate_gene_protein_map()
-                        # print(source_assoc.subject.id)
-                        if str(source_assoc.subject.id) not in gene_protein_map.keys():
+                        # TODO convert to report files
+                        if str(source_assoc.subject.id) not in self.uniprot_to_hgnc_map.keys():
                             continue
                         else:
-                            mapped_id = gene_protein_map[str(source_assoc.subject.id)]
+                            mapped_id = self.uniprot_to_hgnc_map[str(source_assoc.subject.id)]
                             source_assoc.subject.id = Curie(namespace=mapped_id.split(":")[0],
-                                                        identity=mapped_id.split(":")[1])
-                            # print(source_assoc.subject.id)
-
+                                                            identity=mapped_id.split(":")[1])
                     self.convertible_annotations.append(source_assoc)
+

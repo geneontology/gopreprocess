@@ -1,6 +1,7 @@
 from src.processors.alliance_ortho_processor import OrthoProcessor
 from src.processors.gafprocessor import GafProcessor
 from src.processors.gpiprocessor import GpiProcessor
+from src.processors.alliance_xref_processor import AllianceXrefProcessor
 from ontobio.model.association import Curie, ConjunctiveSet
 from ontobio.model.association import map_gp_type_label_to_curie
 from src.utils.download import download_files
@@ -57,11 +58,14 @@ class AnnotationConverter:
         ortho_path, source_gaf_path, target_gpi_path = download_files(self.source_taxon, self.target_taxon)
         target_genes = GpiProcessor(target_gpi_path).target_genes
         source_genes = OrthoProcessor(target_genes, ortho_path, self.target_taxon, self.source_taxon).genes
+        uniprot_to_hgnc_map = AllianceXrefProcessor().uniprot_to_hgnc_map
+        hgnc_to_uniprot_map = AllianceXrefProcessor().hgnc_to_uniprot_map
         source_annotations = GafProcessor(source_genes,
                                           source_gaf_path,
                                           taxon_to_provider=taxon_to_provider,
                                           target_taxon=self.target_taxon,
-                                          namespaces=self.namespaces).convertible_annotations
+                                          namespaces=self.namespaces,
+                                          uniprot_to_hgnc_map=uniprot_to_hgnc_map).convertible_annotations
 
         # just for performance of the check below for rat genes in the RGD GAF file that have
         # the appropriate ortholog relationship to a mouse gene in the MGI GPI file
@@ -71,9 +75,10 @@ class AnnotationConverter:
         for annotation in source_annotations:
             if str(annotation.subject.id) in source_gene_set:
                 # generate the target annotation based on the source annotation
-                new_annotation = self.generate_annotation(annotation,
-                                                          source_genes,
-                                                          target_genes)
+                new_annotation = self.generate_annotation(annotation=annotation,
+                                                          source_genes=source_genes,
+                                                          target_genes=target_genes,
+                                                          hgnc_to_uniprot_map=hgnc_to_uniprot_map)
                 converted_target_annotations.append(new_annotation.to_gaf_2_2_tsv())
 
         dump_converted_annotations(converted_target_annotations,
@@ -82,28 +87,38 @@ class AnnotationConverter:
 
     def generate_annotation(self,
                             annotation: GoAssociation,
-                            gene_map: dict,
-                            target_genes: dict) -> GoAssociation:
+                            source_genes: dict,
+                            target_genes: dict,
+                            hgnc_to_uniprot_map: dict) -> GoAssociation:
         """
         Generates a new annotation based on ortholog assignments.
 
         :param annotation: The original annotation.
-        :param gene_map: A dictionary mapping source gene IDs to mouse gene IDs.
+        :param source_genes: A dictionary mapping source gene IDs to target gene IDs.
         :param target_genes: A dict of dictionaries containing the target gene details.
+        :param hgnc_to_uniprot_map: A dict mapping HGNC IDs to UniProtKB IDs.
         :returns: The new generated annotation.
         :raises KeyError: If the gene ID is not found in the gene map.
         """
 
-        # make with_from include original RGD id
+        # make with_from include original source annotation identifier, if the
+        # original annotation was to UniProtKB, then here it is likely the MOD or HGNC identifier.
 
-        annotation.evidence.with_support_from = [ConjunctiveSet(
-            elements=[Curie(namespace=annotation.subject.id.namespace,
-                            identity=annotation.subject.id.identity)]
-        )]
+        if str(annotation.subject.id) in hgnc_to_uniprot_map.values():
+            uniprot_id = hgnc_to_uniprot_map[str(annotation.subject.id)]  # convert back to UniProtKB ID
+            uniprot_curie = Curie(namespace=uniprot_id.split(":")[0], identity=uniprot_id.split(":")[1])
+            annotation.evidence.with_support_from = [ConjunctiveSet(
+                elements=[uniprot_curie]
+            )]
+        else:
+            annotation.evidence.with_support_from = [ConjunctiveSet(
+                elements=[Curie(namespace=annotation.subject.id.namespace,
+                                identity=annotation.subject.id.identity)]
+            )]
         annotation.evidence.has_supporting_reference = [Curie(namespace='GO_REF', identity=self.ortho_reference)]
         annotation.evidence.type = Curie(namespace='ECO', identity=iso_eco_code.split(":")[1])  # inferred from sequence similarity
         # not sure why this is necessary, but it is, else we get a Subject with an extra tuple wrapper
-        annotation.subject.id = Curie(namespace='MGI', identity=gene_map[str(annotation.subject.id)])
+        annotation.subject.id = Curie(namespace='MGI', identity=source_genes[str(annotation.subject.id)])
         annotation.subject.taxon = Curie.from_str(self.target_taxon)
         annotation.subject.synonyms = []
         annotation.object.taxon = Curie.from_str(self.target_taxon)
