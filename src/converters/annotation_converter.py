@@ -11,6 +11,7 @@ import pandas as pd
 import pystow
 from typing import List
 from src.utils.settings import taxon_to_provider, iso_eco_code
+from pprint import pprint
 
 
 def dump_converted_annotations(converted_target_annotations: List[List[str]],
@@ -104,16 +105,18 @@ class AnnotationConverter:
         # make with_from include original source annotation identifier, if the
         # original annotation was to UniProtKB, then here it is likely the MOD or HGNC identifier.
 
-        if str(annotation.subject.id) in hgnc_to_uniprot_map.values():
+        pprint(hgnc_to_uniprot_map)
+        # source_genes 'HGNC:15042': 'MGI:3031248', annotation.subject.id 'HGNC:15042'
+        if str(annotation.subject.id) in source_genes.keys():
+            print("current subject.id", str(annotation.subject.id))
+            print("converted? ", hgnc_to_uniprot_map[str(annotation.subject.id)])
+            print("first dict element?", next(iter(hgnc_to_uniprot_map)))
+
             uniprot_id = hgnc_to_uniprot_map[str(annotation.subject.id)]  # convert back to UniProtKB ID
+            print(uniprot_id)
             uniprot_curie = Curie(namespace=uniprot_id.split(":")[0], identity=uniprot_id.split(":")[1])
             annotation.evidence.with_support_from = [ConjunctiveSet(
                 elements=[uniprot_curie]
-            )]
-        else:
-            annotation.evidence.with_support_from = [ConjunctiveSet(
-                elements=[Curie(namespace=annotation.subject.id.namespace,
-                                identity=annotation.subject.id.identity)]
             )]
         annotation.evidence.has_supporting_reference = [Curie(namespace='GO_REF', identity=self.ortho_reference)]
         annotation.evidence.type = Curie(namespace='ECO', identity=iso_eco_code.split(":")[1])  # inferred from sequence similarity

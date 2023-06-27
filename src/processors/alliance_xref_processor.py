@@ -26,7 +26,8 @@ class AllianceXrefProcessor:
                     continue
                 line = line.strip().split("\t")
                 # UniProtKB ID is in column 1, HGNC ID is in column 0
-                uniprot_to_hgnc_map[line[1]] = line[0]
-                hgnc_to_uniprot_map[line[0]] = line[1]
+                if line[1].startswith("UniProtKB:") and line[0].startswith("HGNC:"):
+                    uniprot_to_hgnc_map[line[1]] = line[0]
+                    hgnc_to_uniprot_map[line[0]] = line[1]
         return hgnc_to_uniprot_map, uniprot_to_hgnc_map
 
