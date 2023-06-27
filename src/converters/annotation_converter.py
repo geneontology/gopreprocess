@@ -105,19 +105,14 @@ class AnnotationConverter:
         # make with_from include original source annotation identifier, if the
         # original annotation was to UniProtKB, then here it is likely the MOD or HGNC identifier.
 
-        pprint(hgnc_to_uniprot_map)
         # source_genes 'HGNC:15042': 'MGI:3031248', annotation.subject.id 'HGNC:15042'
         if str(annotation.subject.id) in source_genes.keys():
-            print("current subject.id", str(annotation.subject.id))
-            print("converted? ", hgnc_to_uniprot_map[str(annotation.subject.id)])
-            print("first dict element?", next(iter(hgnc_to_uniprot_map)))
-
-            uniprot_id = hgnc_to_uniprot_map[str(annotation.subject.id)]  # convert back to UniProtKB ID
-            print(uniprot_id)
-            uniprot_curie = Curie(namespace=uniprot_id.split(":")[0], identity=uniprot_id.split(":")[1])
-            annotation.evidence.with_support_from = [ConjunctiveSet(
-                elements=[uniprot_curie]
-            )]
+            if str(annotation.subject.id) in hgnc_to_uniprot_map.keys():
+                uniprot_id = hgnc_to_uniprot_map[str(annotation.subject.id)]  # convert back to UniProtKB ID
+                uniprot_curie = Curie(namespace=uniprot_id.split(":")[0], identity=uniprot_id.split(":")[1])
+                annotation.evidence.with_support_from = [ConjunctiveSet(
+                    elements=[uniprot_curie]
+                )]
         annotation.evidence.has_supporting_reference = [Curie(namespace='GO_REF', identity=self.ortho_reference)]
         annotation.evidence.type = Curie(namespace='ECO', identity=iso_eco_code.split(":")[1])  # inferred from sequence similarity
         # not sure why this is necessary, but it is, else we get a Subject with an extra tuple wrapper
