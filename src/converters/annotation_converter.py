@@ -106,12 +106,17 @@ class AnnotationConverter:
         # original annotation was to UniProtKB, then here it is likely the MOD or HGNC identifier.
 
         # source_genes 'HGNC:15042': 'MGI:3031248', annotation.subject.id 'HGNC:15042'
+        # source_genes 'RGD:1309001': 'MGI:2443611', annotation.subject.id 'RGD:1309001'
         if str(annotation.subject.id) in source_genes.keys():
             if str(annotation.subject.id) in hgnc_to_uniprot_map.keys():
                 uniprot_id = hgnc_to_uniprot_map[str(annotation.subject.id)]  # convert back to UniProtKB ID
                 uniprot_curie = Curie(namespace=uniprot_id.split(":")[0], identity=uniprot_id.split(":")[1])
                 annotation.evidence.with_support_from = [ConjunctiveSet(
                     elements=[uniprot_curie]
+                )]
+            else:
+                annotation.evidence.with_support_from = [ConjunctiveSet(
+                    elements=[str(annotation.subject.id)]
                 )]
         annotation.evidence.has_supporting_reference = [Curie(namespace='GO_REF', identity=self.ortho_reference)]
         annotation.evidence.type = Curie(namespace='ECO', identity=iso_eco_code.split(":")[1])  # inferred from sequence similarity
