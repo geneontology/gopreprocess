@@ -1,7 +1,7 @@
 from src.processors.alliance_ortho_processor import OrthoProcessor
 from src.processors.gafprocessor import GafProcessor
 from src.processors.gpiprocessor import GpiProcessor
-from src.processors.alliance_xref_processor import AllianceXrefProcessor
+from src.processors.xref_processor import XrefProcessor
 from ontobio.model.association import Curie, ConjunctiveSet
 from ontobio.model.association import map_gp_type_label_to_curie
 from src.utils.download import download_files
@@ -59,8 +59,8 @@ class AnnotationConverter:
         ortho_path, source_gaf_path, target_gpi_path = download_files(self.source_taxon, self.target_taxon)
         target_genes = GpiProcessor(target_gpi_path).target_genes
         source_genes = OrthoProcessor(target_genes, ortho_path, self.target_taxon, self.source_taxon).genes
-        uniprot_to_hgnc_map = AllianceXrefProcessor().uniprot_to_hgnc_map
-        hgnc_to_uniprot_map = AllianceXrefProcessor().hgnc_to_uniprot_map
+        uniprot_to_hgnc_map = XrefProcessor().uniprot_to_hgnc_map
+        hgnc_to_uniprot_map = XrefProcessor().hgnc_to_uniprot_map
         source_annotations = GafProcessor(source_genes,
                                           source_gaf_path,
                                           taxon_to_provider=taxon_to_provider,

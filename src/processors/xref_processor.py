@@ -2,7 +2,7 @@ from src.utils.decorators import timer
 from src.utils.download import download_file
 
 
-class AllianceXrefProcessor:
+class XrefProcessor:
     """
     Class that parses the Alliance cross-reference file and generates a map of HGNC IDs to UniProt IDs.
     It populates two maps, one keyed by UniProtKB identifier, one keyed by HGNC identifier.
@@ -19,15 +19,18 @@ class AllianceXrefProcessor:
     def generate_gene_protein_map(self) -> tuple[dict, dict]:
         hgnc_to_uniprot_map = {}
         uniprot_to_hgnc_map = {}
-        cross_reference_filepath = download_file("ALLIANCE", "ALLIANCE_XREF")
+        # hard coding this download path for now; this is one place that will need additional
+        # work if we want to support other species.  Best case, we get this from the Alliance at some point.
+        cross_reference_filepath = download_file("MGI", "MGI_XREF")
         with open(cross_reference_filepath, "r") as f:
             for line in f:
-                if line.startswith("#"):
+                if line.startswith("DB"):
                     continue
+                print(line)
                 line = line.strip().split("\t")
                 # UniProtKB ID is in column 1, HGNC ID is in column 0
-                if line[1].startswith("UniProtKB:") and line[0].startswith("HGNC:"):
-                    uniprot_to_hgnc_map[line[1]] = line[0]
-                    hgnc_to_uniprot_map[line[0]] = line[1]
+                if line[1].startswith("human"):
+                    uniprot_to_hgnc_map[line[12]] = line[6]
+                    hgnc_to_uniprot_map[line[6]] = line[12]
         return hgnc_to_uniprot_map, uniprot_to_hgnc_map
 
