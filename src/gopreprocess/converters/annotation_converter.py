@@ -68,8 +68,6 @@ class AnnotationConverter:
                                           namespaces=self.namespaces,
                                           uniprot_to_hgnc_map=uniprot_to_hgnc_map).convertible_annotations
 
-        # just for performance of the check below for rat genes in the RGD GAF file that have
-        # the appropriate ortholog relationship to a mouse gene in the MGI GPI file
         source_gene_set = set(source_genes.keys())
         converted_target_annotations.append(["!gaf-version: 2.2"])
 

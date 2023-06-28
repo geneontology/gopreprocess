@@ -36,8 +36,6 @@ class XrefProcessor:
                 line = line.split("\t")
                 # UniProtKB ID is in column 1, HGNC ID is in column 0
                 if line[1].startswith("human") and line[12] is not None and line[6] is not None:
-                    if 'Q9Y6T7' in line[12]:
-                        print("found UniProtKB:Q9Y6T7 in line 12", line[6], line[12])
                     if "," in line[12]:
                         uniprot_ids = line[12].split(",")
                     else:

@@ -6,7 +6,7 @@ from src.gopreprocess.converters.annotation_converter import AnnotationConverter
 @click.command()
 @click.option("--namespaces", default=["RGD", "UniProtKB"], help="List of providers in the source GAF that should be "
                                                                  "used to retrieve source annotations for conversion. "
-                                                                 "e.g. [RGD, UniProtKB]")
+                                                                 "e.g. [RGD, HGNC, UniProtKB]")
 @click.option("--target_taxon", default="NCBITaxon:10090", help="Target taxon in curie format using NCBITaxon prefix. "
                                                                 "e.g. NCBITaxon:10090")
 @click.option("--source_taxon", default="NCBITaxon:10116", help="Source taxon in curie format using NCBITaxon prefix. "
