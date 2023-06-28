@@ -37,7 +37,7 @@ def download_file(target_directory_name: str, config_key: str) -> Path:
     :return: None
 
     """
-    file_path = pystow.ensure_gunzip(target_directory_name,
+    file_path = pystow.ensure(target_directory_name,
                                      url=get_url(config_key),
                                      autoclean=True)
     return file_path
