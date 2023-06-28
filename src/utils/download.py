@@ -1,9 +1,9 @@
 from pathlib import Path
 from src.utils.decorators import timer
-from src.utils.settings import get_url
+from src.utils.shared_utils import get_url
 import pystow
 from typing import Tuple
-from src.utils.settings import taxon_to_provider, iso_eco_code
+from src.utils.shared_utils import taxon_to_provider, iso_eco_code
 
 
 @timer
