@@ -20,7 +20,6 @@ def get_experimental_eco_codes(ecomap) -> List[str]:
     for code, _, eco_id in ecomap.derived_mappings():
         if code in ['EXP', 'IDA', 'IPI', 'IMP', 'IGI']:
             experimental_evidence_codes.append(eco_id)
-    print("EEC", experimental_evidence_codes)
     return experimental_evidence_codes
 
 
@@ -98,7 +97,6 @@ class GafProcessor:
                     if source_assoc.subject.id.namespace == "UniProtKB":
                         # TODO convert to report files
                         if str(source_assoc.subject.id) not in self.uniprot_to_hgnc_map.keys():
-                            print(str(source_assoc.subject.id) + " not found in mapping file")
                             continue
                         else:
                             mapped_id = self.uniprot_to_hgnc_map[str(source_assoc.subject.id)]
