@@ -26,11 +26,15 @@ class XrefProcessor:
             for line in f:
                 if line.startswith("DB"):
                     continue
-                print(line)
                 line = line.split("\t")
                 # UniProtKB ID is in column 1, HGNC ID is in column 0
-                if line[1].startswith("human"):
-                    uniprot_to_hgnc_map[line[12]] = line[6]
-                    hgnc_to_uniprot_map[line[6]] = line[12]
+                if line[1].startswith("human") and line[12] is not None and line[6] is not None:
+                    uniprot_to_hgnc_map["UniProtKB:"+line[12]] = line[6]
+                    hgnc_to_uniprot_map[line[6]] = "UniProtKB:"+line[12]
+                    print("line 6", line[6])
+                    print(hgnc_to_uniprot_map[line[6]])
+                    print("line 12", line[12])
+                    print(uniprot_to_hgnc_map["UniProtKB:"+line[12]])
+
         return hgnc_to_uniprot_map, uniprot_to_hgnc_map
 
