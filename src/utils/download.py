@@ -38,6 +38,6 @@ def download_file(target_directory_name: str, config_key: str) -> Path:
 
     """
     file_path = pystow.ensure(target_directory_name,
-                                     url=get_url(config_key),
-                                     autoclean=True)
+                              url=get_url(config_key),
+                              force=True)
     return file_path

@@ -27,7 +27,7 @@ class XrefProcessor:
                 if line.startswith("DB"):
                     continue
                 print(line)
-                line = line.strip().split("\t")
+                line = line.split("\t")
                 # UniProtKB ID is in column 1, HGNC ID is in column 0
                 if line[1].startswith("human"):
                     uniprot_to_hgnc_map[line[12]] = line[6]
