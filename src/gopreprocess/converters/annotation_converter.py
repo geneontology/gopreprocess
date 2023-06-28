@@ -58,8 +58,9 @@ class AnnotationConverter:
         ortho_path, source_gaf_path, target_gpi_path = download_files(self.source_taxon, self.target_taxon)
         target_genes = GpiProcessor(target_gpi_path).target_genes
         source_genes = OrthoProcessor(target_genes, ortho_path, self.target_taxon, self.source_taxon).genes
-        uniprot_to_hgnc_map = XrefProcessor().uniprot_to_hgnc_map
-        hgnc_to_uniprot_map = XrefProcessor().hgnc_to_uniprot_map
+        xrefs = XrefProcessor()
+        uniprot_to_hgnc_map = xrefs.uniprot_to_hgnc_map
+        hgnc_to_uniprot_map = xrefs.hgnc_to_uniprot_map
         source_annotations = GafProcessor(source_genes,
                                           source_gaf_path,
                                           taxon_to_provider=taxon_to_provider,
