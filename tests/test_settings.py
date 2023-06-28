@@ -1,5 +1,5 @@
 import unittest
-from src.utils.shared_utils import get_url
+from src.utils.settings import get_url
 
 
 class TestGetURL(unittest.TestCase):
