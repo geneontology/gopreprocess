@@ -1,5 +1,5 @@
 import unittest
-from src.processors.gpiprocessor import GpiProcessor
+from src.gopreprocess.processors.gpiprocessor import GpiProcessor
 import os
 from pathlib import Path
 

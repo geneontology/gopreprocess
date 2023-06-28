@@ -1,7 +1,7 @@
-from src.processors.alliance_ortho_processor import OrthoProcessor
-from src.processors.gafprocessor import GafProcessor
-from src.processors.gpiprocessor import GpiProcessor
-from src.processors.xref_processor import XrefProcessor
+from src.gopreprocess.processors.alliance_ortho_processor import OrthoProcessor
+from src.gopreprocess.processors.gafprocessor import GafProcessor
+from src.gopreprocess.processors.gpiprocessor import GpiProcessor
+from src.gopreprocess.processors.xref_processor import XrefProcessor
 from ontobio.model.association import Curie, ConjunctiveSet
 from ontobio.model.association import map_gp_type_label_to_curie
 from src.utils.download import download_files
@@ -11,7 +11,6 @@ import pandas as pd
 import pystow
 from typing import List
 from src.utils.settings import taxon_to_provider, iso_eco_code
-from pprint import pprint
 
 
 def dump_converted_annotations(converted_target_annotations: List[List[str]],

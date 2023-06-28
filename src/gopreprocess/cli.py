@@ -1,6 +1,6 @@
 import click
 
-from src.converters.annotation_converter import AnnotationConverter
+from src.gopreprocess.converters.annotation_converter import AnnotationConverter
 
 
 @click.command()

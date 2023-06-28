@@ -1,5 +1,5 @@
 import unittest
-from src.processors.gafprocessor import GafProcessor
+from src.gopreprocess.processors import GafProcessor
 import os
 from pathlib import Path
 

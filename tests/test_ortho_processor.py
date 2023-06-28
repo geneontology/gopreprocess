@@ -1,5 +1,5 @@
 import unittest
-from src.processors.alliance_ortho_processor import OrthoProcessor
+from src.gopreprocess.processors.alliance_ortho_processor import OrthoProcessor
 import os
 from pathlib import Path
 
