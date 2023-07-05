@@ -1,6 +1,5 @@
 from ontobio.io import assocparser, gpadparser
 from ontobio import ecomap
-import click
 import pandas as pd
 import datetime
 from ontobio.io import qc
@@ -223,8 +222,10 @@ def get_typed_parser(file_handle, filename) -> [str, assocparser.AssocParser]:
         else:
             continue
     if isinstance(parser, gpadparser.GpadParser):
+        print("Using GPAD parser")
         df_file = read_gpad_csv(filename, parser.version)
     else:
+        print("Using GAF parser")
         df_file = read_gaf_csv(filename, parser.version)
 
     return df_file, parser
@@ -245,7 +246,9 @@ def get_parser(file1, file2) -> (str, str, List[GoAssociation], List[GoAssociati
     df_file2, parser2 = get_typed_parser(file2_obj, file2)
 
     assocs1 = parser1.parse(file1)
+    print(len(assocs1), " associations in ", file1, " using ", type(parser1))
     assocs2 = parser2.parse(file2)
+    print(len(assocs2), " associations in ", file2, " using ", type(parser2))
 
     return df_file1, df_file2, assocs1, assocs2
 
@@ -280,7 +283,7 @@ def read_gaf_csv(filename, version) -> pd:
             if eco_code[2] == ev:
                 new_df['Evidence_code'] = new_df['Evidence_code'].replace([eco_code[2]],
                                                                               ecomapping.ecoclass_to_coderef(
-                                                                                  eco_code[2])[0])
+                                                                              eco_code[2])[0])
     return new_df
 
 
@@ -325,7 +328,10 @@ def read_gpad_csv(filename, version) -> pd:
 
 
 def get_group_by(data_frame, group, file) -> (pd, pd):
+    print("Grouping by ", group)
     stats = {'filename': file, 'total_rows': data_frame.shape[0]}
+    print(stats, data_frame.columns)
+    print(data_frame.head(10))
     grouped_frame = data_frame.groupby(group)[group].count().to_frame()
     without_nulls = grouped_frame.fillna(0)
     return stats, without_nulls
@@ -394,7 +400,3 @@ gaf_format = ["DB",
               "Assigned_By",
               "Annotation_Extension",
               "Gene_Product_Form_ID"]
-
-
-if __name__ == '__main__':
-    compare_files()
