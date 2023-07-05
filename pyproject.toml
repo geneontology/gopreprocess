@@ -27,6 +27,7 @@ sphinx-click = {version = ">=4.3.0", optional = true}
 
 [tool.poetry.scripts]
 convert_annotations = "src.gopreprocess.cli:convert_annotations"
+compare = "src.gopreprocess.cli:compare"
 
 [tool.poetry.extras]
 docs = [
