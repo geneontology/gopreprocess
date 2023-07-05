@@ -103,5 +103,5 @@ class GafProcessor:
                             source_assoc.subject.id = Curie(namespace=mapped_id.split(":")[0],
                                                             identity=mapped_id.split(":")[1])
                     self.convertible_annotations.append(source_assoc)
-            print("Number of removed annotations: " + counter)
+            print("Number of removed annotations: " + str(counter))
 

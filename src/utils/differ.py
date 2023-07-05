@@ -256,8 +256,8 @@ def get_parser(file1, file2) -> (str, str, List[GoAssociation], List[GoAssociati
 def read_gaf_csv(filename, version) -> pd:
     ecomapping = ecomap.EcoMap()
     data_frame = pd.read_csv(filename,
-                             comment='!',
-                             sep='\t',
+                             comment="!",
+                             sep="\t",
                              header=None,
                              na_filter=False,
                              names=["DB",
@@ -277,7 +277,9 @@ def read_gaf_csv(filename, version) -> pd:
                                     "Assigned_By",
                                     "Annotation_Extension",
                                     "Gene_Product_Form_ID"]).fillna("")
+    print(data_frame['DB_Object_ID'].head(5))
     new_df = data_frame.filter(['DB_Object_ID', 'Qualifier', 'GO_ID', 'Evidence_code', 'DB_Reference'], axis=1)
+    print(data_frame['DB_Object_ID'].head(5))
     for eco_code in ecomapping.mappings():
         for ev in new_df['Evidence_code']:
             if eco_code[2] == ev:
@@ -331,7 +333,6 @@ def get_group_by(data_frame, group, file) -> (pd, pd):
     print("Grouping by ", group)
     stats = {'filename': file, 'total_rows': data_frame.shape[0]}
     print(stats, data_frame.columns)
-    print(data_frame.head(10))
     grouped_frame = data_frame.groupby(group)[group].count().to_frame()
     without_nulls = grouped_frame.fillna(0)
     return stats, without_nulls
