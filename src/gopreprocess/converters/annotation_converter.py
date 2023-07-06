@@ -19,9 +19,7 @@ def dump_converted_annotations(converted_target_annotations: List[List[str]],
     # using pandas in order to take advantage of pystow in terms of file location and handling
     # again; pandas is a bit overkill.
     df = pd.DataFrame(converted_target_annotations)
-    print(df.columns)
     df.to_csv("test.gaf", sep="\t", index=False, header=False)
-    print(df[1].head(10))
     df_unique = df.drop_duplicates()
     pystow.dump_df(key=taxon_to_provider[target_taxon],
                    obj=df_unique,

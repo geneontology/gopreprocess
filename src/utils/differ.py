@@ -97,6 +97,9 @@ def generate_group_report(df_file1, df_file2, group_by_columns, file1, file2, re
 
     """
 
+    file1_name = file1.replace(".", "_")
+    file2_name = file2.replace(".", "_")
+
     if len(group_by_columns) > 0:
         s = "\n\n## GROUP BY SUMMARY \n\n"
         s += "This report generated on {}\n\n".format(datetime.date.today())
@@ -104,9 +107,11 @@ def generate_group_report(df_file1, df_file2, group_by_columns, file1, file2, re
         s += "  * Compared Files: " + file1 + ", " + file2 + "\n"
 
         _, grouped_frame1 = get_group_by(df_file1, group_by_columns, file1)
+        grouped_frame1 = grouped_frame1.rename(columns={'count': file1_name})
         _, grouped_frame2 = get_group_by(df_file2, group_by_columns, file2)
+        grouped_frame2 = grouped_frame2.rename(columns={'count': file2_name})
+        grouped_frame2 = grouped_frame2[file2_name].astype(int)
         # rename the second count so the merge removes duplicate columns but not the counts.
-        grouped_frame2 = grouped_frame2.rename(columns={'count': 'count2'})
 
         # bring the two data frames together
         merged_group_frame = pd.concat([grouped_frame1, grouped_frame2], axis=1)
@@ -116,18 +121,23 @@ def generate_group_report(df_file1, df_file2, group_by_columns, file1, file2, re
 
         # Drop duplicate columns (excluding count columns)
         count_df = merged_group_frame_no_nulls.loc[:, ~merged_group_frame_no_nulls.columns.duplicated()]
-        print(count_df.head(10))
 
         if restrict_to_decreases:
-            filtered_df = count_df[count_df['count2'] < count_df['count']]
+            filtered_df = count_df[count_df[file2_name] < count_df[file1_name]]
         else:
             filtered_df = count_df[
-                count_df['count2'] != count_df['count']]
+                count_df[file2_name] != count_df[file1_name]]
 
-        s += "  * Number of unqiue " + str(group_by_columns) + "s that show differences: " + str(len(filtered_df.index)) + "\n"
-        s += "  * See output file " + output + "_" + str(group_by_columns) + "_counts_per_column_report" + "\n"
-        print(filtered_df.head(10))
-        filtered_df.to_csv(output + "_" + str(group_by_columns) + "_counts_per_column_report", sep='\t')
+        name = None
+        for column in group_by_columns:
+            if name is None:
+                name = column
+            else:
+                name = name+"_"+column
+
+        s += "  * Number of unqiue " + name + "s that show differences: " + str(len(filtered_df.index)) + "\n"
+        s += "  * See output file " + output + "_" + name + "_counts_per_column_report" + "\n"
+        filtered_df.to_csv(output + "_" + name + "_counts_per_column_report", sep='\t', index=False)
         print(s)
         print("\n\n")
 
