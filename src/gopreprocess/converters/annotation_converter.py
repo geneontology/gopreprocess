@@ -20,16 +20,17 @@ def dump_converted_annotations(converted_target_annotations: List[List[str]],
     # again; pandas is a bit overkill.
     df = pd.DataFrame(converted_target_annotations)
     print(df.columns)
+    df.to_csv("test.gaf", sep="\t", index=False, header=False)
     print(df[1].head(10))
     df_unique = df.drop_duplicates()
     pystow.dump_df(key=taxon_to_provider[target_taxon],
                    obj=df_unique,
-                   index=True,
+                   sep="\t",
                    name=taxon_to_provider[target_taxon].lower() + "-" + taxon_to_provider[source_taxon].lower() + "-ortho.gaf.gz",
                    to_csv_kwargs={"index": False, "header": False, "compression": "gzip"})
     pystow.dump_df(key=taxon_to_provider[target_taxon],
                    obj=df_unique,
-                   index=True,
+                   sep="\t",
                    name=taxon_to_provider[target_taxon].lower() + "-" + taxon_to_provider[source_taxon].lower() + "-ortho-test.gaf",
                    to_csv_kwargs={"index": False, "header": False})
 

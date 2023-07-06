@@ -1,6 +1,12 @@
 import time
 
 
+def convert_to_list(ctx, param, value):
+    if value is not None:
+        return value.split(',')
+    return []
+
+
 def timer(func):
     """
     Decorator function to measure the execution time of a function.

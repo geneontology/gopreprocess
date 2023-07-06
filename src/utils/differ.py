@@ -9,7 +9,7 @@ from ontobio.model import collections
 from typing import List
 
 
-def compare_files(file1, file2, output, group_by_column, restrict_to_decreases):
+def compare_files(file1, file2, output, group_by_columns, restrict_to_decreases):
     """
 
     Method to compare two GPAD or GAF files and report differences on a file level and via converting
@@ -21,8 +21,8 @@ def compare_files(file1, file2, output, group_by_column, restrict_to_decreases):
     :type file2: str
     :param output: The prefix that will be appended to all the output files/reports created by this script.
     :type output: str
-    :param group_by_column: Name of the target/second file to compare
-    :type group_by_column: List
+    :param group_by_columns: Name of the target/second file to compare
+    :type group_by_columns: List
     :param restrict_to_decreases: An optional boolean flag that allows the grouping column counts to be returned only
         if they show a decrease in number beteween file1 and file2
     :type restrict_to_decreases: bool
@@ -33,7 +33,7 @@ def compare_files(file1, file2, output, group_by_column, restrict_to_decreases):
     df_file1, df_file2, assocs1, assocs2 = get_parser(file1, file2)
     generate_count_report(df_file1, df_file2, file1, file2, output)
     compare_associations(assocs1, assocs2, output, file1, file2)
-    generate_group_report(df_file1, df_file2, group_by_column, file1, file2, restrict_to_decreases, output)
+    generate_group_report(df_file1, df_file2, group_by_columns, file1, file2, restrict_to_decreases, output)
 
 
 def generate_count_report(df_file1, df_file2, file1, file2, output):
@@ -62,6 +62,7 @@ def generate_count_report(df_file1, df_file2, file1, file2, output):
     file2_groups, counts_frame2 = get_column_count(df_file2, file2)
 
     merged_frame = pd.concat([counts_frame1, counts_frame2], axis=1)
+    print(merged_frame.head(10))
     merged_frame.astype('Int64')
     merged_frame.to_csv(output + "_counts_per_column_report", sep='\t')
     s = "\n\n## COLUMN COUNT SUMMARY \n\n"
@@ -72,7 +73,7 @@ def generate_count_report(df_file1, df_file2, file1, file2, output):
     print(merged_frame)
 
 
-def generate_group_report(df_file1, df_file2, group_by_column, file1, file2, restrict_to_decreases, output):
+def generate_group_report(df_file1, df_file2, group_by_columns, file1, file2, restrict_to_decreases, output):
     """
 
     Method to generate a report of the number of distinct values of each of the provided group_by columns
@@ -82,8 +83,8 @@ def generate_group_report(df_file1, df_file2, group_by_column, file1, file2, res
     :type df_file1: pd
     :param df_file2: data frame representing a normalized columnar represenation of file2
     :type df_file2: pd
-    :param group_by_column: the columns to group by
-    :type group_by_column: List[str]
+    :param group_by_columns: the columns to group by
+    :type group_by_columns: List[str]
     :param file1: The file name of the file provided in the click for reporting purposes.
     :type file1: str
     :param file2: The file name of the file provided in the click for reporting purposes.
@@ -96,35 +97,58 @@ def generate_group_report(df_file1, df_file2, group_by_column, file1, file2, res
 
     """
 
-    if len(group_by_column) > 0:
+    if len(group_by_columns) > 0:
 
         s = "\n\n## GROUP BY SUMMARY \n\n"
         s += "This report generated on {}\n\n".format(datetime.date.today())
-        s += "  * Group By Columns: " + str(group_by_column) + "\n"
+        s += "  * Group By Columns: " + str(group_by_columns) + "\n"
         s += "  * Compared Files: " + file1 + ", " + file2 + "\n"
 
-        for group in group_by_column:
-            file1_groups, grouped_frame1 = get_group_by(df_file1, group, file1)
-            file2_groups, grouped_frame2 = get_group_by(df_file2, group, file2)
+        _, grouped_frame1 = get_group_by(df_file1, group_by_columns, file1)
+        _, grouped_frame2 = get_group_by(df_file2, group_by_columns, file2)
+        merged_group_frame = pd.concat([grouped_frame1, grouped_frame2], axis=1)
+        merged_group_frame_no_nulls = merged_group_frame.fillna(0)
+        print(merged_group_frame_no_nulls.head(10))
+        # fix_int_df = merged_group_frame_no_nulls.astype(int)
+        column1 = merged_group_frame_no_nulls.columns[0]
+        column2 = merged_group_frame_no_nulls.columns[1]+"2"
+        merged_group_frame_no_nulls.columns.values[1] = column2
+        if restrict_to_decreases:
+            df = merged_group_frame_no_nulls.query("{0}".format(column1) + " > " + "{0}".format(column2))
+        else:
+            df = merged_group_frame_no_nulls.query("{0}".format(column1) + " != " + "{0}".format(column2))
 
-            merged_group_frame = pd.concat([grouped_frame1, grouped_frame2], axis=1)
-            merged_group_frame_no_nulls = merged_group_frame.fillna(0)
-            fix_int_df = merged_group_frame_no_nulls.astype(int)
-            column1 = fix_int_df.columns[0]
-            column2 = fix_int_df.columns[1]+"2"
-            fix_int_df.columns.values[1] = column2
-            if restrict_to_decreases:
-                df = fix_int_df.query("{0}".format(column1) + " > " + "{0}".format(column2))
-            else:
-                df = fix_int_df.query("{0}".format(column1) + " != " + "{0}".format(column2))
+        s += "  * Number of unqiue " + str(group_by_columns) + "s that show differences: " + str(len(df.index)) + "\n"
+        s += "  * See output file " + output + "_" + str(group_by_columns) + "_counts_per_column_report" + "\n"
+        df.rename(columns={list(df)[0]: file1}, inplace=True)
+        df.rename(columns={list(df)[1]: file2}, inplace=True)
+        df.to_csv(output + "_" + str(group_by_columns) + "_counts_per_column_report", sep='\t')
+        print(s)
+        print("\n\n")
 
-            s += "  * Number of unqiue " + group + "s that show differences: " + str(len(df.index)) + "\n"
-            s += "  * See output file " + output + "_" + group + "_counts_per_column_report" + "\n"
-            df.rename(columns={list(df)[0]: file1}, inplace=True)
-            df.rename(columns={list(df)[1]: file2}, inplace=True)
-            df.to_csv(output + "_" + group + "_counts_per_column_report", sep='\t')
-            print(s)
-            print("\n\n")
+
+        # for group in group_by_columns:
+        #     _, grouped_frame1 = get_group_by(df_file1, group, file1)
+        #     _, grouped_frame2 = get_group_by(df_file2, group, file2)
+        #
+        #     merged_group_frame = pd.concat([grouped_frame1, grouped_frame2], axis=1)
+        #     merged_group_frame_no_nulls = merged_group_frame.fillna(0)
+        #     fix_int_df = merged_group_frame_no_nulls.astype(int)
+        #     column1 = fix_int_df.columns[0]
+        #     column2 = fix_int_df.columns[1]+"2"
+        #     fix_int_df.columns.values[1] = column2
+        #     if restrict_to_decreases:
+        #         df = fix_int_df.query("{0}".format(column1) + " > " + "{0}".format(column2))
+        #     else:
+        #         df = fix_int_df.query("{0}".format(column1) + " != " + "{0}".format(column2))
+        #
+        #     s += "  * Number of unqiue " + group + "s that show differences: " + str(len(df.index)) + "\n"
+        #     s += "  * See output file " + output + "_" + group + "_counts_per_column_report" + "\n"
+        #     df.rename(columns={list(df)[0]: file1}, inplace=True)
+        #     df.rename(columns={list(df)[1]: file2}, inplace=True)
+        #     df.to_csv(output + "_" + group + "_counts_per_column_report", sep='\t')
+        #     print(s)
+        #     print("\n\n")
 
 
 def compare_associations(assocs1, assocs2, output, file1, file2):
@@ -257,9 +281,11 @@ def read_gaf_csv(filename, version) -> pd:
     ecomapping = ecomap.EcoMap()
     data_frame = pd.read_csv(filename,
                              comment="!",
-                             sep="\t",
                              header=None,
                              na_filter=False,
+                             engine='python',
+                             delimiter="\t",
+                             index_col=False,
                              names=["DB",
                                     "DB_Object_ID",
                                     "DB_Object_Symbol",
@@ -277,9 +303,7 @@ def read_gaf_csv(filename, version) -> pd:
                                     "Assigned_By",
                                     "Annotation_Extension",
                                     "Gene_Product_Form_ID"]).fillna("")
-    print(data_frame['DB_Object_ID'].head(5))
     new_df = data_frame.filter(['DB_Object_ID', 'Qualifier', 'GO_ID', 'Evidence_code', 'DB_Reference'], axis=1)
-    print(data_frame['DB_Object_ID'].head(5))
     for eco_code in ecomapping.mappings():
         for ev in new_df['Evidence_code']:
             if eco_code[2] == ev:
@@ -293,9 +317,10 @@ def read_gpad_csv(filename, version) -> pd:
     if version.startswith("1"):
         data_frame = pd.read_csv(filename,
                                  comment='!',
-                                 sep='\t',
                                  header=None,
                                  na_filter=False,
+                                 engine='python',
+                                 delimiter="\t",
                                  names=gpad_1_2_format).fillna("")
         df = data_frame.filter(['db', 'subject', 'qualifiers', 'relation', 'object', 'evidence_code', 'reference'], axis=1)
         concat_column = df['db'] + ":" + df['subject']
@@ -329,11 +354,10 @@ def read_gpad_csv(filename, version) -> pd:
     return new_df
 
 
-def get_group_by(data_frame, group, file) -> (pd, pd):
-    print("Grouping by ", group)
+def get_group_by(data_frame, groups, file) -> (pd, pd):
+    print("Grouping by ", str(groups), type(groups))
     stats = {'filename': file, 'total_rows': data_frame.shape[0]}
-    print(stats, data_frame.columns)
-    grouped_frame = data_frame.groupby(group)[group].count().to_frame()
+    grouped_frame = data_frame.groupby(groups).size().reset_index(name='count')
     without_nulls = grouped_frame.fillna(0)
     return stats, without_nulls
 
