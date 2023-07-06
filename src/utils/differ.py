@@ -119,10 +119,10 @@ def generate_group_report(df_file1, df_file2, group_by_columns, file1, file2, re
         print(count_df.head(10))
 
         if restrict_to_decreases:
-            filtered_df = merged_group_frame_no_nulls[merged_group_frame_no_nulls['count2'] < merged_group_frame_no_nulls['count']]
+            filtered_df = count_df[count_df['count2'] < count_df['count']]
         else:
-            filtered_df = merged_group_frame_no_nulls[
-                merged_group_frame_no_nulls['count2'] != merged_group_frame_no_nulls['count']]
+            filtered_df = count_df[
+                count_df['count2'] != count_df['count']]
 
         s += "  * Number of unqiue " + str(group_by_columns) + "s that show differences: " + str(len(filtered_df.index)) + "\n"
         s += "  * See output file " + output + "_" + str(group_by_columns) + "_counts_per_column_report" + "\n"
