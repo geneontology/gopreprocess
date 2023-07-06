@@ -68,7 +68,7 @@ def generate_count_report(df_file1, df_file2, file1, file2, output):
     s = "\n\n## COLUMN COUNT SUMMARY \n\n"
     s += "This report generated on {}\n\n".format(datetime.date.today())
     s += "  * Compared Files: " + file1 + ", " + file2 + "\n"
-    s += "  * See Report File: " + output + "_counts_per_column_report" +"\n\n"
+    s += "  * See Report File: " + output + "_counts_per_column_report" + "\n\n"
     print(s)
     print(merged_frame)
 
@@ -98,7 +98,6 @@ def generate_group_report(df_file1, df_file2, group_by_columns, file1, file2, re
     """
 
     if len(group_by_columns) > 0:
-
         s = "\n\n## GROUP BY SUMMARY \n\n"
         s += "This report generated on {}\n\n".format(datetime.date.today())
         s += "  * Group By Columns: " + str(group_by_columns) + "\n"
@@ -106,49 +105,31 @@ def generate_group_report(df_file1, df_file2, group_by_columns, file1, file2, re
 
         _, grouped_frame1 = get_group_by(df_file1, group_by_columns, file1)
         _, grouped_frame2 = get_group_by(df_file2, group_by_columns, file2)
-        merged_group_frame = pd.concat([grouped_frame1, grouped_frame2], axis=1)
-        merged_group_frame_no_nulls = merged_group_frame.fillna(0)
-        print(merged_group_frame_no_nulls.head(10))
-        # fix_int_df = merged_group_frame_no_nulls.astype(int)
-        column1 = merged_group_frame_no_nulls.columns[0]
-        column2 = merged_group_frame_no_nulls.columns[1]+"2"
-        merged_group_frame_no_nulls.columns.values[1] = column2
-        if restrict_to_decreases:
-            df = merged_group_frame_no_nulls.query("{0}".format(column1) + " > " + "{0}".format(column2))
-        else:
-            df = merged_group_frame_no_nulls.query("{0}".format(column1) + " != " + "{0}".format(column2))
+        # rename the second count so the merge removes duplicate columns but not the counts.
+        grouped_frame2 = grouped_frame2.rename(columns={'count': 'count2'})
 
-        s += "  * Number of unqiue " + str(group_by_columns) + "s that show differences: " + str(len(df.index)) + "\n"
+        # bring the two data frames together
+        merged_group_frame = pd.concat([grouped_frame1, grouped_frame2], axis=1)
+
+        # remove nulls
+        merged_group_frame_no_nulls = merged_group_frame.fillna(0)
+
+        # Drop duplicate columns (excluding count columns)
+        count_df = merged_group_frame_no_nulls.loc[:, ~merged_group_frame_no_nulls.columns.duplicated()]
+        print(count_df.head(10))
+
+        if restrict_to_decreases:
+            filtered_df = merged_group_frame_no_nulls[merged_group_frame_no_nulls['count2'] < merged_group_frame_no_nulls['count']]
+        else:
+            filtered_df = merged_group_frame_no_nulls[
+                merged_group_frame_no_nulls['count2'] != merged_group_frame_no_nulls['count']]
+
+        s += "  * Number of unqiue " + str(group_by_columns) + "s that show differences: " + str(len(filtered_df.index)) + "\n"
         s += "  * See output file " + output + "_" + str(group_by_columns) + "_counts_per_column_report" + "\n"
-        df.rename(columns={list(df)[0]: file1}, inplace=True)
-        df.rename(columns={list(df)[1]: file2}, inplace=True)
-        df.to_csv(output + "_" + str(group_by_columns) + "_counts_per_column_report", sep='\t')
+        print(filtered_df.head(10))
+        filtered_df.to_csv(output + "_" + str(group_by_columns) + "_counts_per_column_report", sep='\t')
         print(s)
         print("\n\n")
-
-
-        # for group in group_by_columns:
-        #     _, grouped_frame1 = get_group_by(df_file1, group, file1)
-        #     _, grouped_frame2 = get_group_by(df_file2, group, file2)
-        #
-        #     merged_group_frame = pd.concat([grouped_frame1, grouped_frame2], axis=1)
-        #     merged_group_frame_no_nulls = merged_group_frame.fillna(0)
-        #     fix_int_df = merged_group_frame_no_nulls.astype(int)
-        #     column1 = fix_int_df.columns[0]
-        #     column2 = fix_int_df.columns[1]+"2"
-        #     fix_int_df.columns.values[1] = column2
-        #     if restrict_to_decreases:
-        #         df = fix_int_df.query("{0}".format(column1) + " > " + "{0}".format(column2))
-        #     else:
-        #         df = fix_int_df.query("{0}".format(column1) + " != " + "{0}".format(column2))
-        #
-        #     s += "  * Number of unqiue " + group + "s that show differences: " + str(len(df.index)) + "\n"
-        #     s += "  * See output file " + output + "_" + group + "_counts_per_column_report" + "\n"
-        #     df.rename(columns={list(df)[0]: file1}, inplace=True)
-        #     df.rename(columns={list(df)[1]: file2}, inplace=True)
-        #     df.to_csv(output + "_" + group + "_counts_per_column_report", sep='\t')
-        #     print(s)
-        #     print("\n\n")
 
 
 def compare_associations(assocs1, assocs2, output, file1, file2):
@@ -211,7 +192,6 @@ def compare_associations(assocs1, assocs2, output, file1, file2):
 
 
 def markdown_report(report, processed_lines) -> (str, str):
-
     json = report.to_report_json()
 
     s = "\n\n## DIFF SUMMARY\n\n"
@@ -263,7 +243,6 @@ def normalize_relation(relation: str) -> str:
 
 
 def get_parser(file1, file2) -> (str, str, List[GoAssociation], List[GoAssociation]):
-
     file1_obj = assocparser.AssocParser()._ensure_file(file1)
     df_file1, parser1 = get_typed_parser(file1_obj, file1)
     file2_obj = assocparser.AssocParser()._ensure_file(file2)
@@ -308,7 +287,7 @@ def read_gaf_csv(filename, version) -> pd:
         for ev in new_df['Evidence_code']:
             if eco_code[2] == ev:
                 new_df['Evidence_code'] = new_df['Evidence_code'].replace([eco_code[2]],
-                                                                              ecomapping.ecoclass_to_coderef(
+                                                                          ecomapping.ecoclass_to_coderef(
                                                                               eco_code[2])[0])
     return new_df
 
@@ -322,7 +301,8 @@ def read_gpad_csv(filename, version) -> pd:
                                  engine='python',
                                  delimiter="\t",
                                  names=gpad_1_2_format).fillna("")
-        df = data_frame.filter(['db', 'subject', 'qualifiers', 'relation', 'object', 'evidence_code', 'reference'], axis=1)
+        df = data_frame.filter(['db', 'subject', 'qualifiers', 'relation', 'object', 'evidence_code', 'reference'],
+                               axis=1)
         concat_column = df['db'] + ":" + df['subject']
         df['concat_column'] = concat_column
         filtered_df = df.filter(['concat_column', 'qualifiers', 'relation', 'object', 'evidence_code', 'reference'])
@@ -341,7 +321,8 @@ def read_gpad_csv(filename, version) -> pd:
         for ev in new_df['evidence_code']:
             if eco_code[2] == ev:
                 new_df['evidence_code'] = new_df['evidence_code'].replace([eco_code[2]],
-                                                                          ecomapping.ecoclass_to_coderef(eco_code[2])[0])
+                                                                          ecomapping.ecoclass_to_coderef(eco_code[2])[
+                                                                              0])
 
     # normalize ids
     config = assocparser.AssocParserConfig()
