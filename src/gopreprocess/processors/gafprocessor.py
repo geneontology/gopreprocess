@@ -1,6 +1,6 @@
 from ontobio.ecomap import EcoMap
 from ontobio.io.gafparser import GafParser
-from typing import List
+from typing import List, Dict
 from pathlib import Path
 from src.utils.decorators import timer
 from ontobio.model.association import Curie
@@ -37,7 +37,7 @@ def configure_parser() -> GafParser:
 
 
 class GafProcessor:
-    def __init__(self, genes: List,
+    def __init__(self,
                  filepath: Path,
                  namespaces: List,
                  taxon_to_provider: dict,
@@ -46,15 +46,12 @@ class GafProcessor:
         """
         Initializes a GafProcessor object.
 
-        :param genes: A list of genes.
-        :type genes: Any
         :param filepath: The path to the GAF file.
         :type filepath: str
         :param namespaces: A list of namespaces.
         :type namespaces: List[str]
         """
         self.filepath = filepath
-        self.ortho_genes = genes
         self.namespaces = namespaces
         self.convertible_annotations = []
         self.taxon_to_provider = taxon_to_provider

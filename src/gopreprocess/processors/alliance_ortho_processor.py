@@ -27,7 +27,6 @@ class OrthoProcessor:
         self.filepath = filepath
         self.taxon1 = taxon1
         self.taxon2 = taxon2
-
         self.genes = self.retrieve_ortho_map()
 
     @timer
@@ -41,13 +40,18 @@ class OrthoProcessor:
         with open(self.filepath, 'r') as file:
             data = json.load(file)
 
-        genes = {}
+        genes = {str: list}
         target_gene_set = set(self.target_genes.keys())
         for pair in data.get('data'):
             if pair.get('Gene1SpeciesTaxonID') == self.taxon1 and pair.get('Gene2SpeciesTaxonID') == self.taxon2:
-                if "MGI:"+str(pair.get('Gene1ID')) in target_gene_set:  # Exclude any ortho pairs where the target gene (mouse) isn't in the GPI file.
-                    genes[pair.get('Gene2ID')] = pair.get('Gene1ID')  # source gene id: target gene id, e.g. rat gene id : mouse gene id
-                    if pair.get('Gene2ID') == "MGI:1096650":
-                        print("Found MGI:1096650")
-                        print(genes[pair.get('Gene2ID')])
+                # Exclude any ortho pairs where the target gene (mouse) isn't in the GPI file.
+                if "MGI:"+str(pair.get('Gene1ID')) in target_gene_set:
+                    # source gene id: target gene id, e.g. rat gene id : mouse gene id
+                    if pair.get('Gene2ID') in genes:
+                        genes[pair.get('Gene2ID')].append(pair.get('Gene1ID'))
+                    else:
+                        genes[pair.get('Gene2ID')] = [pair.get('Gene1ID')]
+
+        print("first ortho", genes["RGD:631356"])
+        print("second ortho", genes["RGD:2479"])
         return genes

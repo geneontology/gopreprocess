@@ -62,8 +62,7 @@ class AnnotationConverter:
         xrefs = XrefProcessor()
         uniprot_to_hgnc_map = xrefs.uniprot_to_hgnc_map
         hgnc_to_uniprot_map = xrefs.hgnc_to_uniprot_map
-        source_annotations = GafProcessor(source_genes,
-                                          source_gaf_path,
+        source_annotations = GafProcessor(source_gaf_path,
                                           taxon_to_provider=taxon_to_provider,
                                           target_taxon=self.target_taxon,
                                           namespaces=self.namespaces,
@@ -75,11 +74,12 @@ class AnnotationConverter:
         for annotation in source_annotations:
             if str(annotation.subject.id) in source_gene_set:
                 # generate the target annotation based on the source annotation
-                new_annotation = self.generate_annotation(annotation=annotation,
+                new_annotations = self.generate_annotation(annotation=annotation,
                                                           source_genes=source_genes,
                                                           target_genes=target_genes,
                                                           hgnc_to_uniprot_map=hgnc_to_uniprot_map)
-                converted_target_annotations.append(new_annotation.to_gaf_2_2_tsv())
+                for new_annotation in new_annotations:
+                    converted_target_annotations.append(new_annotation.to_gaf_2_2_tsv())
 
         dump_converted_annotations(converted_target_annotations,
                                    source_taxon=self.source_taxon,
@@ -89,7 +89,7 @@ class AnnotationConverter:
                             annotation: GoAssociation,
                             source_genes: dict,
                             target_genes: dict,
-                            hgnc_to_uniprot_map: dict) -> GoAssociation:
+                            hgnc_to_uniprot_map: dict) -> List[GoAssociation]:
         """
         Generates a new annotation based on ortholog assignments.
 
@@ -106,35 +106,42 @@ class AnnotationConverter:
 
         # source_genes 'HGNC:15042': 'MGI:3031248', annotation.subject.id 'HGNC:15042'
         # source_genes 'RGD:1309001': 'MGI:2443611', annotation.subject.id 'RGD:1309001'
+        annotations = []
         if str(annotation.subject.id) in source_genes.keys():
-            if str(annotation.subject.id) in hgnc_to_uniprot_map.keys():
-                uniprot_id = hgnc_to_uniprot_map[str(annotation.subject.id)]  # convert back to UniProtKB ID
-                uniprot_curie = Curie(namespace=uniprot_id.split(":")[0], identity=uniprot_id.split(":")[1])
-                annotation.evidence.with_support_from = [ConjunctiveSet(
-                    elements=[uniprot_curie]
-                )]
-            else:
-                annotation.evidence.with_support_from = [ConjunctiveSet(
-                    elements=[str(annotation.subject.id)]
-                )]
-        annotation.evidence.has_supporting_reference = [Curie(namespace='GO_REF', identity=self.ortho_reference)]
-        annotation.evidence.type = Curie(namespace='ECO', identity=iso_eco_code.split(":")[1])  # inferred from sequence similarity
-        # not sure why this is necessary, but it is, else we get a Subject with an extra tuple wrapper
-        annotation.subject.id = Curie(namespace='MGI', identity=source_genes[str(annotation.subject.id)])
-        annotation.subject.taxon = Curie.from_str(self.target_taxon)
-        annotation.subject.synonyms = []
-        annotation.object.taxon = Curie.from_str(self.target_taxon)
+            for gene in source_genes[str(annotation.subject.id)]:
+                if str(annotation.subject.id) in hgnc_to_uniprot_map.keys():
+                    uniprot_id = hgnc_to_uniprot_map[str(annotation.subject.id)]  # convert back to UniProtKB ID
+                    uniprot_curie = Curie(namespace=uniprot_id.split(":")[0], identity=uniprot_id.split(":")[1])
+                    annotation.evidence.with_support_from = [ConjunctiveSet(
+                        elements=[uniprot_curie]
+                    )]
+                else:
+                    annotation.evidence.with_support_from = [ConjunctiveSet(
+                        elements=[str(annotation.subject.id)]
+                    )]
+                annotation.evidence.has_supporting_reference = [Curie(namespace='GO_REF', identity=self.ortho_reference)]
+                # inferred from sequence similarity
+                annotation.evidence.type = Curie(namespace='ECO', identity=iso_eco_code.split(":")[1])
+                # not sure why this is necessary, but it is, else we get a Subject with an extra tuple wrapper
+                annotation.subject.id = Curie(namespace='MGI', identity=gene.split(":")[1])
+                annotation.subject.taxon = Curie.from_str(self.target_taxon)
+                annotation.subject.synonyms = []
+                annotation.object.taxon = Curie.from_str(self.target_taxon)
 
-        # have to convert these to curies in order for the conversion to GAF 2.2 type to return anything other than
-        # default 'gene_product' -- in ontobio, when this is a list, we just take the first item.
-        if annotation.provided_by == taxon_to_provider[self.source_taxon]:
-            annotation.provided_by = taxon_to_provider[self.target_taxon]
+                # have to convert these to curies in order for the conversion to GAF 2.2
+                # type to return anything other than
+                # default 'gene_product' -- in ontobio, when this is a list, we just take the first item.
+                if annotation.provided_by == taxon_to_provider[self.source_taxon]:
+                    annotation.provided_by = taxon_to_provider[self.target_taxon]
 
-        annotation.subject.fullname = target_genes[str(annotation.subject.id)]["fullname"]
-        annotation.subject.label = target_genes[str(annotation.subject.id)]["label"]
+                # TODO: replace MGI with target_namespace
 
-        # have to convert these to curies in order for the conversion to GAF 2.2 type to return anything other than
-        # default 'gene_product' -- in ontobio, when this is a list, we just take the first item.
-        annotation.subject.type = [map_gp_type_label_to_curie(target_genes[str(annotation.subject.id)].get("type")[0])]
+                annotation.subject.fullname = target_genes["MGI:"+gene]["fullname"]
+                annotation.subject.label = target_genes["MGI:"+gene]["label"]
 
-        return annotation
+                # have to convert these to curies in order for the conversion to
+                # GAF 2.2 type to return anything other than
+                # default 'gene_product' -- in ontobio, when this is a list, we just take the first item.
+                annotation.subject.type = [map_gp_type_label_to_curie(target_genes["MGI:"+gene].get("type")[0])]
+                annotations.append(annotation)
+        return annotations
