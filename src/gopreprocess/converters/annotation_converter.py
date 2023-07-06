@@ -79,6 +79,8 @@ class AnnotationConverter:
                                                           target_genes=target_genes,
                                                           hgnc_to_uniprot_map=hgnc_to_uniprot_map)
                 for new_annotation in new_annotations:
+                    if new_annotation.subject.id.identity == '3717145':
+                        print("identity is in here", annotation)
                     converted_target_annotations.append(new_annotation.to_gaf_2_2_tsv())
 
         dump_converted_annotations(converted_target_annotations,
@@ -143,5 +145,7 @@ class AnnotationConverter:
                 # GAF 2.2 type to return anything other than
                 # default 'gene_product' -- in ontobio, when this is a list, we just take the first item.
                 annotation.subject.type = [map_gp_type_label_to_curie(target_genes["MGI:"+gene].get("type")[0])]
+                if gene == 'MGI:3717145':
+                    print(annotation)
                 annotations.append(annotation)
         return annotations
