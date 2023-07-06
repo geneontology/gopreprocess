@@ -51,7 +51,4 @@ class OrthoProcessor:
                         genes[pair.get('Gene2ID')].append(pair.get('Gene1ID'))
                     else:
                         genes[pair.get('Gene2ID')] = [pair.get('Gene1ID')]
-
-        print("first ortho", genes["RGD:631356"])
-        print("second ortho", genes["RGD:2479"])
         return genes

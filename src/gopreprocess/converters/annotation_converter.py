@@ -79,8 +79,8 @@ class AnnotationConverter:
                                                           target_genes=target_genes,
                                                           hgnc_to_uniprot_map=hgnc_to_uniprot_map)
                 for new_annotation in new_annotations:
-                    if new_annotation.subject.id.identity == '3717145':
-                        print("identity is in here", annotation)
+                    if new_annotation.subject.id.identity == '3717145' or new_annotation.subject.id.identity == '1096550':
+                        print("identity is in here", annotation.subject.id, new_annotation.subject.id)
                     converted_target_annotations.append(new_annotation.to_gaf_2_2_tsv())
 
         dump_converted_annotations(converted_target_annotations,
@@ -112,12 +112,17 @@ class AnnotationConverter:
         if str(annotation.subject.id) in source_genes.keys():
             for gene in source_genes[str(annotation.subject.id)]:
                 if str(annotation.subject.id) in hgnc_to_uniprot_map.keys():
+                    if gene == 'MGI:1096550' or gene == 'MGI:3717145':
+                        print("ugh uniprot?", str(annotation.subject.id))
+
                     uniprot_id = hgnc_to_uniprot_map[str(annotation.subject.id)]  # convert back to UniProtKB ID
                     uniprot_curie = Curie(namespace=uniprot_id.split(":")[0], identity=uniprot_id.split(":")[1])
                     annotation.evidence.with_support_from = [ConjunctiveSet(
                         elements=[uniprot_curie]
                     )]
                 else:
+                    if gene == 'MGI:1096550' or gene == 'MGI:3717145':
+                        print("annotation.subject.id with support from", str(annotation.subject.id))
                     annotation.evidence.with_support_from = [ConjunctiveSet(
                         elements=[str(annotation.subject.id)]
                     )]
@@ -145,7 +150,5 @@ class AnnotationConverter:
                 # GAF 2.2 type to return anything other than
                 # default 'gene_product' -- in ontobio, when this is a list, we just take the first item.
                 annotation.subject.type = [map_gp_type_label_to_curie(target_genes["MGI:"+gene].get("type")[0])]
-                if gene == 'MGI:3717145':
-                    print(annotation)
                 annotations.append(annotation)
         return annotations
