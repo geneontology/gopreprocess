@@ -85,10 +85,6 @@ class AnnotationConverter:
                                           uniprot_to_hgnc_map=uniprot_to_hgnc_map).convertible_annotations
 
         source_gene_set = set(source_genes.keys())
-        for gene in source_gene_set:
-            if gene == "RGD:71048":
-                print(gene)
-                print(source_genes[gene])
         converted_target_annotations.append(["!gaf-version: 2.2"])
 
         for annotation in source_annotations:
@@ -99,8 +95,10 @@ class AnnotationConverter:
                                                           target_genes=target_genes,
                                                           hgnc_to_uniprot_map=hgnc_to_uniprot_map)
                 for new_annotation in new_annotations:
-                    if new_annotation.subject.id.identity == '3717145' or new_annotation.subject.id.identity == '1096550':
-                        print("identity is in here", annotation.subject.id, annotation.object.id, new_annotation.subject.id)
+                    if str(annotation.subject.id) == 'RGD:631356':
+                        print(new_annotation.subject.id, new_annotation.object.id,
+                              new_annotation.evidence.type.identity,
+                              new_annotation.evidence.with_support_from)
                     converted_target_annotations.append(new_annotation.to_gaf_2_2_tsv())
 
         dump_converted_annotations(converted_target_annotations,
@@ -131,8 +129,6 @@ class AnnotationConverter:
         annotations = []
         if str(annotation.subject.id) in source_genes.keys():
             for gene in source_genes[str(annotation.subject.id)]:
-                if str(annotation.subject.id) == 'RGD:631356':
-                    print("gene is", gene)
                 new_annotation = copy.deepcopy(annotation)
                 if str(annotation.subject.id) in hgnc_to_uniprot_map.keys():
                     uniprot_id = hgnc_to_uniprot_map[str(annotation.subject.id)]  # convert back to UniProtKB ID
@@ -148,7 +144,7 @@ class AnnotationConverter:
                 # inferred from sequence similarity
                 new_annotation.evidence.type = Curie(namespace='ECO', identity=iso_eco_code.split(":")[1])
                 # not sure why this is necessary, but it is, else we get a Subject with an extra tuple wrapper
-                new_annotation.subject.id = Curie(namespace='MGI', identity=gene.split(":")[1])
+                new_annotation.subject.id = Curie(namespace='MGI', identity=gene)
                 new_annotation.subject.taxon = Curie.from_str(self.target_taxon)
                 new_annotation.subject.synonyms = []
                 new_annotation.object.taxon = Curie.from_str(self.target_taxon)
