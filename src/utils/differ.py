@@ -105,22 +105,21 @@ def generate_group_report(df_file1, df_file2, group_by_columns, file1, file2, re
         s += "  * Group By Columns: " + str(group_by_columns) + "\n"
         s += "  * Compared Files: " + file1 + ", " + file2 + "\n"
 
+        # rename the second count so the merge removes duplicate columns but not the counts.
         _, grouped_frame1 = get_group_by(df_file1, group_by_columns, file1)
         grouped_frame1 = grouped_frame1.rename(columns={'count': file1_name})
         _, grouped_frame2 = get_group_by(df_file2, group_by_columns, file2)
         grouped_frame2 = grouped_frame2.rename(columns={'count': file2_name})
-        # rename the second count so the merge removes duplicate columns but not the counts.
 
         # bring the two data frames together
-        merged_group_frame = pd.concat([grouped_frame1, grouped_frame2], axis=1)
-        deduplicated_columns_df = merged_group_frame.iloc[:, [0, 1, 2, 3, 7]]
-        print(deduplicated_columns_df.head(10))
+        merged_group_frame = pd.merge(grouped_frame1, grouped_frame2, on=group_by_columns)
+        print(merged_group_frame.head(10))
 
         if restrict_to_decreases:
-            filtered_df = deduplicated_columns_df[deduplicated_columns_df[file2_name] < deduplicated_columns_df[file1_name]]
+            filtered_df = merged_group_frame[merged_group_frame[file2_name] < merged_group_frame[file1_name]]
         else:
-            filtered_df = deduplicated_columns_df[
-                deduplicated_columns_df[file2_name] != deduplicated_columns_df[file1_name]]
+            filtered_df = merged_group_frame[
+                merged_group_frame[file2_name] != merged_group_frame[file1_name]]
 
         # this is for the output file name -- just removing the special characters and concatenating
         name = None
