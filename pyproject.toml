@@ -6,9 +6,6 @@ authors = ["Sierra Moxon <smoxon@lbl.gov>"]
 license = "MIT"
 readme = "README.md"
 
-packages = [
-    { include = "src" }
-]
 
 [tool.poetry.dependencies]
 python = ">=3.9"
