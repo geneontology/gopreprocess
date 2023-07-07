@@ -53,7 +53,7 @@ def convert_annotations(namespaces, target_taxon, source_taxon, ortho_reference)
 @click.option("--restrict_to_decreases",
               "-rtd",
               type=click.BOOL,
-              required=False,
+              default=False,
               help='Only report group by results when the second file shows a decrease in number by grouping column')
 def compare(file1, file2, output, group_by_columns, restrict_to_decreases):
     """
