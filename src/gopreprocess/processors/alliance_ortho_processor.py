@@ -40,7 +40,7 @@ class OrthoProcessor:
         with open(self.filepath, 'r') as file:
             data = json.load(file)
 
-        genes = {str: list}
+        genes = {}
         target_gene_set = set(self.target_genes.keys())
         for pair in data.get('data'):
             if pair.get('Gene1SpeciesTaxonID') == self.taxon1 and pair.get('Gene2SpeciesTaxonID') == self.taxon2:

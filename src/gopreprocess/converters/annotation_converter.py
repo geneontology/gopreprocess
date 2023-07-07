@@ -1,3 +1,5 @@
+import copy
+import json
 from src.gopreprocess.processors.alliance_ortho_processor import OrthoProcessor
 from src.gopreprocess.processors.gafprocessor import GafProcessor
 from src.gopreprocess.processors.gpiprocessor import GpiProcessor
@@ -58,7 +60,21 @@ class AnnotationConverter:
         # the target genes data structure, and the source genes data structure.
         ortho_path, source_gaf_path, target_gpi_path = download_files(self.source_taxon, self.target_taxon)
         target_genes = GpiProcessor(target_gpi_path).target_genes
+        file_path = 'target_genes.json'
+
+        # Open the file in write mode
+        with open(file_path, 'w') as file:
+            # Write the dictionary to the file using json.dump()
+            json.dump(target_genes, file, indent=4)
+
         source_genes = OrthoProcessor(target_genes, ortho_path, self.target_taxon, self.source_taxon).genes
+        file_path = 'source_genes.json'
+
+        # Open the file in write mode
+        with open(file_path, 'w') as file:
+            # Write the dictionary to the file using json.dump()
+            json.dump(source_genes, file, indent=4)
+
         xrefs = XrefProcessor()
         uniprot_to_hgnc_map = xrefs.uniprot_to_hgnc_map
         hgnc_to_uniprot_map = xrefs.hgnc_to_uniprot_map
@@ -69,6 +85,10 @@ class AnnotationConverter:
                                           uniprot_to_hgnc_map=uniprot_to_hgnc_map).convertible_annotations
 
         source_gene_set = set(source_genes.keys())
+        for gene in source_gene_set:
+            if gene == "RGD:71048":
+                print(gene)
+                print(source_genes[gene])
         converted_target_annotations.append(["!gaf-version: 2.2"])
 
         for annotation in source_annotations:
@@ -80,7 +100,7 @@ class AnnotationConverter:
                                                           hgnc_to_uniprot_map=hgnc_to_uniprot_map)
                 for new_annotation in new_annotations:
                     if new_annotation.subject.id.identity == '3717145' or new_annotation.subject.id.identity == '1096550':
-                        print("identity is in here", annotation.subject.id, new_annotation.subject.id)
+                        print("identity is in here", annotation.subject.id, annotation.object.id, new_annotation.subject.id)
                     converted_target_annotations.append(new_annotation.to_gaf_2_2_tsv())
 
         dump_converted_annotations(converted_target_annotations,
@@ -111,44 +131,43 @@ class AnnotationConverter:
         annotations = []
         if str(annotation.subject.id) in source_genes.keys():
             for gene in source_genes[str(annotation.subject.id)]:
+                if str(annotation.subject.id) == 'RGD:631356':
+                    print("gene is", gene)
+                new_annotation = copy.deepcopy(annotation)
                 if str(annotation.subject.id) in hgnc_to_uniprot_map.keys():
-                    if gene == 'MGI:1096550' or gene == 'MGI:3717145':
-                        print("ugh uniprot?", str(annotation.subject.id))
-
                     uniprot_id = hgnc_to_uniprot_map[str(annotation.subject.id)]  # convert back to UniProtKB ID
                     uniprot_curie = Curie(namespace=uniprot_id.split(":")[0], identity=uniprot_id.split(":")[1])
-                    annotation.evidence.with_support_from = [ConjunctiveSet(
+                    new_annotation.evidence.with_support_from = [ConjunctiveSet(
                         elements=[uniprot_curie]
                     )]
                 else:
-                    if gene == 'MGI:1096550' or gene == 'MGI:3717145':
-                        print("annotation.subject.id with support from", str(annotation.subject.id))
-                    annotation.evidence.with_support_from = [ConjunctiveSet(
+                    new_annotation.evidence.with_support_from = [ConjunctiveSet(
                         elements=[str(annotation.subject.id)]
                     )]
-                annotation.evidence.has_supporting_reference = [Curie(namespace='GO_REF', identity=self.ortho_reference)]
+                new_annotation.evidence.has_supporting_reference = [Curie(namespace='GO_REF', identity=self.ortho_reference)]
                 # inferred from sequence similarity
-                annotation.evidence.type = Curie(namespace='ECO', identity=iso_eco_code.split(":")[1])
+                new_annotation.evidence.type = Curie(namespace='ECO', identity=iso_eco_code.split(":")[1])
                 # not sure why this is necessary, but it is, else we get a Subject with an extra tuple wrapper
-                annotation.subject.id = Curie(namespace='MGI', identity=gene.split(":")[1])
-                annotation.subject.taxon = Curie.from_str(self.target_taxon)
-                annotation.subject.synonyms = []
-                annotation.object.taxon = Curie.from_str(self.target_taxon)
+                new_annotation.subject.id = Curie(namespace='MGI', identity=gene.split(":")[1])
+                new_annotation.subject.taxon = Curie.from_str(self.target_taxon)
+                new_annotation.subject.synonyms = []
+                new_annotation.object.taxon = Curie.from_str(self.target_taxon)
 
                 # have to convert these to curies in order for the conversion to GAF 2.2
                 # type to return anything other than
                 # default 'gene_product' -- in ontobio, when this is a list, we just take the first item.
-                if annotation.provided_by == taxon_to_provider[self.source_taxon]:
-                    annotation.provided_by = taxon_to_provider[self.target_taxon]
+                if new_annotation.provided_by == taxon_to_provider[self.source_taxon]:
+                    new_annotation.provided_by = taxon_to_provider[self.target_taxon]
 
                 # TODO: replace MGI with target_namespace
 
-                annotation.subject.fullname = target_genes["MGI:"+gene]["fullname"]
-                annotation.subject.label = target_genes["MGI:"+gene]["label"]
+                new_annotation.subject.fullname = target_genes["MGI:"+gene]["fullname"]
+                new_annotation.subject.label = target_genes["MGI:"+gene]["label"]
 
                 # have to convert these to curies in order for the conversion to
                 # GAF 2.2 type to return anything other than
                 # default 'gene_product' -- in ontobio, when this is a list, we just take the first item.
-                annotation.subject.type = [map_gp_type_label_to_curie(target_genes["MGI:"+gene].get("type")[0])]
-                annotations.append(annotation)
+                new_annotation.subject.type = [map_gp_type_label_to_curie(target_genes["MGI:"+gene].get("type")[0])]
+                annotations.append(new_annotation)
+
         return annotations
