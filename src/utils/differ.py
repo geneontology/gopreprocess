@@ -113,27 +113,16 @@ def generate_group_report(df_file1, df_file2, group_by_columns, file1, file2, re
 
         # bring the two data frames together
         merged_group_frame = pd.concat([grouped_frame1, grouped_frame2], axis=1)
-
-        query_result = grouped_frame1[(grouped_frame1['DB_Object_ID'] == "MGI:99961")
-                                      & (grouped_frame1['GO_ID'] == 'GO:0045944')]
-        print("query result: ", file1_name, query_result)
-
-        query_result2 = grouped_frame1[(grouped_frame2['DB_Object_ID'] == "MGI:99961")
-                                       & (grouped_frame2['GO_ID'] == 'GO:0045944')]
-        print("query result2: ", file2_name, query_result2)
-
-        # Print the query result
-        print(query_result)
-
-        # Drop duplicate columns
-        count_df = merged_group_frame.loc[:, ~merged_group_frame.columns.duplicated()]
+        deduplicated_columns_df = merged_group_frame.iloc[:, [0, 1, 2, 3, 7]]
+        print(deduplicated_columns_df.head(10))
 
         if restrict_to_decreases:
-            filtered_df = count_df[count_df[file2_name] < count_df[file1_name]]
+            filtered_df = deduplicated_columns_df[deduplicated_columns_df[file2_name] < deduplicated_columns_df[file1_name]]
         else:
-            filtered_df = count_df[
-                count_df[file2_name] != count_df[file1_name]]
+            filtered_df = deduplicated_columns_df[
+                deduplicated_columns_df[file2_name] != deduplicated_columns_df[file1_name]]
 
+        # this is for the output file name -- just removing the special characters and concatenating
         name = None
         for column in group_by_columns:
             if name is None:
