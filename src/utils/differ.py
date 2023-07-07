@@ -113,7 +113,6 @@ def generate_group_report(df_file1, df_file2, group_by_columns, file1, file2, re
 
         # bring the two data frames together
         merged_group_frame = pd.merge(grouped_frame1, grouped_frame2, on=group_by_columns)
-        print(merged_group_frame.head(10))
 
         if restrict_to_decreases:
             filtered_df = merged_group_frame[merged_group_frame[file2_name] < merged_group_frame[file1_name]]
