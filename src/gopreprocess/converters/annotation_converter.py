@@ -95,10 +95,6 @@ class AnnotationConverter:
                                                           target_genes=target_genes,
                                                           hgnc_to_uniprot_map=hgnc_to_uniprot_map)
                 for new_annotation in new_annotations:
-                    if str(annotation.subject.id) == 'RGD:631356':
-                        print(new_annotation.subject.id, new_annotation.object.id,
-                              new_annotation.evidence.type.identity,
-                              new_annotation.evidence.with_support_from)
                     converted_target_annotations.append(new_annotation.to_gaf_2_2_tsv())
 
         dump_converted_annotations(converted_target_annotations,
