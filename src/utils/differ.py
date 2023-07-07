@@ -58,11 +58,10 @@ def generate_count_report(df_file1, df_file2, file1, file2, output):
 
     """
 
-    file1_groups, counts_frame1 = get_column_count(df_file1, file1)
-    file2_groups, counts_frame2 = get_column_count(df_file2, file2)
+    _, counts_frame1 = get_column_count(df_file1, file1)
+    _, counts_frame2 = get_column_count(df_file2, file2)
 
     merged_frame = pd.concat([counts_frame1, counts_frame2], axis=1)
-    print(merged_frame.head(10))
     merged_frame.astype('Int64')
     merged_frame.to_csv(output + "_counts_per_column_report", sep='\t')
     s = "\n\n## COLUMN COUNT SUMMARY \n\n"
@@ -79,7 +78,7 @@ def generate_group_report(df_file1, df_file2, group_by_columns, file1, file2, re
     Method to generate a report of the number of distinct values of each of the provided group_by columns
     in a GAF or GPAD file.  Currently restricted to the following columns: subject, object, evidence_code.
 
-    :param df_file1: data frame representing a normalized columnar represenation of file1
+    :param df_file1: data frame representing a normalized columnar representation of file1
     :type df_file1: pd
     :param df_file2: data frame representing a normalized columnar represenation of file2
     :type df_file2: pd
@@ -90,7 +89,7 @@ def generate_group_report(df_file1, df_file2, group_by_columns, file1, file2, re
     :param file2: The file name of the file provided in the click for reporting purposes.
     :type file2: str
     :param restrict_to_decreases: An optional boolean flag that allows the grouping column counts to be returned only
-        if they show a decrease in number beteween file1 and file2
+        if they show a decrease in number between file1 and file2
     :type restrict_to_decreases: bool
     :param output: Prefix of the reported files for reporting purposes.
     :type output: str
@@ -110,17 +109,24 @@ def generate_group_report(df_file1, df_file2, group_by_columns, file1, file2, re
         grouped_frame1 = grouped_frame1.rename(columns={'count': file1_name})
         _, grouped_frame2 = get_group_by(df_file2, group_by_columns, file2)
         grouped_frame2 = grouped_frame2.rename(columns={'count': file2_name})
-        grouped_frame2 = grouped_frame2[file2_name].astype(int)
         # rename the second count so the merge removes duplicate columns but not the counts.
 
         # bring the two data frames together
         merged_group_frame = pd.concat([grouped_frame1, grouped_frame2], axis=1)
 
-        # remove nulls
-        merged_group_frame_no_nulls = merged_group_frame.fillna(0)
+        query_result = grouped_frame1[(grouped_frame1['DB_Object_ID'] == "MGI:99961")
+                                      & (grouped_frame1['GO_ID'] == 'GO:0045944')]
+        print("query result: ", file1_name, query_result)
 
-        # Drop duplicate columns (excluding count columns)
-        count_df = merged_group_frame_no_nulls.loc[:, ~merged_group_frame_no_nulls.columns.duplicated()]
+        query_result2 = grouped_frame1[(grouped_frame2['DB_Object_ID'] == "MGI:99961")
+                                       & (grouped_frame2['GO_ID'] == 'GO:0045944')]
+        print("query result2: ", file2_name, query_result2)
+
+        # Print the query result
+        print(query_result)
+
+        # Drop duplicate columns
+        count_df = merged_group_frame.loc[:, ~merged_group_frame.columns.duplicated()]
 
         if restrict_to_decreases:
             filtered_df = count_df[count_df[file2_name] < count_df[file1_name]]
@@ -236,11 +242,9 @@ def get_typed_parser(file_handle, filename) -> [str, assocparser.AssocParser]:
         else:
             continue
     if isinstance(parser, gpadparser.GpadParser):
-        print("Using GPAD parser")
         df_file = read_gpad_csv(filename, parser.version)
     else:
-        print("Using GAF parser")
-        df_file = read_gaf_csv(filename, parser.version)
+        df_file = read_gaf_csv(filename)
 
     return df_file, parser
 
@@ -259,14 +263,12 @@ def get_parser(file1, file2) -> (str, str, List[GoAssociation], List[GoAssociati
     df_file2, parser2 = get_typed_parser(file2_obj, file2)
 
     assocs1 = parser1.parse(file1)
-    print(len(assocs1), " associations in ", file1, " using ", type(parser1))
     assocs2 = parser2.parse(file2)
-    print(len(assocs2), " associations in ", file2, " using ", type(parser2))
 
     return df_file1, df_file2, assocs1, assocs2
 
 
-def read_gaf_csv(filename, version) -> pd:
+def read_gaf_csv(filename) -> pd:
     ecomapping = ecomap.EcoMap()
     data_frame = pd.read_csv(filename,
                              comment="!",
@@ -349,8 +351,7 @@ def get_group_by(data_frame, groups, file) -> (pd, pd):
     print("Grouping by ", str(groups), type(groups))
     stats = {'filename': file, 'total_rows': data_frame.shape[0]}
     grouped_frame = data_frame.groupby(groups).size().reset_index(name='count')
-    without_nulls = grouped_frame.fillna(0)
-    return stats, without_nulls
+    return stats, grouped_frame
 
 
 def get_column_count(data_frame, file) -> (pd, pd):
