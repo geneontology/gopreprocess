@@ -176,7 +176,8 @@ class AnnotationConverter:
                 new_annotation.subject.taxon = Curie.from_str(self.target_taxon)
                 new_annotation.subject.synonyms = []
                 new_annotation.object.taxon = Curie.from_str(self.target_taxon)
-
+                new_annotation.object_extensions = []
+                new_annotation.subject_extensions = []
                 new_annotation.provided_by = taxon_to_provider[self.target_taxon]
 
                 # TODO: replace MGI with target_namespace
