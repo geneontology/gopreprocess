@@ -29,7 +29,6 @@ def dump_converted_annotations(converted_target_annotations: List[List[str]],
     df = df.applymap(convert_curie_to_string)
     # Deduplicate the rows
     df_deduplicated = df.drop_duplicates()
-    print(df_deduplicated.head(4))
 
     # Convert column 13 to numeric
     df_deduplicated.loc[:, 13] = pd.to_numeric(df_deduplicated[13], errors='coerce')
@@ -182,13 +181,14 @@ class AnnotationConverter:
 
                 # TODO: replace MGI with target_namespace
 
-                new_annotation.subject.fullname = target_genes[taxon_to_provider[self.target_taxon] + gene]["fullname"]
-                new_annotation.subject.label = target_genes[taxon_to_provider[self.target_taxon] + gene]["label"]
+                new_annotation.subject.fullname = target_genes[taxon_to_provider[self.target_taxon] + ":" + gene]["fullname"]
+                new_annotation.subject.label = target_genes[taxon_to_provider[self.target_taxon] + ":" + gene]["label"]
 
                 # have to convert these to curies in order for the conversion to
                 # GAF 2.2 type to return anything other than
                 # default 'gene_product' -- in ontobio, when this is a list, we just take the first item.
-                new_annotation.subject.type = [map_gp_type_label_to_curie(target_genes[taxon_to_provider[self.target_taxon] + gene].get("type")[0])]
+                new_annotation.subject.type = [map_gp_type_label_to_curie(target_genes[taxon_to_provider[self.target_taxon]
+                                                                                       + ":" + gene].get("type")[0])]
                 annotations.append(new_annotation)
 
         return annotations
