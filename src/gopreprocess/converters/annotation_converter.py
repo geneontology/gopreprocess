@@ -15,37 +15,44 @@ from typing import List
 from src.utils.settings import taxon_to_provider, iso_eco_code
 
 
+def convert_curie_to_string(x):
+    if isinstance(x, Curie):  # Replace 'Curie' with the actual Curie class
+        return str(x)
+    return x
+
+
 def dump_converted_annotations(converted_target_annotations: List[List[str]],
                                source_taxon: str,
                                target_taxon: str) -> None:
     # using pandas in order to take advantage of pystow in terms of file location and handling
-    # again; pandas is a bit overkill.
     df = pd.DataFrame(converted_target_annotations)
+    df = df.applymap(convert_curie_to_string)
     # Deduplicate the rows
     df_deduplicated = df.drop_duplicates()
     print(df_deduplicated.head(4))
 
     # Convert column 13 to numeric
-    df_deduplicated[14] = pd.to_numeric(df_deduplicated[13], errors='coerce').fillna(0).astype(int)
+    df_deduplicated.loc[:, 13] = pd.to_numeric(df_deduplicated[13], errors='coerce')
 
     # Replace negative values with NaN
-    df_deduplicated[14] = df_deduplicated[14].apply(lambda x: x if x >= 0 else None)
+    df_deduplicated.loc[:, 13] = df_deduplicated[13].apply(lambda x: x if x >= 0 else 0)
 
     # Group by all other columns and get the min value in column 13
     df_final = df_deduplicated.groupby(df_deduplicated.columns.drop(13).tolist())[13].min().reset_index()
 
-    # Print the number of rows in the final dataframe
-    print(f"The final dataframe contains {df_final.shape[0]} rows.")
     pystow.dump_df(key=taxon_to_provider[target_taxon],
                    obj=df_final,
                    sep="\t",
-                   name=taxon_to_provider[target_taxon].lower() + "-" + taxon_to_provider[source_taxon].lower() + "-ortho.gaf.gz",
-                   to_csv_kwargs={"index": False, "header": False, "compression": "gzip"})
-    pystow.dump_df(key=taxon_to_provider[target_taxon],
-                   obj=df_final,
-                   sep="\t",
-                   name=taxon_to_provider[target_taxon].lower() + "-" + taxon_to_provider[source_taxon].lower() + "-ortho-test.gaf",
+                   name=taxon_to_provider[target_taxon].lower() + "-" + taxon_to_provider[source_taxon].lower() + "-ortho.gaf",
                    to_csv_kwargs={"index": False, "header": False})
+
+    filepath = pystow.open(key=taxon_to_provider[target_taxon],
+                           name=taxon_to_provider[target_taxon].lower() + "-"
+                           + taxon_to_provider[source_taxon].lower() + "-ortho.gaf")
+
+    print(type(filepath))
+    with open(filepath, 'w') as file:
+        file.write('!gaf-version: 2.2\n')
 
 
 class AnnotationConverter:
@@ -98,7 +105,6 @@ class AnnotationConverter:
                                           uniprot_to_hgnc_map=uniprot_to_hgnc_map).convertible_annotations
 
         source_gene_set = set(source_genes.keys())
-        converted_target_annotations.append(["!gaf-version: 2.2"])
 
         for annotation in source_annotations:
             if str(annotation.subject.id) in source_gene_set:
