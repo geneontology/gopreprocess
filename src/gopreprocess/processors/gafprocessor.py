@@ -89,7 +89,7 @@ class GafProcessor:
                     if not has_reference:
                         continue
                     if str(source_assoc.object.id) in ['GO:0005515', 'GO:0005488']:
-                        counter = counter + 1
+                        # counter = counter + 1
                         continue
                     if source_assoc.subject.id.namespace == "UniProtKB":
                         # TODO convert to report files
@@ -100,5 +100,5 @@ class GafProcessor:
                             source_assoc.subject.id = Curie(namespace=mapped_id.split(":")[0],
                                                             identity=mapped_id.split(":")[1])
                     self.convertible_annotations.append(source_assoc)
-            print("Number of removed annotations: " + str(counter))
+            # print("Number of removed annotations: " + str(counter))
 

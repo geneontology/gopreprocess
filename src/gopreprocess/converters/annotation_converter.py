@@ -21,15 +21,28 @@ def dump_converted_annotations(converted_target_annotations: List[List[str]],
     # using pandas in order to take advantage of pystow in terms of file location and handling
     # again; pandas is a bit overkill.
     df = pd.DataFrame(converted_target_annotations)
-    df.to_csv("test.gaf", sep="\t", index=False, header=False)
-    df_unique = df.drop_duplicates()
+    # Deduplicate the rows
+    df_deduplicated = df.drop_duplicates()
+    print(df_deduplicated.head(4))
+
+    # Convert column 13 to numeric
+    df_deduplicated[14] = pd.to_numeric(df_deduplicated[13], errors='coerce').fillna(0).astype(int)
+
+    # Replace negative values with NaN
+    df_deduplicated[14] = df_deduplicated[14].apply(lambda x: x if x >= 0 else None)
+
+    # Group by all other columns and get the min value in column 13
+    df_final = df_deduplicated.groupby(df_deduplicated.columns.drop(13).tolist())[13].min().reset_index()
+
+    # Print the number of rows in the final dataframe
+    print(f"The final dataframe contains {df_final.shape[0]} rows.")
     pystow.dump_df(key=taxon_to_provider[target_taxon],
-                   obj=df_unique,
+                   obj=df_final,
                    sep="\t",
                    name=taxon_to_provider[target_taxon].lower() + "-" + taxon_to_provider[source_taxon].lower() + "-ortho.gaf.gz",
                    to_csv_kwargs={"index": False, "header": False, "compression": "gzip"})
     pystow.dump_df(key=taxon_to_provider[target_taxon],
-                   obj=df_unique,
+                   obj=df_final,
                    sep="\t",
                    name=taxon_to_provider[target_taxon].lower() + "-" + taxon_to_provider[source_taxon].lower() + "-ortho-test.gaf",
                    to_csv_kwargs={"index": False, "header": False})
