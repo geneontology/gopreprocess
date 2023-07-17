@@ -44,17 +44,25 @@ def dump_converted_annotations(converted_target_annotations: List[List[str]],
                    obj=df_final,
                    sep="\t",
                    name=taxon_to_provider[target_taxon].lower() + "-" + taxon_to_provider[
-                       source_taxon].lower() + "-ortho.gaf",
+                       source_taxon].lower() + "-ortho-temp.gaf",
                    to_csv_kwargs={"index": False, "header": False})
 
-    filepath = pystow.join(taxon_to_provider[target_taxon],
-                           taxon_to_provider[target_taxon].lower() + "-"
-                           + taxon_to_provider[source_taxon].lower() + "-ortho.gaf")
+    filepath = pystow.join(key=taxon_to_provider[target_taxon],
+                           name=taxon_to_provider[target_taxon].lower() + "-"
+                           + taxon_to_provider[source_taxon].lower() + "-ortho-temp.gaf",
+                           ensure_exists=True)
 
-    print(type(filepath))
-    print(filepath)
-    with open(filepath, 'w') as file:
-        file.write('!gaf-version: 2.2\n')
+    header_filepath = pystow.join(key=taxon_to_provider[target_taxon],
+                                  name=taxon_to_provider[target_taxon].lower() + "-"
+                                  + taxon_to_provider[source_taxon].lower() + "-ortho.gaf",
+                                  ensure_exists=True)
+
+    with open(filepath, 'r') as file:
+        file_contents = file.readlines()
+
+    with open(header_filepath, 'w') as header_filepath:
+        header_filepath.write('!gaf-version: 2.2\n')
+        header_filepath.writelines(file_contents)
 
 
 class AnnotationConverter:
@@ -76,6 +84,7 @@ class AnnotationConverter:
 
         :returns: None
         """
+
         converted_target_annotations = []
 
         # assemble data structures needed to convert annotations: including the ortholog map,
