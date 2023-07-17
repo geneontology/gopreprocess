@@ -47,19 +47,21 @@ def dump_converted_annotations(converted_target_annotations: List[List[str]],
                        source_taxon].lower() + "-ortho-temp.gaf",
                    to_csv_kwargs={"index": False, "header": False})
 
+    # we need to add the #gaf-version: 2.2 header to the file
     filepath = pystow.join(key=taxon_to_provider[target_taxon],
                            name=taxon_to_provider[target_taxon].lower() + "-"
                            + taxon_to_provider[source_taxon].lower() + "-ortho-temp.gaf",
                            ensure_exists=True)
 
+    # get the new file we have to create to add the header via pystow, so everything is managed together
     header_filepath = pystow.join(key=taxon_to_provider[target_taxon],
                                   name=taxon_to_provider[target_taxon].lower() + "-"
                                   + taxon_to_provider[source_taxon].lower() + "-ortho.gaf",
                                   ensure_exists=True)
-
     with open(filepath, 'r') as file:
         file_contents = file.readlines()
 
+    # here's the final write to the final file
     with open(header_filepath, 'w') as header_filepath:
         header_filepath.write('!gaf-version: 2.2\n')
         header_filepath.writelines(file_contents)
@@ -176,21 +178,17 @@ class AnnotationConverter:
                 new_annotation.subject.synonyms = []
                 new_annotation.object.taxon = Curie.from_str(self.target_taxon)
 
-                # have to convert these to curies in order for the conversion to GAF 2.2
-                # type to return anything other than
-                # default 'gene_product' -- in ontobio, when this is a list, we just take the first item.
-                if new_annotation.provided_by == taxon_to_provider[self.source_taxon]:
-                    new_annotation.provided_by = taxon_to_provider[self.target_taxon]
+                new_annotation.provided_by = taxon_to_provider[self.target_taxon]
 
                 # TODO: replace MGI with target_namespace
 
-                new_annotation.subject.fullname = target_genes["MGI:" + gene]["fullname"]
-                new_annotation.subject.label = target_genes["MGI:" + gene]["label"]
+                new_annotation.subject.fullname = target_genes[taxon_to_provider[self.target_taxon] + gene]["fullname"]
+                new_annotation.subject.label = target_genes[taxon_to_provider[self.target_taxon] + gene]["label"]
 
                 # have to convert these to curies in order for the conversion to
                 # GAF 2.2 type to return anything other than
                 # default 'gene_product' -- in ontobio, when this is a list, we just take the first item.
-                new_annotation.subject.type = [map_gp_type_label_to_curie(target_genes["MGI:" + gene].get("type")[0])]
+                new_annotation.subject.type = [map_gp_type_label_to_curie(target_genes[taxon_to_provider[self.target_taxon] + gene].get("type")[0])]
                 annotations.append(new_annotation)
 
         return annotations

@@ -3,6 +3,7 @@ from src.utils.differ import compare_files
 from src.gopreprocess.converters.annotation_converter import AnnotationConverter
 from src.utils.decorators import convert_to_list
 
+
 # Create a group for the CLI commands
 @click.group()
 def cli():
