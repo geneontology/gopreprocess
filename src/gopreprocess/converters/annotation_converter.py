@@ -39,10 +39,10 @@ def dump_converted_annotations(converted_target_annotations: List[List[str]],
     df_deduplicated.loc[:, 13] = df_deduplicated[13].apply(lambda x: x if x >= 0 else 0)
 
     # Group by all other columns and get the min value in column 13
-    df_final_swap = df_deduplicated.groupby(df_deduplicated.columns.drop(13).tolist())[13].min().reset_index()
+    df_final = df_deduplicated.groupby(df_deduplicated.columns.drop(13).tolist())[13].min().reset_index()
 
     # Swap columns 13 and 14 because the groupby operation above swaps them
-    df_final = df_final_swap.loc[:, 13], df_final_swap.loc[:, 14] = df_final_swap.loc[:, 14], df_final_swap.loc[:, 13]
+    df_final.loc[:, 13], df_final.loc[:, 14] = df_final.loc[:, 14], df_final.loc[:, 13]
     print(df_final.head(4))
 
     pystow.dump_df(key=taxon_to_provider[target_taxon],
