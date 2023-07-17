@@ -28,7 +28,7 @@ def compare_files(file1, file2, output, group_by_columns, restrict_to_decreases)
     :type restrict_to_decreases: bool
 
     """
-    pd.set_option('display.max_rows', 35000)
+    pd.set_option('display.max_rows', 50000)
 
     df_file1, df_file2, assocs1, assocs2 = get_parser(file1, file2)
     generate_count_report(df_file1, df_file2, file1, file2, output)

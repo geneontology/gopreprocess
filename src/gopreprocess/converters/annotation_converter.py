@@ -28,6 +28,8 @@ def dump_converted_annotations(converted_target_annotations: List[List[str]],
     df = pd.DataFrame(converted_target_annotations)
     df = df.applymap(convert_curie_to_string)
     # Deduplicate the rows
+    print("this is the df head")
+    print(df.head(4))
     df_deduplicated = df.drop_duplicates()
 
     # Convert column 13 to numeric
@@ -37,7 +39,10 @@ def dump_converted_annotations(converted_target_annotations: List[List[str]],
     df_deduplicated.loc[:, 13] = df_deduplicated[13].apply(lambda x: x if x >= 0 else 0)
 
     # Group by all other columns and get the min value in column 13
-    df_final = df_deduplicated.groupby(df_deduplicated.columns.drop(13).tolist())[13].min().reset_index()
+    df_final = df_deduplicated.groupby(df_deduplicated.columns.tolist()[:-1])[13].min().reset_index()
+
+    print("this is the deduped head")
+    print(df_final.head(4))
 
     pystow.dump_df(key=taxon_to_provider[target_taxon],
                    obj=df_final,
