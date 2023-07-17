@@ -43,14 +43,16 @@ def dump_converted_annotations(converted_target_annotations: List[List[str]],
     pystow.dump_df(key=taxon_to_provider[target_taxon],
                    obj=df_final,
                    sep="\t",
-                   name=taxon_to_provider[target_taxon].lower() + "-" + taxon_to_provider[source_taxon].lower() + "-ortho.gaf",
+                   name=taxon_to_provider[target_taxon].lower() + "-" + taxon_to_provider[
+                       source_taxon].lower() + "-ortho.gaf",
                    to_csv_kwargs={"index": False, "header": False})
 
-    filepath = pystow.open(key=taxon_to_provider[target_taxon],
-                           name=taxon_to_provider[target_taxon].lower() + "-"
+    filepath = pystow.join(taxon_to_provider[target_taxon],
+                           taxon_to_provider[target_taxon].lower() + "-"
                            + taxon_to_provider[source_taxon].lower() + "-ortho.gaf")
 
     print(type(filepath))
+    print(filepath)
     with open(filepath, 'w') as file:
         file.write('!gaf-version: 2.2\n')
 
@@ -110,9 +112,9 @@ class AnnotationConverter:
             if str(annotation.subject.id) in source_gene_set:
                 # generate the target annotation based on the source annotation
                 new_annotations = self.generate_annotation(annotation=annotation,
-                                                          source_genes=source_genes,
-                                                          target_genes=target_genes,
-                                                          hgnc_to_uniprot_map=hgnc_to_uniprot_map)
+                                                           source_genes=source_genes,
+                                                           target_genes=target_genes,
+                                                           hgnc_to_uniprot_map=hgnc_to_uniprot_map)
                 for new_annotation in new_annotations:
                     converted_target_annotations.append(new_annotation.to_gaf_2_2_tsv())
 
@@ -155,7 +157,8 @@ class AnnotationConverter:
                     new_annotation.evidence.with_support_from = [ConjunctiveSet(
                         elements=[str(annotation.subject.id)]
                     )]
-                new_annotation.evidence.has_supporting_reference = [Curie(namespace='GO_REF', identity=self.ortho_reference)]
+                new_annotation.evidence.has_supporting_reference = [
+                    Curie(namespace='GO_REF', identity=self.ortho_reference)]
                 # inferred from sequence similarity
                 new_annotation.evidence.type = Curie(namespace='ECO', identity=iso_eco_code.split(":")[1])
                 # not sure why this is necessary, but it is, else we get a Subject with an extra tuple wrapper
@@ -172,13 +175,13 @@ class AnnotationConverter:
 
                 # TODO: replace MGI with target_namespace
 
-                new_annotation.subject.fullname = target_genes["MGI:"+gene]["fullname"]
-                new_annotation.subject.label = target_genes["MGI:"+gene]["label"]
+                new_annotation.subject.fullname = target_genes["MGI:" + gene]["fullname"]
+                new_annotation.subject.label = target_genes["MGI:" + gene]["label"]
 
                 # have to convert these to curies in order for the conversion to
                 # GAF 2.2 type to return anything other than
                 # default 'gene_product' -- in ontobio, when this is a list, we just take the first item.
-                new_annotation.subject.type = [map_gp_type_label_to_curie(target_genes["MGI:"+gene].get("type")[0])]
+                new_annotation.subject.type = [map_gp_type_label_to_curie(target_genes["MGI:" + gene].get("type")[0])]
                 annotations.append(new_annotation)
 
         return annotations
