@@ -155,31 +155,40 @@ def compare_associations(assocs1, assocs2, output, file1, file2):
     :type output: str
 
     """
+    fields_to_compare = ['subject', 'relation', 'object', 'negated']  # replace with your actual fields
 
     compare_report_file = open(output + "_compare_report", "w")
     processed_associations = len(assocs1)
 
+    print('len of assoc2', len(assocs2))
+    print(type(assocs2))
     report = Report()
 
-    set1 = set((str(x.subject.id),
-                str(x.object.id),
-                normalize_relation(x.relation),
-                x.negated,
-                x.evidence.type,
-                x.evidence._supporting_reference_to_str(),
-                x.evidence._with_support_from_to_str()
-                ) for x in assocs2 if type(x) != dict)
-    difference = [y for y in assocs1 if type(y) != dict
-                  if (str(y.subject.id),
-                      str(y.object.id),
-                      normalize_relation(y.relation),
-                      y.negated,
-                      y.evidence.type,
-                      y.evidence._supporting_reference_to_str(),
-                      y.evidence._with_support_from_to_str()
-                      ) not in set1]
+    passed = []
+    failed = []
+    # For each GoAssociation object in the first file
+    for go1 in assocs1:
+        if type(go1) == dict:
+            continue  # skip the header
+        # Look for a matching GoAssociation object in the second file
+        else:
+            for go2 in assocs2:
+                if type(go2) == dict:
+                    continue  # skip the header
+                else:
+                    print("not a dict")
+                    for field in fields_to_compare:
+                        print("field is: ", field)
+                        print("go1 is: ", getattr(go1, field))
+                        print("go2 is: ", getattr(go2, field))
+                    if all(getattr(go1, field) == getattr(go2, field) for field in fields_to_compare):
+                        print("match found")
+                        # If a match is found, add it to the passed list
+                        passed.append(go1)
+                    else:
+                        failed.append(go1)
 
-    for diff in difference:
+    for diff in failed:
         report.add_association(diff)
         report.n_lines = report.n_lines + 1
         report.error(diff.source_line, qc.ResultType.ERROR, "line from %s has NO match in %s" % (file1, file2), "")
@@ -253,6 +262,8 @@ def get_parser(file1, file2) -> (str, str, List[GoAssociation], List[GoAssociati
 
     assocs1 = parser1.parse(file1)
     assocs2 = parser2.parse(file2)
+    print(len(assocs2))
+    print(assocs2)
 
     return df_file1, df_file2, assocs1, assocs2
 

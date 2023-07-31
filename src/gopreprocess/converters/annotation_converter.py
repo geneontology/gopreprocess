@@ -26,6 +26,8 @@ def dump_converted_annotations(converted_target_annotations: List[List[str]],
                                target_taxon: str) -> None:
     # using pandas in order to take advantage of pystow in terms of file location and handling
     df = pd.DataFrame(converted_target_annotations)
+    print("this is the original dataframe head")
+    print(df.head(4))
     df = df.applymap(convert_curie_to_string)
     # Deduplicate the rows
     print("this is the df head")
@@ -35,14 +37,17 @@ def dump_converted_annotations(converted_target_annotations: List[List[str]],
     # Convert column 13 to numeric
     df_deduplicated.loc[:, 13] = pd.to_numeric(df_deduplicated[13], errors='coerce')
 
-    # Replace negative values with NaN
+    # Replace negative values with 0
     df_deduplicated.loc[:, 13] = df_deduplicated[13].apply(lambda x: x if x >= 0 else 0)
 
     # Group by all other columns and get the min value in column 13
     df_final = df_deduplicated.groupby(df_deduplicated.columns.drop(13).tolist())[13].min().reset_index()
 
     # Swap columns 13 and 14 because the groupby operation above swaps them
-    df_final.iloc[:, 13], df_final.iloc[:, 14] = df_final.iloc[:, 14].copy(), df_final.iloc[:, 13].copy()
+    temp_col = df_final.iloc[:, 13].copy()
+    df_final.iloc[:, 13] = df_final.iloc[:, 14]
+    df_final.iloc[:, 14] = temp_col
+
     print(df_final.head(4))
 
     pystow.dump_df(key=taxon_to_provider[target_taxon],
