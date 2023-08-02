@@ -50,13 +50,8 @@ def convert_annotations(namespaces, target_taxon, source_taxon, ortho_reference)
               "-gb",
               required=False,
               type=str, callback=convert_to_list,
-              help='GAF or GPAD columns to group by including: subject, object, and/or evidence_code.')
-@click.option("--restrict_to_decreases",
-              "-rtd",
-              type=click.BOOL,
-              default=False,
-              help='Only report group by results when the second file shows a decrease in number by grouping column')
-def compare(file1, file2, output, group_by_columns, restrict_to_decreases):
+              help='GAF or GPAD columns to group by including: subject, relation, object, negated')
+def compare(file1, file2, output, group_by_columns):
     """
     Compare two GPAD or GAF files and report differences.
 
@@ -72,8 +67,7 @@ def compare(file1, file2, output, group_by_columns, restrict_to_decreases):
     print("file2: ", file2)
     print("output: ", output)
     print("group_by_column: ", group_by_columns, type(group_by_columns))
-    print("restrict_to_decreases: ", restrict_to_decreases)
-    compare_files(file1, file2, output, group_by_columns, restrict_to_decreases)
+    compare_files(file1, file2, output, group_by_columns)
 
 
 if __name__ == '__main__':

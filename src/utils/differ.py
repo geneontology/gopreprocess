@@ -1,15 +1,15 @@
+import csv
+
 from ontobio.io import assocparser, gpadparser
 from ontobio import ecomap
 import pandas as pd
-import datetime
-from ontobio.io import qc
-from ontobio.io.assocparser import Report
 from ontobio.model.association import GoAssociation
 from ontobio.model import collections
 from typing import List
+import datetime
 
 
-def compare_files(file1, file2, output, group_by_columns, restrict_to_decreases):
+def compare_files(file1, file2, output, group_by_columns):
     """
 
     Method to compare two GPAD or GAF files and report differences on a file level and via converting
@@ -23,17 +23,13 @@ def compare_files(file1, file2, output, group_by_columns, restrict_to_decreases)
     :type output: str
     :param group_by_columns: Name of the target/second file to compare
     :type group_by_columns: List
-    :param restrict_to_decreases: An optional boolean flag that allows the grouping column counts to be returned only
-        if they show a decrease in number beteween file1 and file2
-    :type restrict_to_decreases: bool
 
     """
     pd.set_option('display.max_rows', 50000)
 
     df_file1, df_file2, assocs1, assocs2 = get_parser(file1, file2)
     generate_count_report(df_file1, df_file2, file1, file2, output)
-    compare_associations(assocs1, assocs2, output, file1, file2)
-    generate_group_report(df_file1, df_file2, group_by_columns, file1, file2, restrict_to_decreases, output)
+    compare_associations(assocs1, assocs2, output)
 
 
 def generate_count_report(df_file1, df_file2, file1, file2, output):
@@ -72,137 +68,73 @@ def generate_count_report(df_file1, df_file2, file1, file2, output):
     print(merged_frame)
 
 
-def generate_group_report(df_file1, df_file2, group_by_columns, file1, file2, restrict_to_decreases, output):
-    """
+def compare_associations(assocs1, assocs2, output):
 
-    Method to generate a report of the number of distinct values of each of the provided group_by columns
-    in a GAF or GPAD file.  Currently restricted to the following columns: subject, object, evidence_code.
+    compare_report_file_path = output + "_compare_report"
 
-    :param df_file1: data frame representing a normalized columnar representation of file1
-    :type df_file1: pd
-    :param df_file2: data frame representing a normalized columnar represenation of file2
-    :type df_file2: pd
-    :param group_by_columns: the columns to group by
-    :type group_by_columns: List[str]
-    :param file1: The file name of the file provided in the click for reporting purposes.
-    :type file1: str
-    :param file2: The file name of the file provided in the click for reporting purposes.
-    :type file2: str
-    :param restrict_to_decreases: An optional boolean flag that allows the grouping column counts to be returned only
-        if they show a decrease in number between file1 and file2
-    :type restrict_to_decreases: bool
-    :param output: Prefix of the reported files for reporting purposes.
-    :type output: str
+    # Convert assocs2 into a set of tuples for faster lookup
+    assoc1_list = []
+    for go in assocs1:
+        if type(go) == dict:
+            continue
+        new_tuple = (str(go.subject.id), str(go.relation), str(go.object.id), str(go.evidence.type))
+        assoc1_list.append(new_tuple)
 
-    """
+    assoc2_list = []
+    for go in assocs2:
+        if type(go) == dict:
+            continue
+        new_tuple = (str(go.subject.id), str(go.relation), str(go.object.id), str(go.evidence.type))
+        assoc2_list.append(new_tuple)
 
-    file1_name = file1.replace(".", "_")
-    file2_name = file2.replace(".", "_")
+    assocs1_set = set(assoc1_list)
+    assocs2_set = set(assoc2_list)
 
-    if len(group_by_columns) > 0:
-        s = "\n\n## GROUP BY SUMMARY \n\n"
-        s += "This report generated on {}\n\n".format(datetime.date.today())
-        s += "  * Group By Columns: " + str(group_by_columns) + "\n"
-        s += "  * Compared Files: " + file1 + ", " + file2 + "\n"
+    common_elements, elements_unique_to_set1, elements_unique_to_set2 = compare_association_sets(assocs1_set,
+                                                                                                 assocs2_set
+                                                                                                 )
+    common_file_path = output+"_common_elements.txt"
+    unique_set1_file_path = output+"_"+"unique_to_set1.txt"
+    unique_set2_file_path = output+"_"+"unique_to_set2.txt"
 
-        # rename the second count so the merge removes duplicate columns but not the counts.
-        _, grouped_frame1 = get_group_by(df_file1, group_by_columns, file1)
-        grouped_frame1 = grouped_frame1.rename(columns={'count': file1_name})
-        _, grouped_frame2 = get_group_by(df_file2, group_by_columns, file2)
-        grouped_frame2 = grouped_frame2.rename(columns={'count': file2_name})
+    write_set_to_file(common_file_path, common_elements)
+    write_set_to_file(unique_set1_file_path, elements_unique_to_set1)
+    write_set_to_file(unique_set2_file_path, elements_unique_to_set2)
 
-        # bring the two data frames together
-        merged_group_frame = pd.merge(grouped_frame1, grouped_frame2, on=group_by_columns)
-
-        if restrict_to_decreases:
-            print("file2 ", file2_name)
-            print("file1 ", file1_name)
-            filtered_df = merged_group_frame[merged_group_frame[file2_name] < merged_group_frame[file1_name]]
-        else:
-            filtered_df = merged_group_frame[
-                merged_group_frame[file2_name] != merged_group_frame[file1_name]]
-
-        # this is for the output file name -- just removing the special characters and concatenating
-        name = None
-        for column in group_by_columns:
-            if name is None:
-                name = column
-            else:
-                name = name+"_"+column
-
-        s += "  * Number of unqiue " + name + "s that show differences: " + str(len(filtered_df.index)) + "\n"
-        s += "  * See output file " + output + "_" + name + "_counts_per_column_report" + "\n"
-        filtered_df.to_csv(output + "_" + name + "_counts_per_column_report", sep='\t', index=False)
-        print(s)
-        print("\n\n")
-
-
-def compare_associations(assocs1, assocs2, output, file1, file2):
-    """
-
-    Method to compare files by turning them into collections of GoAssociation objects and comparing the
-    content of the GoAssociations for matches between collections.
-
-    :param assocs1: List of GoAssociations to compare from file1
-    :type assocs1: List[GoAssociation]
-    :param assocs2: List of GoAssociations to compare from file2
-    :type assocs2: List[GoAssociation]
-    :param file1: The file name of the file provided in the click for reporting purposes.
-    :type file1: str
-    :param file2: The file name of the file provided in the click for reporting purposes.
-    :type file2: str
-    :param output: Prefix of the reported files for reporting purposes.
-    :type output: str
-
-    """
-    fields_to_compare = ['subject', 'relation', 'object', 'negated']  # replace with your actual fields
-
-    compare_report_file = open(output + "_compare_report", "w")
-    processed_associations = len(assocs1)
-
-    print('len of assoc2', len(assocs2))
-    print(type(assocs2))
-    report = Report()
-
-    passed = []
-    failed = []
-    # For each GoAssociation object in the first file
-    for go1 in assocs1:
-        if type(go1) == dict:
-            continue  # skip the header
-        # Look for a matching GoAssociation object in the second file
-        else:
-            for go2 in assocs2:
-                if type(go2) == dict:
-                    continue  # skip the header
-                else:
-                    print("not a dict")
-                    for field in fields_to_compare:
-                        print("field is: ", field)
-                        print("go1 is: ", getattr(go1, field))
-                        print("go2 is: ", getattr(go2, field))
-                    if all(getattr(go1, field) == getattr(go2, field) for field in fields_to_compare):
-                        print("match found")
-                        # If a match is found, add it to the passed list
-                        passed.append(go1)
-                    else:
-                        failed.append(go1)
-
-    for diff in failed:
-        report.add_association(diff)
-        report.n_lines = report.n_lines + 1
-        report.error(diff.source_line, qc.ResultType.ERROR, "line from %s has NO match in %s" % (file1, file2), "")
-
-    md_report, number_of_messages = markdown_report(report, processed_associations)
     s = "\n\n## DIFF SUMMARY\n\n"
     s += "This report generated on {}\n\n".format(datetime.date.today())
-    s += "  * Total Unmatched Associations: {}\n".format(number_of_messages)
-    s += "  * Total Associations Compared: " + str(len(assocs1)) + "\n"
-    s += "  * See report: " + output + "_compare_report" + "\n"
+    s += f"  * Total Common Associations: {len(common_elements)}\n"
+    s += f"  * Total Elements Unique to File1: {len(elements_unique_to_set1)}\n"
+    s += f"  * Total Elements Unique to File2: {len(elements_unique_to_set2)}\n"
+    s += f"  * See report: {compare_report_file_path}\n"
 
     print(s)
-    compare_report_file.write(md_report)
-    compare_report_file.close()
+
+
+def compare_association_sets(set1: set, set2: set):
+    """
+    Compare two sets of tuples and return the elements that are common and unique between them.
+
+    :param set1: The first set of tuples.
+    :type set1: set
+    :param set2: The second set of tuples.
+    :type set2: set
+    :return: A tuple containing three sets: common elements, elements unique to set1, and elements unique to set2.
+    :rtype: tuple
+    """
+
+    common_elements = set1.intersection(set2)
+    elements_unique_to_set1 = set1.difference(set2)
+    elements_unique_to_set2 = set2.difference(set1)
+
+    return list(common_elements), list(elements_unique_to_set1), list(elements_unique_to_set2)
+
+
+def write_set_to_file(file_path, data_set):
+    with open(file_path, 'w', newline='') as tsv_file:
+        writer = csv.writer(tsv_file, delimiter='\t')
+        for item in data_set:
+            writer.writerow(item)
 
 
 def markdown_report(report, processed_lines) -> (str, str):
@@ -262,8 +194,6 @@ def get_parser(file1, file2) -> (str, str, List[GoAssociation], List[GoAssociati
 
     assocs1 = parser1.parse(file1)
     assocs2 = parser2.parse(file2)
-    print(len(assocs2))
-    print(assocs2)
 
     return df_file1, df_file2, assocs1, assocs2
 
