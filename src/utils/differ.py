@@ -38,9 +38,9 @@ def generate_count_report(df_file1, df_file2, file1, file2, output):
     Currently restricted to the following columns: subject, qualifiers, object, evidence_code
     and reference.
 
-    :param df_file1: data frame representing a normalized columnar represenation of file1
+    :param df_file1: data frame representing a normalized columnar representation of file1
     :type df_file1: pd
-    :param df_file2: data frame representing a normalized columnar represenation of file2
+    :param df_file2: data frame representing a normalized columnar representation of file2
     :type df_file2: pd
     :param file1: The file name of the file provided in the click for reporting purposes.
     :type file1: str
