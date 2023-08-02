@@ -1,3 +1,4 @@
+"""Module contains functions for downloading files from the web."""
 from pathlib import Path
 
 import pystow
@@ -39,6 +40,5 @@ def download_file(target_directory_name: str, config_key: str) -> Path:
     :return: None
 
     """
-    # TODO: add parameter to control whether to force download or not
-    file_path = pystow.ensure(target_directory_name, url=get_url(config_key), force=False)
+    file_path = pystow.ensure(target_directory_name, url=get_url(config_key), force=True)
     return file_path

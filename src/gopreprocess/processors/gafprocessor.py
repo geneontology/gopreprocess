@@ -1,3 +1,4 @@
+"""Module contains the GafProcessor class."""
 from pathlib import Path
 from typing import List
 
@@ -39,6 +40,26 @@ def configure_parser() -> GafParser:
 
 
 class GafProcessor:
+
+    """
+    A class for processing GAF (Gene Association Format) files.
+
+    Attributes
+    ----------
+        filepath (str): The path to the GAF file.
+        namespaces (List[str]): A list of namespaces.
+        convertible_annotations (List[dict]): A list of convertible annotations.
+        taxon_to_provider (dict): A dictionary mapping taxon IDs to providers.
+        target_taxon (str): The target taxon ID.
+        uniprot_to_hgnc_map (dict): A dictionary mapping UniProt IDs to HGNC IDs.
+
+    Methods
+    -------
+        __init__(self, filepath, namespaces): Initializes a new instance of GafProcessor.
+        parse_gaf(self): Parses the GAF file and processes the annotations.
+
+    """
+
     def __init__(
         self,
         filepath: Path,
@@ -67,6 +88,7 @@ class GafProcessor:
     def parse_gaf(self):
         """
         Parses the GAF file and processes the annotations.
+
         :return: None.
         """
         p = configure_parser()

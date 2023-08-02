@@ -1,3 +1,4 @@
+"""Module for processing ortholog data from the Alliance of Genome Resources."""
 import json
 from pathlib import Path
 

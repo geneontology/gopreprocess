@@ -1,4 +1,4 @@
-
+"""Module contains the AllianceXrefProcessor class."""
 from src.utils.decorators import timer
 from src.utils.download import download_file
 
@@ -7,6 +7,7 @@ class XrefProcessor:
 
     """
     Class that parses the Alliance cross-reference file and generates a map of HGNC IDs to UniProt IDs.
+
     It populates two maps, one keyed by UniProtKB identifier, one keyed by HGNC identifier.
     """
 
@@ -18,8 +19,12 @@ class XrefProcessor:
     def generate_gene_protein_map(self) -> tuple[dict[str, str], dict[str, str]]:
         """
         processes a cross-reference file to generate two dictionaries: hgnc_to_uniprot_map and uniprot_to_hgnc_map.
+
         These dictionaries establish a mapping between HGNC (HUGO Gene Nomenclature Committee) IDs and UniProtKB
         (Universal Protein Knowledgebase) IDs.
+
+        :param: None
+        :return: tuple of two dictionaries, one keyed by HGNC ID, one keyed by UniProtKB ID
         """
         hgnc_to_uniprot_map = {}
         uniprot_to_hgnc_map = {}

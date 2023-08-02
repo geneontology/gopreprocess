@@ -1,3 +1,9 @@
+"""
+Module contains the AnnotationConverter class, which is responsible for converting annotations.
+
+As input, this package takes a GAF from one species and generates a GAF for another species (using Alliance orthology
+to map genes between species).
+"""
 import copy
 import json
 from typing import List
@@ -16,6 +22,7 @@ from src.utils.settings import iso_eco_code, taxon_to_provider
 
 
 def convert_curie_to_string(x):
+    """Converts a Curie object to a string."""
     if isinstance(x, Curie):  # Replace 'Curie' with the actual Curie class
         return str(x)
     return x
@@ -24,6 +31,17 @@ def convert_curie_to_string(x):
 def dump_converted_annotations(
     converted_target_annotations: List[List[str]], source_taxon: str, target_taxon: str
 ) -> None:
+    """
+    Dumps the converted annotations to a JSON file.
+
+    :param converted_target_annotations: The converted annotations.
+    :type converted_target_annotations: List[List[str]]
+    :param source_taxon: The source taxon ID.
+    :type source_taxon: str
+    :param target_taxon: The target taxon ID.
+    :type target_taxon: str
+
+    """
     # using pandas in order to take advantage of pystow in terms of file location and handling
     df = pd.DataFrame(converted_target_annotations)
     print("this is the original dataframe head")
@@ -125,7 +143,23 @@ def dump_converted_annotations(
 
 
 class AnnotationConverter:
+
+    """
+    Converts annotations from one species to another based on ortholog relationships between the two species.
+
+    :param namespaces: The namespaces to convert.
+    :type namespaces: List[str]
+    :param target_taxon: The target taxon ID.
+    :type target_taxon: str
+    :param source_taxon: The source taxon ID.
+    :type source_taxon: str
+    :param ortho_reference: The ortholog reference.
+    :type ortho_reference: str
+
+    """
+
     def __init__(self, namespaces: List[str], target_taxon: str, source_taxon: str, ortho_reference: str):
+        """Initialize the AnnotationConverter class."""
         self.namespaces = namespaces
         self.target_taxon = target_taxon
         self.source_taxon = source_taxon
@@ -135,8 +169,7 @@ class AnnotationConverter:
     @timer
     def convert_annotations(self) -> None:
         """
-        Convert source species annotations to target species annotations based on ortholog relationships
-        between the source and target species.
+        Convert source species annotations to target species annotations based on ortholog relationships.
 
         :returns: None
         """

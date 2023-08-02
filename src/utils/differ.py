@@ -1,3 +1,4 @@
+"""Diff tool for comparing files coming out of the pipeline with those going in."""
 import csv
 import datetime
 from typing import List
@@ -11,9 +12,7 @@ from ontobio.model.association import GoAssociation
 
 def compare_files(file1, file2, output):
     """
-
-    Method to compare two GPAD or GAF files and report differences on a file level and via converting
-    file-based rows to GoAssociation objects.
+    Method to compare two GPAD or GAF files and report differences.
 
     :param file1: Name of the source file to compare
     :type file1: str
@@ -34,12 +33,10 @@ def compare_files(file1, file2, output):
 
 def generate_count_report(df_file1, df_file2, file1, file2, output):
     """
+    Method to generate a report of the number of distinct values of each of the columns in a GAF or GPAD file.
 
-    Method to generate a report of the number of distinct values of each of the columns
-    in a GAF or GPAD file.  Currently restricted to the following columns: subject, qualifiers, object, evidence_code
+    Currently restricted to the following columns: subject, qualifiers, object, evidence_code
     and reference.
-
-    Uses pandas internal functions like merge and nunique to count and display metrics.
 
     :param df_file1: data frame representing a normalized columnar represenation of file1
     :type df_file1: pd
@@ -68,6 +65,19 @@ def generate_count_report(df_file1, df_file2, file1, file2, output):
 
 
 def compare_associations(assocs1, assocs2, output):
+    """
+    Method takes two lists of GoAssociation objects and compares them to each other, reporting the differences.
+
+    Differences are based on three main criteria:
+    1.  The subject, object, and evidence code act as a unit and must be the same between annotations
+    or a difference is reported.
+
+    :param assocs1: List of GoAssociation objects from the first file.
+    :param assocs2: List of GoAssociation objects from the second file.
+    :param output: Prefix of the reported files for reporting purposes.
+    :type output: str
+
+    """
     compare_report_file_path = output + "_compare_report"
 
     # Convert assocs2 into a set of tuples for faster lookup
@@ -132,6 +142,14 @@ def compare_association_sets(set1: set, set2: set):
 
 
 def write_set_to_file(file_path, data_set):
+    """
+    Write a set to a file.
+
+    :param file_path: The path to the file to write.
+    :type file_path: str
+    :param data_set: The set to write to the file.
+    :type data_set: set
+    """
     with open(file_path, "w", newline="") as tsv_file:
         writer = csv.writer(tsv_file, delimiter="\t")
         for item in data_set:
@@ -139,6 +157,16 @@ def write_set_to_file(file_path, data_set):
 
 
 def markdown_report(report, processed_lines) -> (str, str):
+    """
+    Generate a markdown report from a report object.
+
+    :param report: The report object to generate the markdown report from.
+    :type report: Report
+    :param processed_lines: The number of lines processed.
+    :type processed_lines: int
+    :return: A tuple containing the markdown report and the json report.
+    :rtype: tuple
+    """
     json = report.to_report_json()
 
     s = "\n\n## DIFF SUMMARY\n\n"
@@ -161,6 +189,16 @@ def markdown_report(report, processed_lines) -> (str, str):
 
 
 def get_typed_parser(file_handle, filename) -> [str, assocparser.AssocParser]:
+    """
+    Get the parser for a file based on the file header.
+
+    :param file_handle: The file handle to read the file from.
+    :type file_handle: file
+    :param filename: The name of the file.
+    :type filename: str
+    :return: A tuple containing the dataframe and the parser.
+    :rtype: tuple
+    """
     parser = assocparser.AssocParser()
 
     for line in file_handle:
@@ -179,6 +217,14 @@ def get_typed_parser(file_handle, filename) -> [str, assocparser.AssocParser]:
 
 
 def normalize_relation(relation: str) -> str:
+    """
+    Normalize a relation to a standard format.  For GAF this is a 3-letter code, for GPAD it is an ECO code.
+
+    :param relation: The relation to normalize.
+    :type relation: str
+    :return: The normalized relation.
+    :rtype: str
+    """
     if ":" in str(relation):
         return str(relation)
     else:
@@ -186,6 +232,16 @@ def normalize_relation(relation: str) -> str:
 
 
 def get_parser(file1, file2) -> (str, str, List[GoAssociation], List[GoAssociation]):
+    """
+    Get the parser for a file based on the file header.
+
+    :param file1: The first file to parse.
+    :type file1: str
+    :param file2: The second file to parse.
+    :type file2: str
+    :return: A tuple containing the dataframe and the parser.
+    :rtype: tuple
+    """
     file1_obj = assocparser.AssocParser()._ensure_file(file1)
     df_file1, parser1 = get_typed_parser(file1_obj, file1)
     file2_obj = assocparser.AssocParser()._ensure_file(file2)
@@ -199,6 +255,14 @@ def get_parser(file1, file2) -> (str, str, List[GoAssociation], List[GoAssociati
 
 
 def read_gaf_csv(filename) -> pd:
+    """
+    Read a GAF file into a dataframe.
+
+    :param filename: The name of the file to read.
+    :type filename: str
+    :return: The dataframe containing the GAF data.
+    :rtype: pd
+    """
     ecomapping = ecomap.EcoMap()
     data_frame = pd.read_csv(
         filename,
@@ -238,6 +302,17 @@ def read_gaf_csv(filename) -> pd:
 
 
 def read_gpad_csv(filename, version) -> pd:
+    """
+    Read a GPAD file into a dataframe.
+
+    :param filename: The name of the file to read.
+    :type filename: str
+    :param version: The version of the GPAD file.
+    :type version: str
+    :return: The dataframe containing the GPAD data.
+    :rtype: pd
+
+    """
     if version.startswith("1"):
         data_frame = pd.read_csv(
             filename, comment="!", header=None, na_filter=False, engine="python", delimiter="\t", names=gpad_1_2_format
@@ -274,14 +349,17 @@ def read_gpad_csv(filename, version) -> pd:
     return new_df
 
 
-def get_group_by(data_frame, groups, file) -> (pd, pd):
-    print("Grouping by ", str(groups), type(groups))
-    stats = {"filename": file, "total_rows": data_frame.shape[0]}
-    grouped_frame = data_frame.groupby(groups).size().reset_index(name="count")
-    return stats, grouped_frame
-
-
 def get_column_count(data_frame, file) -> (pd, pd):
+    """
+    Get the column count for a given dataframe.
+
+    :param data_frame: The dataframe to get the column count for.
+    :type data_frame: pd
+    :param file: The name of the file.
+    :type file: str
+    :return: A tuple containing the stats and the count frame.
+    :rtype: tuple
+    """
     stats = {"filename": file, "total_rows": data_frame.shape[0]}
     count_frame = data_frame.nunique().to_frame(file)
     return stats, count_frame

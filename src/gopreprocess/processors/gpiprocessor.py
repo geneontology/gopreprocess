@@ -1,3 +1,5 @@
+"""A module for processing GPI (Gene Product Information) files."""
+
 from pathlib import Path
 
 from ontobio.io.entityparser import GpiParser

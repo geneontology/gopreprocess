@@ -1,3 +1,4 @@
+"""Module contains the CLI commands for the gopreprocess package."""
 import click
 
 from src.gopreprocess.converters.annotation_converter import AnnotationConverter
@@ -7,6 +8,7 @@ from src.utils.differ import compare_files
 # Create a group for the CLI commands
 @click.group()
 def cli():
+    """A CLI for preprocessing GO annotations."""
     pass
 
 
@@ -32,6 +34,7 @@ def cli():
     "--ortho_reference", default="GO_REF:0000096", help="Ortho reference in curie format. " "e.g. GO_REF:0000096"
 )
 def convert_annotations(namespaces, target_taxon, source_taxon, ortho_reference):
+    """Converts annotations from one taxon to another using orthology."""
     print("namespaces: ", namespaces)
     print("target_taxon: ", target_taxon)
     print("source_taxon: ", source_taxon)
@@ -76,4 +79,8 @@ def compare(file1, file2, output):
 
 
 if __name__ == "__main__":
+    """
+    Execute the CLI commands via this entrypoint.
+
+    """
     cli()

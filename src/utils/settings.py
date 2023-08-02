@@ -1,3 +1,4 @@
+"""Module that processes the settings for the application."""
 import logging
 from os import path
 
@@ -22,5 +23,5 @@ def get_url(key: str) -> str:
     :rtype: str
     """
     with open(CONFIG, "r") as f:
-        config = yaml.load(f, Loader=yaml.FullLoader)
+        config = yaml.safe_load(f)
     return config[key]["url"]
