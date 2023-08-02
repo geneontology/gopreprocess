@@ -7,6 +7,6 @@ ALLIANCE_ORTHO:
 RGD:
   url: http://snapshot.geneontology.org/annotations/rgd.gaf.gz
 HUMAN:
-  url: http://snapshot.geneontology.org/annotations/goa_human.gaf.gz
+  url: http://snapshot.geneontology.org/annotations/goa_human_isoform.gaf.gz
 MGI_XREF:
   url: http://www.informatics.jax.org/downloads/reports/HOM_MouseHumanSequence.rpt

@@ -77,14 +77,14 @@ def compare_associations(assocs1, assocs2, output):
     for go in assocs1:
         if type(go) == dict:
             continue
-        new_tuple = (str(go.subject.id), str(go.relation), str(go.object.id), str(go.evidence.type))
+        new_tuple = (str(go.subject.id), str(go.object.id), str(go.evidence.type))
         assoc1_list.append(new_tuple)
 
     assoc2_list = []
     for go in assocs2:
         if type(go) == dict:
             continue
-        new_tuple = (str(go.subject.id), str(go.relation), str(go.object.id), str(go.evidence.type))
+        new_tuple = (str(go.subject.id), str(go.object.id), str(go.evidence.type))
         assoc2_list.append(new_tuple)
 
     assocs1_set = set(assoc1_list)
