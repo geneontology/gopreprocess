@@ -1,20 +1,17 @@
-from typing import Tuple, Dict
 
 from src.utils.decorators import timer
 from src.utils.download import download_file
 
 
 class XrefProcessor:
+
     """
     Class that parses the Alliance cross-reference file and generates a map of HGNC IDs to UniProt IDs.
     It populates two maps, one keyed by UniProtKB identifier, one keyed by HGNC identifier.
     """
 
     def __init__(self):
-        """
-        Initializes an instance of the AllianceXrefProcessor.
-        """
-
+        """Initializes an instance of the AllianceXrefProcessor."""
         self.hgnc_to_uniprot_map, self.uniprot_to_hgnc_map = self.generate_gene_protein_map()
 
     @timer
@@ -41,7 +38,7 @@ class XrefProcessor:
                     else:
                         uniprot_ids = [line[12].strip()]
                     for uniprot_id in uniprot_ids:
-                        uniprot_to_hgnc_map["UniProtKB:"+uniprot_id.strip()] = line[6].strip()
-                        hgnc_to_uniprot_map[line[6].strip()] = "UniProtKB:"+uniprot_id.strip()
+                        uniprot_to_hgnc_map["UniProtKB:" + uniprot_id.strip()] = line[6].strip()
+                        hgnc_to_uniprot_map[line[6].strip()] = "UniProtKB:" + uniprot_id.strip()
 
         return hgnc_to_uniprot_map, uniprot_to_hgnc_map

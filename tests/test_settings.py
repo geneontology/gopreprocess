@@ -1,4 +1,5 @@
 import unittest
+
 from src.utils.settings import get_url
 
 
@@ -9,5 +10,5 @@ class TestGetURL(unittest.TestCase):
         self.assertEqual(actual_url, expected_url)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

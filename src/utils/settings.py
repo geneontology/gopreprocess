@@ -9,11 +9,7 @@ logger = logging.getLogger(__name__)
 
 iso_eco_code = "ECO:0000266"
 
-taxon_to_provider = {
-    "NCBITaxon:10116": "RGD",
-    "NCBITaxon:10090": "MGI",
-    "NCBITaxon:9606": "HUMAN"
-}
+taxon_to_provider = {"NCBITaxon:10116": "RGD", "NCBITaxon:10090": "MGI", "NCBITaxon:9606": "HUMAN"}
 
 
 def get_url(key: str) -> str:
@@ -28,5 +24,3 @@ def get_url(key: str) -> str:
     with open(CONFIG, "r") as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
     return config[key]["url"]
-
-

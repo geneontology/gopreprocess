@@ -3,7 +3,7 @@ import time
 
 def convert_to_list(ctx, param, value):
     if value is not None:
-        return value.split(',')
+        return value.split(",")
     return []
 
 
@@ -12,12 +12,15 @@ def timer(func):
     Decorator function to measure the execution time of a function.
 
     Args:
+    ----
         func: The function to be timed.
 
     Returns:
+    -------
         The wrapped function.
 
     Example:
+    -------
         @timer
         def my_function():
             # Function code here
@@ -27,15 +30,18 @@ def timer(func):
     :param func: The function to be timed.
     :return: The wrapped function.
     """
+
     def wrapper(*args, **kwargs):
         """
         Wrapper function that measures the execution time of the decorated function.
 
         Args:
+        ----
             *args: Variable length argument list.
             **kwargs: Arbitrary keyword arguments.
 
         Returns:
+        -------
             The result of the decorated function.
 
         :param args: Variable length argument list.
