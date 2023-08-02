@@ -9,7 +9,7 @@ from typing import List
 import datetime
 
 
-def compare_files(file1, file2, output, group_by_columns):
+def compare_files(file1, file2, output):
     """
 
     Method to compare two GPAD or GAF files and report differences on a file level and via converting
