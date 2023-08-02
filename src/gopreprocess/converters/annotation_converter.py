@@ -43,10 +43,19 @@ def dump_converted_annotations(converted_target_annotations: List[List[str]],
     # Group by all other columns and get the min value in column 13
     df_final = df_deduplicated.groupby(df_deduplicated.columns.drop(13).tolist())[13].min().reset_index()
 
+    df_final.columns = ["subject.id.namespace", "subject.id.identity", "subject.label", "qualifier",
+                        "object.id", "evidence.has_supporting_reference", "evidence.type", "evidence.with_support_from",
+                        "aspect", "subject.fullname", "subject.synonyms", "subject.type", "taxon",
+                        "provided_by", "object_extensions", "gp_isoforms", "date"]
+
+    desired_column_order = ["subject.id.namespace", "subject.id.identity", "subject.label", "qualifier",
+                            "object.id", "evidence.has_supporting_reference", "evidence.type",
+                            "evidence.with_support_from",
+                            "aspect", "subject.fullname", "subject.synonyms", "subject.type", "taxon", "date",
+                            "provided_by", "object_extensions", "gp_isoforms"]
+
     # Swap columns 13 and 14 because the groupby operation above swaps them
-    temp_col = df_final.iloc[:, 13].copy()
-    df_final.iloc[:, 13] = df_final.iloc[:, 14]
-    df_final.iloc[:, 14] = temp_col
+    df_final = df_final.reindex(columns=desired_column_order)
 
     print(df_final.head(4))
 
@@ -60,13 +69,13 @@ def dump_converted_annotations(converted_target_annotations: List[List[str]],
     # we need to add the #gaf-version: 2.2 header to the file
     filepath = pystow.join(key=taxon_to_provider[target_taxon],
                            name=taxon_to_provider[target_taxon].lower() + "-"
-                           + taxon_to_provider[source_taxon].lower() + "-ortho-temp.gaf",
+                                + taxon_to_provider[source_taxon].lower() + "-ortho-temp.gaf",
                            ensure_exists=True)
 
     # get the new file we have to create to add the header via pystow, so everything is managed together
     header_filepath = pystow.join(key=taxon_to_provider[target_taxon],
                                   name=taxon_to_provider[target_taxon].lower() + "-"
-                                  + taxon_to_provider[source_taxon].lower() + "-ortho.gaf",
+                                       + taxon_to_provider[source_taxon].lower() + "-ortho.gaf",
                                   ensure_exists=True)
     with open(filepath, 'r') as file:
         file_contents = file.readlines()
@@ -193,14 +202,16 @@ class AnnotationConverter:
 
                 # TODO: replace MGI with target_namespace
 
-                new_annotation.subject.fullname = target_genes[taxon_to_provider[self.target_taxon] + ":" + gene]["fullname"]
+                new_annotation.subject.fullname = target_genes[taxon_to_provider[self.target_taxon] + ":" + gene][
+                    "fullname"]
                 new_annotation.subject.label = target_genes[taxon_to_provider[self.target_taxon] + ":" + gene]["label"]
 
                 # have to convert these to curies in order for the conversion to
                 # GAF 2.2 type to return anything other than
                 # default 'gene_product' -- in ontobio, when this is a list, we just take the first item.
-                new_annotation.subject.type = [map_gp_type_label_to_curie(target_genes[taxon_to_provider[self.target_taxon]
-                                                                                       + ":" + gene].get("type")[0])]
+                new_annotation.subject.type = [
+                    map_gp_type_label_to_curie(target_genes[taxon_to_provider[self.target_taxon]
+                                                            + ":" + gene].get("type")[0])]
                 annotations.append(new_annotation)
 
         return annotations

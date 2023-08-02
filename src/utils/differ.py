@@ -79,13 +79,17 @@ def compare_associations(assocs1, assocs2, output):
             continue
         new_tuple = (str(go.subject.id), str(go.object.id), str(go.evidence.type))
         assoc1_list.append(new_tuple)
+    print(assoc1_list[0])
 
     assoc2_list = []
-    for go in assocs2:
-        if type(go) == dict:
+
+    for go2 in assocs2:
+        if type(go2) == dict:
             continue
-        new_tuple = (str(go.subject.id), str(go.object.id), str(go.evidence.type))
+        new_tuple = (str(go2.subject.id), str(go2.object.id), str(go2.evidence.type))
         assoc2_list.append(new_tuple)
+    print(len(assoc2_list))
+    print(assoc2_list[0])
 
     assocs1_set = set(assoc1_list)
     assocs2_set = set(assoc2_list)
@@ -194,6 +198,7 @@ def get_parser(file1, file2) -> (str, str, List[GoAssociation], List[GoAssociati
 
     assocs1 = parser1.parse(file1)
     assocs2 = parser2.parse(file2)
+    print(assocs2[0])
 
     return df_file1, df_file2, assocs1, assocs2
 
