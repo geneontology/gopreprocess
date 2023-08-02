@@ -1,19 +1,18 @@
-from ontobio.io import assocparser, gpadparser
-from ontobio import ecomap
-import pandas as pd
+"""Diff tool for comparing files coming out of the pipeline with those going in."""
+import csv
 import datetime
-from ontobio.io import qc
-from ontobio.io.assocparser import Report
-from ontobio.model.association import GoAssociation
-from ontobio.model import collections
 from typing import List
 
+import pandas as pd
+from ontobio import ecomap
+from ontobio.io import assocparser, gpadparser
+from ontobio.model import collections
+from ontobio.model.association import GoAssociation
 
-def compare_files(file1, file2, output, group_by_columns, restrict_to_decreases):
+
+def compare_files(file1, file2, output):
     """
-
-    Method to compare two GPAD or GAF files and report differences on a file level and via converting
-    file-based rows to GoAssociation objects.
+    Method to compare two GPAD or GAF files and report differences.
 
     :param file1: Name of the source file to compare
     :type file1: str
@@ -23,31 +22,25 @@ def compare_files(file1, file2, output, group_by_columns, restrict_to_decreases)
     :type output: str
     :param group_by_columns: Name of the target/second file to compare
     :type group_by_columns: List
-    :param restrict_to_decreases: An optional boolean flag that allows the grouping column counts to be returned only
-        if they show a decrease in number beteween file1 and file2
-    :type restrict_to_decreases: bool
 
     """
-    pd.set_option('display.max_rows', 50000)
+    pd.set_option("display.max_rows", 50000)
 
     df_file1, df_file2, assocs1, assocs2 = get_parser(file1, file2)
     generate_count_report(df_file1, df_file2, file1, file2, output)
-    compare_associations(assocs1, assocs2, output, file1, file2)
-    generate_group_report(df_file1, df_file2, group_by_columns, file1, file2, restrict_to_decreases, output)
+    compare_associations(assocs1, assocs2, output)
 
 
 def generate_count_report(df_file1, df_file2, file1, file2, output):
     """
+    Method to generate a report of the number of distinct values of each of the columns in a GAF or GPAD file.
 
-    Method to generate a report of the number of distinct values of each of the columns
-    in a GAF or GPAD file.  Currently restricted to the following columns: subject, qualifiers, object, evidence_code
+    Currently restricted to the following columns: subject, qualifiers, object, evidence_code
     and reference.
 
-    Uses pandas internal functions like merge and nunique to count and display metrics.
-
-    :param df_file1: data frame representing a normalized columnar represenation of file1
+    :param df_file1: data frame representing a normalized columnar representation of file1
     :type df_file1: pd
-    :param df_file2: data frame representing a normalized columnar represenation of file2
+    :param df_file2: data frame representing a normalized columnar representation of file2
     :type df_file2: pd
     :param file1: The file name of the file provided in the click for reporting purposes.
     :type file1: str
@@ -57,13 +50,12 @@ def generate_count_report(df_file1, df_file2, file1, file2, output):
     :type output: str
 
     """
-
     _, counts_frame1 = get_column_count(df_file1, file1)
     _, counts_frame2 = get_column_count(df_file2, file2)
 
     merged_frame = pd.concat([counts_frame1, counts_frame2], axis=1)
-    merged_frame.astype('Int64')
-    merged_frame.to_csv(output + "_counts_per_column_report", sep='\t')
+    merged_frame.astype("Int64")
+    merged_frame.to_csv(output + "_counts_per_column_report", sep="\t")
     s = "\n\n## COLUMN COUNT SUMMARY \n\n"
     s += "This report generated on {}\n\n".format(datetime.date.today())
     s += "  * Compared Files: " + file1 + ", " + file2 + "\n"
@@ -72,147 +64,116 @@ def generate_count_report(df_file1, df_file2, file1, file2, output):
     print(merged_frame)
 
 
-def generate_group_report(df_file1, df_file2, group_by_columns, file1, file2, restrict_to_decreases, output):
+def compare_associations(assocs1, assocs2, output):
     """
+    Method takes two lists of GoAssociation objects and compares them to each other, reporting the differences.
 
-    Method to generate a report of the number of distinct values of each of the provided group_by columns
-    in a GAF or GPAD file.  Currently restricted to the following columns: subject, object, evidence_code.
+    Differences are based on three main criteria:
+    1.  The subject, object, and evidence code act as a unit and must be the same between annotations
+    or a difference is reported.
 
-    :param df_file1: data frame representing a normalized columnar representation of file1
-    :type df_file1: pd
-    :param df_file2: data frame representing a normalized columnar represenation of file2
-    :type df_file2: pd
-    :param group_by_columns: the columns to group by
-    :type group_by_columns: List[str]
-    :param file1: The file name of the file provided in the click for reporting purposes.
-    :type file1: str
-    :param file2: The file name of the file provided in the click for reporting purposes.
-    :type file2: str
-    :param restrict_to_decreases: An optional boolean flag that allows the grouping column counts to be returned only
-        if they show a decrease in number between file1 and file2
-    :type restrict_to_decreases: bool
+    :param assocs1: List of GoAssociation objects from the first file.
+    :param assocs2: List of GoAssociation objects from the second file.
     :param output: Prefix of the reported files for reporting purposes.
     :type output: str
 
     """
+    compare_report_file_path = output + "_compare_report"
 
-    file1_name = file1.replace(".", "_")
-    file2_name = file2.replace(".", "_")
+    # Convert assocs2 into a set of tuples for faster lookup
+    assoc1_list = []
+    for go in assocs1:
+        if type(go) == dict:
+            continue
+        new_tuple = (str(go.subject.id), str(go.object.id), str(go.evidence.type))
+        assoc1_list.append(new_tuple)
+    print(assoc1_list[0])
 
-    if len(group_by_columns) > 0:
-        s = "\n\n## GROUP BY SUMMARY \n\n"
-        s += "This report generated on {}\n\n".format(datetime.date.today())
-        s += "  * Group By Columns: " + str(group_by_columns) + "\n"
-        s += "  * Compared Files: " + file1 + ", " + file2 + "\n"
+    assoc2_list = []
 
-        # rename the second count so the merge removes duplicate columns but not the counts.
-        _, grouped_frame1 = get_group_by(df_file1, group_by_columns, file1)
-        grouped_frame1 = grouped_frame1.rename(columns={'count': file1_name})
-        _, grouped_frame2 = get_group_by(df_file2, group_by_columns, file2)
-        grouped_frame2 = grouped_frame2.rename(columns={'count': file2_name})
+    for go2 in assocs2:
+        if type(go2) == dict:
+            continue
+        new_tuple = (str(go2.subject.id), str(go2.object.id), str(go2.evidence.type))
+        assoc2_list.append(new_tuple)
+    print(len(assoc2_list))
+    print(assoc2_list[0])
 
-        # bring the two data frames together
-        merged_group_frame = pd.merge(grouped_frame1, grouped_frame2, on=group_by_columns)
+    assocs1_set = set(assoc1_list)
+    assocs2_set = set(assoc2_list)
 
-        if restrict_to_decreases:
-            print("file2 ", file2_name)
-            print("file1 ", file1_name)
-            filtered_df = merged_group_frame[merged_group_frame[file2_name] < merged_group_frame[file1_name]]
-        else:
-            filtered_df = merged_group_frame[
-                merged_group_frame[file2_name] != merged_group_frame[file1_name]]
+    common_elements, elements_unique_to_set1, elements_unique_to_set2 = compare_association_sets(
+        assocs1_set, assocs2_set
+    )
+    common_file_path = output + "_common_elements.txt"
+    unique_set1_file_path = output + "_" + "unique_to_set1.txt"
+    unique_set2_file_path = output + "_" + "unique_to_set2.txt"
 
-        # this is for the output file name -- just removing the special characters and concatenating
-        name = None
-        for column in group_by_columns:
-            if name is None:
-                name = column
-            else:
-                name = name+"_"+column
+    write_set_to_file(common_file_path, common_elements)
+    write_set_to_file(unique_set1_file_path, elements_unique_to_set1)
+    write_set_to_file(unique_set2_file_path, elements_unique_to_set2)
 
-        s += "  * Number of unqiue " + name + "s that show differences: " + str(len(filtered_df.index)) + "\n"
-        s += "  * See output file " + output + "_" + name + "_counts_per_column_report" + "\n"
-        filtered_df.to_csv(output + "_" + name + "_counts_per_column_report", sep='\t', index=False)
-        print(s)
-        print("\n\n")
-
-
-def compare_associations(assocs1, assocs2, output, file1, file2):
-    """
-
-    Method to compare files by turning them into collections of GoAssociation objects and comparing the
-    content of the GoAssociations for matches between collections.
-
-    :param assocs1: List of GoAssociations to compare from file1
-    :type assocs1: List[GoAssociation]
-    :param assocs2: List of GoAssociations to compare from file2
-    :type assocs2: List[GoAssociation]
-    :param file1: The file name of the file provided in the click for reporting purposes.
-    :type file1: str
-    :param file2: The file name of the file provided in the click for reporting purposes.
-    :type file2: str
-    :param output: Prefix of the reported files for reporting purposes.
-    :type output: str
-
-    """
-    fields_to_compare = ['subject', 'relation', 'object', 'negated']  # replace with your actual fields
-
-    compare_report_file = open(output + "_compare_report", "w")
-    processed_associations = len(assocs1)
-
-    print('len of assoc2', len(assocs2))
-    print(type(assocs2))
-    report = Report()
-
-    passed = []
-    failed = []
-    # For each GoAssociation object in the first file
-    for go1 in assocs1:
-        if type(go1) == dict:
-            continue  # skip the header
-        # Look for a matching GoAssociation object in the second file
-        else:
-            for go2 in assocs2:
-                if type(go2) == dict:
-                    continue  # skip the header
-                else:
-                    print("not a dict")
-                    for field in fields_to_compare:
-                        print("field is: ", field)
-                        print("go1 is: ", getattr(go1, field))
-                        print("go2 is: ", getattr(go2, field))
-                    if all(getattr(go1, field) == getattr(go2, field) for field in fields_to_compare):
-                        print("match found")
-                        # If a match is found, add it to the passed list
-                        passed.append(go1)
-                    else:
-                        failed.append(go1)
-
-    for diff in failed:
-        report.add_association(diff)
-        report.n_lines = report.n_lines + 1
-        report.error(diff.source_line, qc.ResultType.ERROR, "line from %s has NO match in %s" % (file1, file2), "")
-
-    md_report, number_of_messages = markdown_report(report, processed_associations)
     s = "\n\n## DIFF SUMMARY\n\n"
     s += "This report generated on {}\n\n".format(datetime.date.today())
-    s += "  * Total Unmatched Associations: {}\n".format(number_of_messages)
-    s += "  * Total Associations Compared: " + str(len(assocs1)) + "\n"
-    s += "  * See report: " + output + "_compare_report" + "\n"
+    s += f"  * Total Common Associations: {len(common_elements)}\n"
+    s += f"  * Total Elements Unique to File1: {len(elements_unique_to_set1)}\n"
+    s += f"  * Total Elements Unique to File2: {len(elements_unique_to_set2)}\n"
+    s += f"  * See report: {compare_report_file_path}\n"
 
     print(s)
-    compare_report_file.write(md_report)
-    compare_report_file.close()
+
+
+def compare_association_sets(set1: set, set2: set):
+    """
+    Compare two sets of tuples and return the elements that are common and unique between them.
+
+    :param set1: The first set of tuples.
+    :type set1: set
+    :param set2: The second set of tuples.
+    :type set2: set
+    :return: A tuple containing three sets: common elements, elements unique to set1, and elements unique to set2.
+    :rtype: tuple
+    """
+    common_elements = set1.intersection(set2)
+    elements_unique_to_set1 = set1.difference(set2)
+    elements_unique_to_set2 = set2.difference(set1)
+
+    return list(common_elements), list(elements_unique_to_set1), list(elements_unique_to_set2)
+
+
+def write_set_to_file(file_path, data_set):
+    """
+    Write a set to a file.
+
+    :param file_path: The path to the file to write.
+    :type file_path: str
+    :param data_set: The set to write to the file.
+    :type data_set: set
+    """
+    with open(file_path, "w", newline="") as tsv_file:
+        writer = csv.writer(tsv_file, delimiter="\t")
+        for item in data_set:
+            writer.writerow(item)
 
 
 def markdown_report(report, processed_lines) -> (str, str):
+    """
+    Generate a markdown report from a report object.
+
+    :param report: The report object to generate the markdown report from.
+    :type report: Report
+    :param processed_lines: The number of lines processed.
+    :type processed_lines: int
+    :return: A tuple containing the markdown report and the json report.
+    :rtype: tuple
+    """
     json = report.to_report_json()
 
     s = "\n\n## DIFF SUMMARY\n\n"
     s += "This report generated on {}\n\n".format(datetime.date.today())
     s += "  * Total Associations Compared: " + str(processed_lines) + "\n"
 
-    for (rule, messages) in sorted(json["messages"].items(), key=lambda t: t[0]):
+    for rule, messages in sorted(json["messages"].items(), key=lambda t: t[0]):
         s += "### {rule}\n\n".format(rule=rule)
         s += "* total missing annotations: {amount}\n".format(amount=len(messages))
         s += "\n"
@@ -220,16 +181,24 @@ def markdown_report(report, processed_lines) -> (str, str):
             s += "#### Messages\n\n"
         for message in messages:
             obj = " ({})".format(message["obj"]) if message["obj"] else ""
-            s += "* {level} - {type}: {message}{obj} -- `{line}`\n".format(level=message["level"],
-                                                                           type=message["type"],
-                                                                           message=message["message"],
-                                                                           line=message["line"],
-                                                                           obj=obj)
+            s += "* {level} - {type}: {message}{obj} -- `{line}`\n".format(
+                level=message["level"], type=message["type"], message=message["message"], line=message["line"], obj=obj
+            )
 
         return s, len(messages)
 
 
 def get_typed_parser(file_handle, filename) -> [str, assocparser.AssocParser]:
+    """
+    Get the parser for a file based on the file header.
+
+    :param file_handle: The file handle to read the file from.
+    :type file_handle: file
+    :param filename: The name of the file.
+    :type filename: str
+    :return: A tuple containing the dataframe and the parser.
+    :rtype: tuple
+    """
     parser = assocparser.AssocParser()
 
     for line in file_handle:
@@ -248,6 +217,14 @@ def get_typed_parser(file_handle, filename) -> [str, assocparser.AssocParser]:
 
 
 def normalize_relation(relation: str) -> str:
+    """
+    Normalize a relation to a standard format.  For GAF this is a 3-letter code, for GPAD it is an ECO code.
+
+    :param relation: The relation to normalize.
+    :type relation: str
+    :return: The normalized relation.
+    :rtype: str
+    """
     if ":" in str(relation):
         return str(relation)
     else:
@@ -255,6 +232,16 @@ def normalize_relation(relation: str) -> str:
 
 
 def get_parser(file1, file2) -> (str, str, List[GoAssociation], List[GoAssociation]):
+    """
+    Get the parser for a file based on the file header.
+
+    :param file1: The first file to parse.
+    :type file1: str
+    :param file2: The second file to parse.
+    :type file2: str
+    :return: A tuple containing the dataframe and the parser.
+    :rtype: tuple
+    """
     file1_obj = assocparser.AssocParser()._ensure_file(file1)
     df_file1, parser1 = get_typed_parser(file1_obj, file1)
     file2_obj = assocparser.AssocParser()._ensure_file(file2)
@@ -262,158 +249,184 @@ def get_parser(file1, file2) -> (str, str, List[GoAssociation], List[GoAssociati
 
     assocs1 = parser1.parse(file1)
     assocs2 = parser2.parse(file2)
-    print(len(assocs2))
-    print(assocs2)
+    print(assocs2[0])
 
     return df_file1, df_file2, assocs1, assocs2
 
 
 def read_gaf_csv(filename) -> pd:
+    """
+    Read a GAF file into a dataframe.
+
+    :param filename: The name of the file to read.
+    :type filename: str
+    :return: The dataframe containing the GAF data.
+    :rtype: pd
+    """
     ecomapping = ecomap.EcoMap()
-    data_frame = pd.read_csv(filename,
-                             comment="!",
-                             header=None,
-                             na_filter=False,
-                             engine='python',
-                             delimiter="\t",
-                             index_col=False,
-                             names=["DB",
-                                    "DB_Object_ID",
-                                    "DB_Object_Symbol",
-                                    "Qualifier",
-                                    "GO_ID",
-                                    "DB_Reference",
-                                    "Evidence_code",
-                                    "With_or_From",
-                                    "Aspect",
-                                    "DB_Object_Name",
-                                    "DB_Object_Synonym",
-                                    "DB_Object_Type,"
-                                    "Taxon",
-                                    "Date",
-                                    "Assigned_By",
-                                    "Annotation_Extension",
-                                    "Gene_Product_Form_ID"]).fillna("")
-    new_df = data_frame.filter(['DB_Object_ID', 'Qualifier', 'GO_ID', 'Evidence_code', 'DB_Reference'], axis=1)
+    data_frame = pd.read_csv(
+        filename,
+        comment="!",
+        header=None,
+        na_filter=False,
+        engine="python",
+        delimiter="\t",
+        index_col=False,
+        names=[
+            "DB",
+            "DB_Object_ID",
+            "DB_Object_Symbol",
+            "Qualifier",
+            "GO_ID",
+            "DB_Reference",
+            "Evidence_code",
+            "With_or_From",
+            "Aspect",
+            "DB_Object_Name",
+            "DB_Object_Synonym",
+            "DB_Object_Type," "Taxon",
+            "Date",
+            "Assigned_By",
+            "Annotation_Extension",
+            "Gene_Product_Form_ID",
+        ],
+    ).fillna("")
+    new_df = data_frame.filter(["DB_Object_ID", "Qualifier", "GO_ID", "Evidence_code", "DB_Reference"], axis=1)
     for eco_code in ecomapping.mappings():
-        for ev in new_df['Evidence_code']:
+        for ev in new_df["Evidence_code"]:
             if eco_code[2] == ev:
-                new_df['Evidence_code'] = new_df['Evidence_code'].replace([eco_code[2]],
-                                                                          ecomapping.ecoclass_to_coderef(
-                                                                              eco_code[2])[0])
+                new_df["Evidence_code"] = new_df["Evidence_code"].replace(
+                    [eco_code[2]], ecomapping.ecoclass_to_coderef(eco_code[2])[0]
+                )
     return new_df
 
 
 def read_gpad_csv(filename, version) -> pd:
+    """
+    Read a GPAD file into a dataframe.
+
+    :param filename: The name of the file to read.
+    :type filename: str
+    :param version: The version of the GPAD file.
+    :type version: str
+    :return: The dataframe containing the GPAD data.
+    :rtype: pd
+
+    """
     if version.startswith("1"):
-        data_frame = pd.read_csv(filename,
-                                 comment='!',
-                                 header=None,
-                                 na_filter=False,
-                                 engine='python',
-                                 delimiter="\t",
-                                 names=gpad_1_2_format).fillna("")
-        df = data_frame.filter(['db', 'subject', 'qualifiers', 'relation', 'object', 'evidence_code', 'reference'],
-                               axis=1)
-        concat_column = df['db'] + ":" + df['subject']
-        df['concat_column'] = concat_column
-        filtered_df = df.filter(['concat_column', 'qualifiers', 'relation', 'object', 'evidence_code', 'reference'])
-        filtered_df.rename(columns={'concat_column': 'subject'}, inplace=True)
+        data_frame = pd.read_csv(
+            filename, comment="!", header=None, na_filter=False, engine="python", delimiter="\t", names=gpad_1_2_format
+        ).fillna("")
+        df = data_frame.filter(
+            ["db", "subject", "qualifiers", "relation", "object", "evidence_code", "reference"], axis=1
+        )
+        concat_column = df["db"] + ":" + df["subject"]
+        df["concat_column"] = concat_column
+        filtered_df = df.filter(["concat_column", "qualifiers", "relation", "object", "evidence_code", "reference"])
+        filtered_df.rename(columns={"concat_column": "subject"}, inplace=True)
         new_df = filtered_df
     else:
-        data_frame = pd.read_csv(filename,
-                                 comment='!',
-                                 sep='\t',
-                                 header=None,
-                                 na_filter=False,
-                                 names=gpad_2_0_format).fillna("")
-        new_df = data_frame.filter(['subject', 'negation', 'relation', 'object', 'evidence_code', 'reference'], axis=1)
+        data_frame = pd.read_csv(
+            filename, comment="!", sep="\t", header=None, na_filter=False, names=gpad_2_0_format
+        ).fillna("")
+        new_df = data_frame.filter(["subject", "negation", "relation", "object", "evidence_code", "reference"], axis=1)
     ecomapping = ecomap.EcoMap()
     for eco_code in ecomapping.mappings():
-        for ev in new_df['evidence_code']:
+        for ev in new_df["evidence_code"]:
             if eco_code[2] == ev:
-                new_df['evidence_code'] = new_df['evidence_code'].replace([eco_code[2]],
-                                                                          ecomapping.ecoclass_to_coderef(eco_code[2])[
-                                                                              0])
+                new_df["evidence_code"] = new_df["evidence_code"].replace(
+                    [eco_code[2]], ecomapping.ecoclass_to_coderef(eco_code[2])[0]
+                )
 
     # normalize ids
     config = assocparser.AssocParserConfig()
     config.remove_double_prefixes = True
     parser = gpadparser.GpadParser(config=config)
-    for i, r in enumerate(new_df['subject']):
+    for i, r in enumerate(new_df["subject"]):
         r1 = parser._normalize_id(r)
-        new_df.at[i, 'subject'] = r1
+        new_df.at[i, "subject"] = r1
 
     return new_df
 
 
-def get_group_by(data_frame, groups, file) -> (pd, pd):
-    print("Grouping by ", str(groups), type(groups))
-    stats = {'filename': file, 'total_rows': data_frame.shape[0]}
-    grouped_frame = data_frame.groupby(groups).size().reset_index(name='count')
-    return stats, grouped_frame
-
-
 def get_column_count(data_frame, file) -> (pd, pd):
-    stats = {'filename': file, 'total_rows': data_frame.shape[0]}
+    """
+    Get the column count for a given dataframe.
+
+    :param data_frame: The dataframe to get the column count for.
+    :type data_frame: pd
+    :param file: The name of the file.
+    :type file: str
+    :return: A tuple containing the stats and the count frame.
+    :rtype: tuple
+    """
+    stats = {"filename": file, "total_rows": data_frame.shape[0]}
     count_frame = data_frame.nunique().to_frame(file)
     return stats, count_frame
 
 
-romap = {"RO:0002327": "enables",
-         "RO:0002326": "contributes_to",
-         "RO:0002331": "involved_in",
-         "RO:0002263": "acts_upstream_of",
-         "RO:0004034": "acts_upstream_of_positive_effect",
-         "RO:0004035": "acts_upstream_of_negative_effect",
-         "RO:0002264": "acts_upstream_of_or_within",
-         "RO:0004032": "acts_upstream_of_or_within_postitive_effect",
-         "RO:0004033": "acts_upstream_of_or_within_negative_effect",
-         "RO:0001025": "located_in",
-         "BFO:0000050": "part_of",
-         "RO:0002432": "is_active_in",
-         "RO:0002325": "colocalizes_with"}
+romap = {
+    "RO:0002327": "enables",
+    "RO:0002326": "contributes_to",
+    "RO:0002331": "involved_in",
+    "RO:0002263": "acts_upstream_of",
+    "RO:0004034": "acts_upstream_of_positive_effect",
+    "RO:0004035": "acts_upstream_of_negative_effect",
+    "RO:0002264": "acts_upstream_of_or_within",
+    "RO:0004032": "acts_upstream_of_or_within_postitive_effect",
+    "RO:0004033": "acts_upstream_of_or_within_negative_effect",
+    "RO:0001025": "located_in",
+    "BFO:0000050": "part_of",
+    "RO:0002432": "is_active_in",
+    "RO:0002325": "colocalizes_with",
+}
 
-gpad_1_2_format = ["db",
-                   "subject",
-                   "qualifiers",
-                   "object",
-                   "reference",
-                   "evidence_code",
-                   "with_or_from",
-                   "interacting_taxon",
-                   "date",
-                   "provided_by",
-                   "annotation_extensions",
-                   "properties"]
+gpad_1_2_format = [
+    "db",
+    "subject",
+    "qualifiers",
+    "object",
+    "reference",
+    "evidence_code",
+    "with_or_from",
+    "interacting_taxon",
+    "date",
+    "provided_by",
+    "annotation_extensions",
+    "properties",
+]
 
-gpad_2_0_format = ["subject",
-                   "negated",
-                   "relation",
-                   "object",
-                   "reference",
-                   "evidence_code",
-                   "with_or_from",
-                   "interacting_taxon",
-                   "date",
-                   "provided_by",
-                   "annotation_extensions",
-                   "properties"]
+gpad_2_0_format = [
+    "subject",
+    "negated",
+    "relation",
+    "object",
+    "reference",
+    "evidence_code",
+    "with_or_from",
+    "interacting_taxon",
+    "date",
+    "provided_by",
+    "annotation_extensions",
+    "properties",
+]
 
-gaf_format = ["DB",
-              "DB_Object_ID",
-              "DB_Object_Symbol",
-              "Qualifier",
-              "GO_ID",
-              "DB_Reference",
-              "Evidence_code",
-              "With_or_From",
-              "Aspect",
-              "DB_Object_Name",
-              "DB_Object_Synonym",
-              "DB_Object_Type",
-              "Taxon",
-              "Date",
-              "Assigned_By",
-              "Annotation_Extension",
-              "Gene_Product_Form_ID"]
+gaf_format = [
+    "DB",
+    "DB_Object_ID",
+    "DB_Object_Symbol",
+    "Qualifier",
+    "GO_ID",
+    "DB_Reference",
+    "Evidence_code",
+    "With_or_From",
+    "Aspect",
+    "DB_Object_Name",
+    "DB_Object_Synonym",
+    "DB_Object_Type",
+    "Taxon",
+    "Date",
+    "Assigned_By",
+    "Annotation_Extension",
+    "Gene_Product_Form_ID",
+]

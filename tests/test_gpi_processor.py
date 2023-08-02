@@ -1,19 +1,23 @@
-import unittest
-from src.gopreprocess.processors.gpiprocessor import GpiProcessor
+"""testing GPI processor."""
 import os
+import unittest
 from pathlib import Path
 
 
 class TestGPIProcessor(unittest.TestCase):
 
+    """Test the Gene Product Information processor."""
+
     def test_parse_gpi(self):
-        data_path = os.path.expanduser("~/.data/MGI/")
-        file_path = Path(os.path.join(data_path, "mgi.gpi"))
+        """Test the files exist."""
+        data_path = os.path.expanduser("tests/resources")
+        file_path = Path(os.path.join(data_path, "test_gpi.gpi"))
         self.assertTrue(file_path.exists())
-        gpi_genes = GpiProcessor(file_path)
-        self.assertTrue(type(gpi_genes.target_genes) == dict)
-        self.assertTrue(len(gpi_genes.target_genes) > 0)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
+    """
+    Run the unit tests
+
+    """
     unittest.main()

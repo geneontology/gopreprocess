@@ -1,9 +1,12 @@
+"""Module contains the GafProcessor class."""
+from pathlib import Path
+from typing import List
+
 from ontobio.ecomap import EcoMap
 from ontobio.io.gafparser import GafParser
-from typing import List, Dict
-from pathlib import Path
-from src.utils.decorators import timer
 from ontobio.model.association import Curie
+
+from src.utils.decorators import timer
 
 
 def get_experimental_eco_codes(ecomap) -> List[str]:
@@ -18,7 +21,7 @@ def get_experimental_eco_codes(ecomap) -> List[str]:
     """
     experimental_evidence_codes = []
     for code, _, eco_id in ecomap.derived_mappings():
-        if code in ['EXP', 'IDA', 'IPI', 'IMP', 'IGI']:
+        if code in ["EXP", "IDA", "IPI", "IMP", "IGI"]:
             experimental_evidence_codes.append(eco_id)
     return experimental_evidence_codes
 
@@ -37,12 +40,34 @@ def configure_parser() -> GafParser:
 
 
 class GafProcessor:
-    def __init__(self,
-                 filepath: Path,
-                 namespaces: List,
-                 taxon_to_provider: dict,
-                 target_taxon: str,
-                 uniprot_to_hgnc_map: dict = None):
+
+    """
+    A class for processing GAF (Gene Association Format) files.
+
+    Attributes
+    ----------
+        filepath (str): The path to the GAF file.
+        namespaces (List[str]): A list of namespaces.
+        convertible_annotations (List[dict]): A list of convertible annotations.
+        taxon_to_provider (dict): A dictionary mapping taxon IDs to providers.
+        target_taxon (str): The target taxon ID.
+        uniprot_to_hgnc_map (dict): A dictionary mapping UniProt IDs to HGNC IDs.
+
+    Methods
+    -------
+        __init__(self, filepath, namespaces): Initializes a new instance of GafProcessor.
+        parse_gaf(self): Parses the GAF file and processes the annotations.
+
+    """
+
+    def __init__(
+        self,
+        filepath: Path,
+        namespaces: List,
+        taxon_to_provider: dict,
+        target_taxon: str,
+        uniprot_to_hgnc_map: dict = None,
+    ):
         """
         Initializes a GafProcessor object.
 
@@ -63,11 +88,12 @@ class GafProcessor:
     def parse_gaf(self):
         """
         Parses the GAF file and processes the annotations.
-        :return: None
+
+        :return: None.
         """
         p = configure_parser()
         experimental_evidence_codes = get_experimental_eco_codes(EcoMap())
-        with open(self.filepath, 'r') as file:
+        with open(self.filepath, "r") as file:
             counter = 0
             ecos_excluded = []
             for line in file:
@@ -85,10 +111,11 @@ class GafProcessor:
                     if source_assoc.provided_by == self.taxon_to_provider[self.target_taxon]:
                         continue
                     has_reference = any(
-                        reference.namespace == "PMID" for reference in source_assoc.evidence.has_supporting_reference)
+                        reference.namespace == "PMID" for reference in source_assoc.evidence.has_supporting_reference
+                    )
                     if not has_reference:
                         counter = counter + 1
-                    if str(source_assoc.object.id) in ['GO:0005515', 'GO:0005488']:
+                    if str(source_assoc.object.id) in ["GO:0005515", "GO:0005488"]:
                         continue
                     if source_assoc.subject.id.namespace == "UniProtKB":
                         # TODO convert to report files
@@ -96,8 +123,7 @@ class GafProcessor:
                             continue
                         else:
                             mapped_id = self.uniprot_to_hgnc_map[str(source_assoc.subject.id)]
-                            source_assoc.subject.id = Curie(namespace=mapped_id.split(":")[0],
-                                                            identity=mapped_id.split(":")[1])
+                            source_assoc.subject.id = Curie(
+                                namespace=mapped_id.split(":")[0], identity=mapped_id.split(":")[1]
+                            )
                     self.convertible_annotations.append(source_assoc)
-            print("Number of added back annotations: " + str(counter))
-
