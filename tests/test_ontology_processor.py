@@ -14,12 +14,9 @@ class TestOntologyProcessor(unittest.TestCase):
 
     def test_ontology_processor(self):
         """
-        Test the files exist.
+        Test that the aspector is working to retrieve ancestors.
 
         """
-        data_path = os.path.expanduser("tests/resources")
-        file_path = Path(os.path.join(data_path, "localization.json"))
-        print(file_path)
         go_aspector = get_GO_aspector("GO")
         self.assertTrue(go_aspector.is_biological_process("GO:0051179"))
         self.assertFalse(go_aspector.is_biological_process("GO_0051179"))

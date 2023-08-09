@@ -6,6 +6,7 @@ to map genes between species).
 """
 import copy
 from typing import List
+from ontobio.util.go_utils import GoAspector
 from gopreprocess.processors.ontology_processor import get_GO_aspector
 import pandas as pd
 import pystow
@@ -204,11 +205,13 @@ class AnnotationConverter:
 
         source_gene_set = set(source_genes.keys())
 
-        go_aspector = get_GO_aspector()
+        # this needs to be changed to a non-hardcoded value, what we want here is the config key for the URL that we
+        # need in order to download and store the gene ontology JSON file used to create the closure in the
+        # GoAspector object.
+        go_aspector = get_GO_aspector("GO")
+
 
         for annotation in source_annotations:
-            print("is biological process?", str(annotation.object.id),
-                  go_aspector.is_biological_process(str(annotation.object.id)))
             if str(annotation.subject.id) in source_gene_set:
                 # generate the target annotation based on the source annotation
                 new_annotations = self.generate_annotation(
@@ -216,6 +219,7 @@ class AnnotationConverter:
                     source_genes=source_genes,
                     target_genes=target_genes,
                     hgnc_to_uniprot_map=hgnc_to_uniprot_map,
+                    go_aspector=go_aspector,
                 )
                 for new_annotation in new_annotations:
                     converted_target_annotations.append(new_annotation.to_gaf_2_2_tsv())
@@ -225,7 +229,8 @@ class AnnotationConverter:
         )
 
     def generate_annotation(
-        self, annotation: GoAssociation, source_genes: dict, target_genes: dict, hgnc_to_uniprot_map: dict
+        self, annotation: GoAssociation, source_genes: dict, target_genes: dict, hgnc_to_uniprot_map: dict,
+            go_aspector: GoAspector
     ) -> List[GoAssociation]:
         """
         Generates a new annotation based on ortholog assignments.
@@ -236,20 +241,21 @@ class AnnotationConverter:
         of this dictionary is a list of strings: a list of MGI, aka "target", CURIEs.
         :param target_genes: A dict of dictionaries containing the target gene details.
         :param hgnc_to_uniprot_map: A dict mapping HGNC IDs to UniProtKB IDs.
+        :param go_aspector: A GoAspector object that holds the closure for Object Terms.
         :returns: The new generated annotation.
         :raises KeyError: If the gene ID is not found in the gene map.
         """
         # make with_from include original source annotation identifier, if the
         # original annotation was to UniProtKB, then here it is likely the MOD or HGNC identifier.
 
-        # source_genes 'HGNC:15042': 'MGI:3031248', annotation.subject.id 'HGNC:15042'
-        # source_genes 'RGD:1309001': 'MGI:2443611', annotation.subject.id 'RGD:1309001'
+        annotation_skipped = []
         annotations = []
-        if str(annotation.subject.id) in source_genes.keys():
-            if len(source_genes[str(annotation.subject.id)]) > 1:  # AND biological process:
-                print("more than one target gene for source gene and the annotation is to a BP: ",
-                      str(annotation.subject.id), str(annotation.object.id))
-            else:
+        if len(source_genes[str(annotation.subject.id)]) > 1 and go_aspector.is_biological_process(str(annotation.object.id)):
+            output = "subject: " + str(annotation.subject.id) + " object: " + str(annotation.object.id)
+            annotation_skipped.append(output)
+        else:
+            if str(annotation.subject.id) in source_genes.keys():
+
                 for gene in source_genes[str(annotation.subject.id)]:
                     new_annotation = copy.deepcopy(annotation)
                     if str(annotation.subject.id) in hgnc_to_uniprot_map.keys():
@@ -261,7 +267,8 @@ class AnnotationConverter:
                     new_annotation.evidence.has_supporting_reference = [
                         Curie(namespace="GO_REF", identity=self.ortho_reference)
                     ]
-                    # inferred from sequence similarity
+                    # if there is only one human ortholog of the mouse gene and the annotation is not a biological
+                    # process, then we add it, else we skip it. inferred from sequence similarity
                     new_annotation.evidence.type = Curie(namespace="ECO", identity=iso_eco_code.split(":")[1])
                     # not sure why this is necessary, but it is, else we get a Subject with an extra tuple wrapper
                     new_annotation.subject.id = Curie(namespace="MGI", identity=gene)
@@ -289,4 +296,7 @@ class AnnotationConverter:
                     ]
                     annotations.append(new_annotation)
 
+        with open("skipped.txt", "w") as file:
+            for annotation in annotation_skipped:
+                file.write(f"{annotation}\n")
         return annotations
