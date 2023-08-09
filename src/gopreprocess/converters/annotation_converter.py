@@ -5,13 +5,11 @@ As input, this package takes a GAF from one species and generates a GAF for anot
 to map genes between species).
 """
 import copy
-import json
 from typing import List
-
+from gopreprocess.processors.ontology_processor import get_GO_aspector
 import pandas as pd
 import pystow
 from ontobio.model.association import ConjunctiveSet, Curie, GoAssociation, map_gp_type_label_to_curie
-
 from src.gopreprocess.processors.alliance_ortho_processor import OrthoProcessor
 from src.gopreprocess.processors.gafprocessor import GafProcessor
 from src.gopreprocess.processors.gpiprocessor import GpiProcessor
@@ -19,7 +17,6 @@ from src.gopreprocess.processors.xref_processor import XrefProcessor
 from src.utils.decorators import timer
 from src.utils.download import download_files
 from src.utils.settings import iso_eco_code, taxon_to_provider
-from ontobio.util.go_utils import GoAspector
 
 
 def convert_curie_to_string(x):
@@ -160,7 +157,6 @@ class AnnotationConverter:
         self.source_taxon = source_taxon
         self.iso_code = iso_eco_code[4:]  # we always want the ECO code for "inferred from sequence similarity"
         self.ortho_reference = ortho_reference.split(":")[1]
-        self.aspector = GoAspector("go")
 
     @timer
     def convert_annotations(self) -> None:
@@ -208,7 +204,11 @@ class AnnotationConverter:
 
         source_gene_set = set(source_genes.keys())
 
+        go_aspector = get_GO_aspector()
+
         for annotation in source_annotations:
+            print("is biological process?", str(annotation.object.id),
+                  go_aspector.is_biological_process(str(annotation.object.id)))
             if str(annotation.subject.id) in source_gene_set:
                 # generate the target annotation based on the source annotation
                 new_annotations = self.generate_annotation(

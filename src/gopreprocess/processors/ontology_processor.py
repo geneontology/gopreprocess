@@ -3,11 +3,11 @@ from ontobio.io import assocparser
 from ontobio.ontol_factory import OntologyFactory
 from src.utils.download import download_file
 from src.utils.decorators import timer
-from ontobio.util.go_utils import GoAspector as Aspector
+from ontobio.util.go_utils import GoAspector
 
 
 @timer
-def get_GO_aspector(ontology_config_key: str) -> Aspector:
+def get_GO_aspector(ontology_config_key: str) -> GoAspector:
     """
     Returns an Aspector object for the given ontology.
 
@@ -18,4 +18,4 @@ def get_GO_aspector(ontology_config_key: str) -> Aspector:
     ontology_json_filepath = download_file(target_directory_name="GO", config_key=ontology_config_key)
     go_onto = OntologyFactory().create(str(ontology_json_filepath))
     assoc_parser = assocparser.AssocParserConfig(ontology=go_onto)
-    return Aspector(assoc_parser.ontology)
+    return GoAspector(assoc_parser.ontology)
