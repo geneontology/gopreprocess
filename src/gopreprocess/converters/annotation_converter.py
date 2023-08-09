@@ -101,8 +101,6 @@ def dump_converted_annotations(
     # Swap columns 13 and 14 because the groupby operation above swaps them
     df_final = df_final.reindex(columns=desired_column_order)
 
-    print(df_final.head(4))
-
     pystow.dump_df(
         key=taxon_to_provider[target_taxon],
         obj=df_final,
