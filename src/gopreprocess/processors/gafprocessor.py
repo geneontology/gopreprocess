@@ -119,9 +119,13 @@ class GafProcessor:
                         continue
                     if source_assoc.subject.id.namespace == "UniProtKB":
                         # TODO convert to report files
+                        # check if the incoming HGNC identifier is in the map we made from UniProt to HGNC via
+                        # the MGI xref file
                         if str(source_assoc.subject.id) not in self.uniprot_to_hgnc_map.keys():
                             continue
                         else:
+                            # if it's in the mapped dictionary, then we can replace the UniProt identifier with the
+                            # HGNC identifier, formatting that as a Curie with separate Namespace and ID fields.
                             mapped_id = self.uniprot_to_hgnc_map[str(source_assoc.subject.id)]
                             source_assoc.subject.id = Curie(
                                 namespace=mapped_id.split(":")[0], identity=mapped_id.split(":")[1]
