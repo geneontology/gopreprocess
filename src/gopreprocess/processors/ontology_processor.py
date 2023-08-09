@@ -1,9 +1,10 @@
 """Module contains the Ontology processor class."""
 from ontobio.io import assocparser
 from ontobio.ontol_factory import OntologyFactory
-from src.utils.download import download_file
-from src.utils.decorators import timer
 from ontobio.util.go_utils import GoAspector
+
+from src.utils.decorators import timer
+from src.utils.download import download_file
 
 
 @timer

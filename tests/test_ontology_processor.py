@@ -1,22 +1,15 @@
 """testing ontology processor."""
-import os
 import unittest
-from pathlib import Path
+
 from gopreprocess.processors.ontology_processor import get_GO_aspector
 
 
 class TestOntologyProcessor(unittest.TestCase):
 
-    """
-    Test the Ontology processor.
-
-    """
+    """Test the Ontology processor."""
 
     def test_ontology_processor(self):
-        """
-        Test that the aspector is working to retrieve ancestors.
-
-        """
+        """Test that the aspector is working to retrieve ancestors."""
         go_aspector = get_GO_aspector("GO")
         self.assertTrue(go_aspector.is_biological_process("GO:0051179"))
         self.assertFalse(go_aspector.is_biological_process("GO_0051179"))

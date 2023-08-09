@@ -95,7 +95,6 @@ class GafProcessor:
         experimental_evidence_codes = get_experimental_eco_codes(EcoMap())
         with open(self.filepath, "r") as file:
             counter = 0
-            visited_genes = []
             ecos_excluded = []
             for line in file:
                 annotation = p.parse_line(line)

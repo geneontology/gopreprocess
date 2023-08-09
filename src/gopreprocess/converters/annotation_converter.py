@@ -6,11 +6,13 @@ to map genes between species).
 """
 import copy
 from typing import List
-from ontobio.util.go_utils import GoAspector
-from gopreprocess.processors.ontology_processor import get_GO_aspector
+
 import pandas as pd
 import pystow
+from gopreprocess.processors.ontology_processor import get_GO_aspector
 from ontobio.model.association import ConjunctiveSet, Curie, GoAssociation, map_gp_type_label_to_curie
+from ontobio.util.go_utils import GoAspector
+
 from src.gopreprocess.processors.alliance_ortho_processor import OrthoProcessor
 from src.gopreprocess.processors.gafprocessor import GafProcessor
 from src.gopreprocess.processors.gpiprocessor import GpiProcessor
@@ -210,7 +212,6 @@ class AnnotationConverter:
         # GoAspector object.
         go_aspector = get_GO_aspector("GO")
 
-
         for annotation in source_annotations:
             if str(annotation.subject.id) in source_gene_set:
                 # generate the target annotation based on the source annotation
@@ -229,8 +230,12 @@ class AnnotationConverter:
         )
 
     def generate_annotation(
-        self, annotation: GoAssociation, source_genes: dict, target_genes: dict, hgnc_to_uniprot_map: dict,
-            go_aspector: GoAspector
+        self,
+        annotation: GoAssociation,
+        source_genes: dict,
+        target_genes: dict,
+        hgnc_to_uniprot_map: dict,
+        go_aspector: GoAspector,
     ) -> List[GoAssociation]:
         """
         Generates a new annotation based on ortholog assignments.
@@ -250,12 +255,13 @@ class AnnotationConverter:
 
         annotation_skipped = []
         annotations = []
-        if len(source_genes[str(annotation.subject.id)]) > 1 and go_aspector.is_biological_process(str(annotation.object.id)):
+        if len(source_genes[str(annotation.subject.id)]) > 1 and go_aspector.is_biological_process(
+            str(annotation.object.id)
+        ):
             output = "subject: " + str(annotation.subject.id) + " object: " + str(annotation.object.id)
             annotation_skipped.append(output)
         else:
             if str(annotation.subject.id) in source_genes.keys():
-
                 for gene in source_genes[str(annotation.subject.id)]:
                     new_annotation = copy.deepcopy(annotation)
                     if str(annotation.subject.id) in hgnc_to_uniprot_map.keys():
@@ -263,7 +269,9 @@ class AnnotationConverter:
                         uniprot_curie = Curie(namespace=uniprot_id.split(":")[0], identity=uniprot_id.split(":")[1])
                         new_annotation.evidence.with_support_from = [ConjunctiveSet(elements=[uniprot_curie])]
                     else:
-                        new_annotation.evidence.with_support_from = [ConjunctiveSet(elements=[str(annotation.subject.id)])]
+                        new_annotation.evidence.with_support_from = [
+                            ConjunctiveSet(elements=[str(annotation.subject.id)])
+                        ]
                     new_annotation.evidence.has_supporting_reference = [
                         Curie(namespace="GO_REF", identity=self.ortho_reference)
                     ]
@@ -284,7 +292,9 @@ class AnnotationConverter:
                     new_annotation.subject.fullname = target_genes[taxon_to_provider[self.target_taxon] + ":" + gene][
                         "fullname"
                     ]
-                    new_annotation.subject.label = target_genes[taxon_to_provider[self.target_taxon] + ":" + gene]["label"]
+                    new_annotation.subject.label = target_genes[taxon_to_provider[self.target_taxon] + ":" + gene][
+                        "label"
+                    ]
 
                     # have to convert these to curies in order for the conversion to
                     # GAF 2.2 type to return anything other than
