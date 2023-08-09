@@ -10,3 +10,5 @@ HUMAN:
   url: http://snapshot.geneontology.org/annotations/goa_human.gaf.gz
 MGI_XREF:
   url: http://www.informatics.jax.org/downloads/reports/HOM_MouseHumanSequence.rpt
+GO:
+  url: https://purl.obolibrary.org/obo/go.json
