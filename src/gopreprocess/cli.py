@@ -1,7 +1,7 @@
 """Module contains the CLI commands for the gopreprocess package."""
 import click
 
-from src.gopreprocess.converters.annotation_converter import AnnotationConverter
+from gopreprocess.annotation_creation_controller import AnnotationCreationController
 from src.utils.differ import compare_files
 
 
@@ -39,7 +39,7 @@ def convert_annotations(namespaces, target_taxon, source_taxon, ortho_reference)
     print("target_taxon: ", target_taxon)
     print("source_taxon: ", source_taxon)
     print("ortho_reference: ", ortho_reference)
-    converter = AnnotationConverter(namespaces, target_taxon, source_taxon, ortho_reference)
+    converter = AnnotationCreationController(namespaces, target_taxon, source_taxon, ortho_reference)
     converter.convert_annotations()
 
 

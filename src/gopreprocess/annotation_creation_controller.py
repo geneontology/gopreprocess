@@ -9,14 +9,14 @@ from typing import List
 
 import pandas as pd
 import pystow
-from gopreprocess.processors.ontology_processor import get_GO_aspector
+from gopreprocess.file_processors.ontology_processor import get_GO_aspector
 from ontobio.model.association import ConjunctiveSet, Curie, GoAssociation, map_gp_type_label_to_curie
 from ontobio.util.go_utils import GoAspector
 
-from src.gopreprocess.processors.alliance_ortho_processor import OrthoProcessor
-from src.gopreprocess.processors.gafprocessor import GafProcessor
-from src.gopreprocess.processors.gpiprocessor import GpiProcessor
-from src.gopreprocess.processors.xref_processor import XrefProcessor
+from src.gopreprocess.file_processors.alliance_ortho_processor import OrthoProcessor
+from src.gopreprocess.file_processors.gafprocessor import GafProcessor
+from src.gopreprocess.file_processors.gpiprocessor import GpiProcessor
+from src.gopreprocess.file_processors.xref_processor import XrefProcessor
 from src.utils.decorators import timer
 from src.utils.download import download_files
 from src.utils.settings import iso_eco_code, taxon_to_provider
@@ -137,7 +137,7 @@ def dump_converted_annotations(
         header_filepath.writelines(file_contents)
 
 
-class AnnotationConverter:
+class AnnotationCreationController:
 
     """
     Converts annotations from one species to another based on ortholog relationships between the two species.
