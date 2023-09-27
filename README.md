@@ -12,3 +12,10 @@ This repo holds parsing and GPAD generation code for generating automatic annota
 ```bash 
 poetry run convert_annotations
 ```
+
+# run diff code to compare with an existing file
+```bash
+poetry run compare -file1 file_path -file2 file_path -o file_output_prefix
+```
+By default, this will compare subject_id (gene or gene product id), object_id (go term id), and evidence_code between the two files 
+reporting the matching associations, the associations unique to file1 and those unique to file2.
