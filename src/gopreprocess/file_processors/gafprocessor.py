@@ -104,7 +104,7 @@ class GafProcessor:
                     if source_assoc.negated:
                         continue
                     if source_assoc.subject.id.namespace not in self.namespaces:
-                        continue   # remove self-annotations from MGI
+                        continue  # remove self-annotations from MGI
                     if str(source_assoc.evidence.type) not in experimental_evidence_codes:
                         ecos_excluded.append(source_assoc.evidence.type)
                         continue

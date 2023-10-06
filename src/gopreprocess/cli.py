@@ -1,7 +1,7 @@
 """Module contains the CLI commands for the gopreprocess package."""
 import click
-
 from gopreprocess.annotation_creation_controller import AnnotationCreationController
+
 from src.utils.differ import compare_files
 
 

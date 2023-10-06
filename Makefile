@@ -3,19 +3,9 @@ SHELL := bash
 .SHELLFLAGS := -eu -o pipefail -c
 .DEFAULT_GOAL := help
 
-all: install start export-requirements
+all: install
 
-dev: install start-dev
-
-# gunicorn does not accept root-path (api/v1, etc...), but is better at process management
-# poetry run gunicorn app.main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:80
-# note: using root path below means we need a proxy server out front to strip the prefix else, teh docs don't work.
-# https://fastapi.tiangolo.com/advanced/behind-a-proxy/
-start:
-	poetry run gunicorn app.main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8080
-
-start-dev:
-	poetry run gunicorn app.main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8081
+dev: install
 
 test: unit-tests lint spell
 
@@ -28,19 +18,11 @@ spell:
 unit-tests:
 	poetry run pytest tests/*.py
 
-export-requirements:
-	poetry export -f requirements.txt --output requirements.txt
-
 install:
 	poetry install
 
-help:
-	@echo ""
-	@echo "make all -- installs requirements, deploys and starts the site locally"
-	@echo "make install -- install dependencies"
-	@echo "make start -- start the API locally"
-	@echo "make test -- runs tests, linter in fix mode, and spell checker"
-	@echo "make lint -- runs linter in fix mode"
-	@echo "make spell -- runs spell checker"
-	@echo "make help -- show this help"
-	@echo ""
+human:
+	poetry run convert-annotations --namespaces 'HUMAN','UniProtKB' --target_taxon "NCBITaxon:10090" --source_taxon "NCBITaxon:9606" --ortho_reference "GO_REF:0000096"
+
+rat:
+	poetry run convert-annotations

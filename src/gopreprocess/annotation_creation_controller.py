@@ -18,7 +18,7 @@ from src.gopreprocess.file_processors.gafprocessor import GafProcessor
 from src.gopreprocess.file_processors.gpiprocessor import GpiProcessor
 from src.gopreprocess.file_processors.xref_processor import XrefProcessor
 from src.utils.decorators import timer
-from src.utils.download import download_files
+from src.utils.download import concatenate_gafs, download_file, download_files
 from src.utils.settings import iso_eco_code, taxon_to_provider
 
 
@@ -173,6 +173,11 @@ class AnnotationCreationController:
         # assemble data structures needed to convert annotations: including the ortholog map,
         # the target genes data structure, and the source genes data structure.
         ortho_path, source_gaf_path, target_gpi_path = download_files(self.source_taxon, self.target_taxon)
+        if self.source_taxon == "NCBITaxon:9606":
+            human_iso_filepath = download_file(target_directory_name="HUMAN_ISO", config_key="HUMAN_ISO", gunzip=True)
+            print(human_iso_filepath, source_gaf_path)
+            concatenate_gafs(file1=source_gaf_path, file2=human_iso_filepath, output_file=source_gaf_path)
+
         # target genes example:
         # "MGI:MGI:1915609": {
         #     "id": "MGI:MGI:1915609",
@@ -255,12 +260,22 @@ class AnnotationCreationController:
 
         annotation_skipped = []
         annotations = []
+        annotations = []
+
+        if str(annotation.subject.id) == "Q96FC9":
+            print("source_genes", source_genes)
+
         if len(source_genes[str(annotation.subject.id)]) > 1 and go_aspector.is_biological_process(
-            str(annotation.object.id)
+            str(annotation.subject.id)
         ):
+            print("skipping annotation")
             output = "subject: " + str(annotation.subject.id) + " object: " + str(annotation.object.id)
             annotation_skipped.append(output)
         else:
+            if annotation.provided_by == "MGI":
+                print(self.namespaces)
+                output = "subject: " + str(annotation.subject.id) + " object: " + str(annotation.object.id)
+                annotation_skipped.append(output)
             if str(annotation.subject.id) in source_genes.keys():
                 for gene in source_genes[str(annotation.subject.id)]:
                     new_annotation = copy.deepcopy(annotation)
