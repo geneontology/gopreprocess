@@ -283,17 +283,18 @@ class AnnotationCreationController:
 
         if str(annotation.subject.id) in source_genes.keys():
             for gene in source_genes[str(annotation.subject.id)]:
-                if str(annotation.subject.id) in ["HGNC:2736", "HGNC:37101", "HGNC:2737"]:
-                    print("found one of the three", source_genes[str(annotation.subject.id)])
-                    print("subject", str(annotation.subject.id))
-                    print("object", str(annotation.object.id))
-                    print("gene", gene)
-                    print("transformed source genes", transformed_source_genes[gene])
                 if (gene in transformed_source_genes and
                         len(transformed_source_genes[gene]) > 1
                         and go_aspector.is_biological_process(str(annotation.object.id))):
-                    print("skipping", "subject", str(annotation.subject.id), "object", str(annotation.object.id))
-                    output = "subject: " + str(annotation.subject.id) + " object: " + str(annotation.object.id)
+                    print("NON_1TO1_BP" + str(annotation.subject.id) + " " + str(annotation.relation) +
+                          " " + str(annotation.object.id) +
+                          " " + str(annotation.evidence.type) +
+                          " " + str(annotation.evidence.has_supporting_reference))
+                    output = ("NON_1TO1_BP" + str(annotation.subject.id) + " "
+                              + str(annotation.relation) + " "
+                              + str(annotation.object.id) + " "
+                              + str(annotation.evidence.type) + " "
+                              + str(annotation.evidence.has_supporting_reference))
                     annotation_skipped.append(output)
                 else:
                     new_annotation = copy.deepcopy(annotation)
@@ -336,7 +337,8 @@ class AnnotationCreationController:
                     ]
                     annotations.append(new_annotation)
 
-        with open("skipped.txt", "w") as file:
+        print("length of annotation creation skipped_annotations: ", len(annotation_skipped))
+        with open("annotation_creation_skipped.txt", "w") as file:
             for annotation in annotation_skipped:
                 file.write(f"{annotation}\n")
         return annotations

@@ -26,3 +26,9 @@ human:
 
 rat:
 	poetry run convert_annotations
+
+compare_human:
+	poetry run compare -file1 Lori_human.tsv -file2 mgi-human-ortho.gaf -o compare_human
+
+compare_rat:
+	poetry run compare -file1 Lori_rat.tsv -file2 mgi-rat-ortho.gaf -o compare_rat
