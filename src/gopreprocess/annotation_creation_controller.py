@@ -195,6 +195,7 @@ class AnnotationCreationController:
         # "HGNC:8984": [
         #     "MGI:1334433"
         # ]
+
         source_genes = OrthoProcessor(target_genes, ortho_path, self.target_taxon, self.source_taxon).genes
 
         transformed = {}
@@ -203,6 +204,11 @@ class AnnotationCreationController:
                 if value not in transformed:
                     transformed[value] = []
                 transformed[value].append(key)
+
+        # transformed genes example:
+        # "MGI:1334433": [
+        #     "HGNC:8984","HGNC:8985"
+        # ]
 
         xrefs = XrefProcessor()
         uniprot_to_hgnc_map = xrefs.uniprot_to_hgnc_map
@@ -233,7 +239,7 @@ class AnnotationCreationController:
                     target_genes=target_genes,
                     hgnc_to_uniprot_map=hgnc_to_uniprot_map,
                     go_aspector=go_aspector,
-                    transformed_genes = transformed
+                    transformed_source_genes = transformed
                 )
                 for new_annotation in new_annotations:
                     converted_target_annotations.append(new_annotation.to_gaf_2_2_tsv())
@@ -272,6 +278,9 @@ class AnnotationCreationController:
         annotation_skipped = []
         annotations = []
 
+        # this is used to measure how many orthologs a gene has, if it has more than one and the annotation
+        # is to any subclass_of "Biological Process" then we skip it
+        
         if len(transformed_source_genes[str(annotation.subject.id)]) > 1 and go_aspector.is_biological_process(
             str(annotation.object.id)
         ):
