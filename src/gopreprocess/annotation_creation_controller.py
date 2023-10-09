@@ -280,71 +280,61 @@ class AnnotationCreationController:
 
         # this is used to measure how many orthologs a gene has, if it has more than one and the annotation
         # is to any subclass_of "Biological Process" then we skip it
-        
-        if len(transformed_source_genes[str(annotation.subject.id)]) > 1 and go_aspector.is_biological_process(
-            str(annotation.object.id)
-        ):
-            output = "subject: " + str(annotation.subject.id) + " object: " + str(annotation.object.id)
-            annotation_skipped.append(output)
-        else:
-            if annotation.provided_by == "MGI":
-                print(self.namespaces)
-                output = "subject: " + str(annotation.subject.id) + " object: " + str(annotation.object.id)
-                annotation_skipped.append(output)
-            if str(annotation.subject.id) in source_genes.keys():
-                for gene in source_genes[str(annotation.subject.id)]:
-                    if str(annotation.subject.id) in ["HGNC:2736", "HGNC:37101", "HGNC:2737"]:
-                        print("found one of the three", source_genes[str(annotation.subject.id)])
-                        print("subject", str(annotation.subject.id))
-                        print("object", str(annotation.object.id))
-                        print("gene", gene)
-                        print("transformed source genes", transformed_source_genes[gene])
-                    if len(transformed_source_genes[gene]) > 1 and go_aspector.is_biological_process(
-                            str(annotation.object.id)
-                    ):
-                        print("skipping", "subject", str(annotation.subject.id), "object", str(annotation.object.id))
-                        output = "subject: " + str(annotation.subject.id) + " object: " + str(annotation.object.id)
-                        annotation_skipped.append(output)
-                    else:
-                        new_annotation = copy.deepcopy(annotation)
-                        if str(annotation.subject.id) in hgnc_to_uniprot_map.keys():
-                            uniprot_id = hgnc_to_uniprot_map[str(annotation.subject.id)]  # convert back to UniProtKB ID
-                            uniprot_curie = Curie(namespace=uniprot_id.split(":")[0], identity=uniprot_id.split(":")[1])
-                            new_annotation.evidence.with_support_from = [ConjunctiveSet(elements=[uniprot_curie])]
-                        else:
-                            new_annotation.evidence.with_support_from = [
-                                ConjunctiveSet(elements=[str(annotation.subject.id)])
-                            ]
-                        new_annotation.evidence.has_supporting_reference = [
-                            Curie(namespace="GO_REF", identity=self.ortho_reference)
-                        ]
-                        # if there is only one human ortholog of the mouse gene and the annotation is not a biological
-                        # process, then we add it, else we skip it. inferred from sequence similarity
-                        new_annotation.evidence.type = Curie(namespace="ECO", identity=iso_eco_code.split(":")[1])
-                        # not sure why this is necessary, but it is, else we get a Subject with an extra tuple wrapper
-                        new_annotation.subject.id = Curie(namespace="MGI", identity=gene)
-                        new_annotation.subject.taxon = Curie.from_str(self.target_taxon)
-                        new_annotation.subject.synonyms = []
-                        new_annotation.object.taxon = Curie.from_str(self.target_taxon)
-                        new_annotation.object_extensions = []
-                        new_annotation.subject_extensions = []
-                        new_annotation.provided_by = taxon_to_provider[self.target_taxon]
-                        new_annotation.subject.fullname = target_genes[taxon_to_provider[self.target_taxon] + ":" + gene][
-                            "fullname"
-                        ]
-                        new_annotation.subject.label = target_genes[taxon_to_provider[self.target_taxon] + ":" + gene][
-                            "label"
-                        ]
 
-                        # have to convert these to curies in order for the conversion to
-                        # GAF 2.2 type to return anything other than
-                        # default 'gene_product' -- in ontobio, when this is a list, we just take the first item.
-                        new_annotation.subject.type = [
-                            map_gp_type_label_to_curie(
-                                target_genes[taxon_to_provider[self.target_taxon] + ":" + gene].get("type")[0]
-                            )
+        if str(annotation.subject.id) in source_genes.keys():
+            for gene in source_genes[str(annotation.subject.id)]:
+                if str(annotation.subject.id) in ["HGNC:2736", "HGNC:37101", "HGNC:2737"]:
+                    print("found one of the three", source_genes[str(annotation.subject.id)])
+                    print("subject", str(annotation.subject.id))
+                    print("object", str(annotation.object.id))
+                    print("gene", gene)
+                    print("transformed source genes", transformed_source_genes[gene])
+                if (gene in transformed_source_genes and
+                        len(transformed_source_genes[gene]) > 1
+                        and go_aspector.is_biological_process(str(annotation.object.id))):
+                    print("skipping", "subject", str(annotation.subject.id), "object", str(annotation.object.id))
+                    output = "subject: " + str(annotation.subject.id) + " object: " + str(annotation.object.id)
+                    annotation_skipped.append(output)
+                else:
+                    new_annotation = copy.deepcopy(annotation)
+                    if str(annotation.subject.id) in hgnc_to_uniprot_map.keys():
+                        uniprot_id = hgnc_to_uniprot_map[str(annotation.subject.id)]  # convert back to UniProtKB ID
+                        uniprot_curie = Curie(namespace=uniprot_id.split(":")[0], identity=uniprot_id.split(":")[1])
+                        new_annotation.evidence.with_support_from = [ConjunctiveSet(elements=[uniprot_curie])]
+                    else:
+                        new_annotation.evidence.with_support_from = [
+                            ConjunctiveSet(elements=[str(annotation.subject.id)])
                         ]
-                        annotations.append(new_annotation)
+                    new_annotation.evidence.has_supporting_reference = [
+                        Curie(namespace="GO_REF", identity=self.ortho_reference)
+                    ]
+                    # if there is only one human ortholog of the mouse gene and the annotation is not a biological
+                    # process, then we add it, else we skip it. inferred from sequence similarity
+                    new_annotation.evidence.type = Curie(namespace="ECO", identity=iso_eco_code.split(":")[1])
+                    # not sure why this is necessary, but it is, else we get a Subject with an extra tuple wrapper
+                    new_annotation.subject.id = Curie(namespace="MGI", identity=gene)
+                    new_annotation.subject.taxon = Curie.from_str(self.target_taxon)
+                    new_annotation.subject.synonyms = []
+                    new_annotation.object.taxon = Curie.from_str(self.target_taxon)
+                    new_annotation.object_extensions = []
+                    new_annotation.subject_extensions = []
+                    new_annotation.provided_by = taxon_to_provider[self.target_taxon]
+                    new_annotation.subject.fullname = target_genes[taxon_to_provider[self.target_taxon] + ":" + gene][
+                        "fullname"
+                    ]
+                    new_annotation.subject.label = target_genes[taxon_to_provider[self.target_taxon] + ":" + gene][
+                        "label"
+                    ]
+
+                    # have to convert these to curies in order for the conversion to
+                    # GAF 2.2 type to return anything other than
+                    # default 'gene_product' -- in ontobio, when this is a list, we just take the first item.
+                    new_annotation.subject.type = [
+                        map_gp_type_label_to_curie(
+                            target_genes[taxon_to_provider[self.target_taxon] + ":" + gene].get("type")[0]
+                        )
+                    ]
+                    annotations.append(new_annotation)
 
         with open("skipped.txt", "w") as file:
             for annotation in annotation_skipped:
