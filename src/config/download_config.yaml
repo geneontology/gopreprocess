@@ -1,15 +1,15 @@
 MGI_GAF:
-  url: http://skyhook.berkeleybop.org/issue-325-gopreprocess/products/upstream_and_raw_data/goa_mouse.gaf.gz
+  url: http://skyhook.berkeleybop.org/issue-325-gopreprocess/products/upstream_and_raw_data/mgi-src.gaf.gz
 MGI_GPI:
   url: http://skyhook.berkeleybop.org/issue-325-gopreprocess/products/upstream_and_raw_data/mgi.gpi.gz
 ALLIANCE_ORTHO:
   url: http://skyhook.berkeleybop.org/issue-325-gopreprocess/products/upstream_and_raw_data/ORTHOLOGY-ALLIANCE-JSON_COMBINED.json.gz
 RGD:
-  url: http://skyhook.berkeleybop.org/issue-325-gopreprocess/products/upstream_and_raw_data/rgd.gaf.gz
+  url: http://skyhook.berkeleybop.org/issue-325-gopreprocess/products/upstream_and_raw_data/rgd-src.gaf.gz
 HUMAN:
-  url: http://skyhook.berkeleybop.org/issue-325-gopreprocess/products/upstream_and_raw_data/goa_human.gaf.gz
+  url: http://skyhook.berkeleybop.org/issue-325-gopreprocess/products/upstream_and_raw_data/goa_human-src.gaf.gz
 HUMAN_ISO:
-  url: http://skyhook.berkeleybop.org/issue-325-gopreprocess/products/upstream_and_raw_data/goa_human_isoform.gaf.gz
+  url: http://skyhook.berkeleybop.org/issue-325-gopreprocess/products/upstream_and_raw_data/goa_human_isoform-src.gaf.gz
 MGI_XREF:
   url: http://skyhook.berkeleybop.org/issue-325-gopreprocess/products/upstream_and_raw_data/HOM_MouseHumanSequence.rpt
 GO:

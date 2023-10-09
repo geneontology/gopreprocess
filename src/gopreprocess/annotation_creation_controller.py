@@ -287,18 +287,6 @@ class AnnotationCreationController:
                     and len(transformed_source_genes[gene]) > 1
                     and go_aspector.is_biological_process(str(annotation.object.id))
                 ):
-                    print(
-                        "NON_1TO1_BP"
-                        + str(annotation.subject.id)
-                        + " "
-                        + str(annotation.relation)
-                        + " "
-                        + str(annotation.object.id)
-                        + " "
-                        + str(annotation.evidence.type)
-                        + " "
-                        + str(annotation.evidence.has_supporting_reference)
-                    )
                     output = (
                         "NON_1TO1_BP"
                         + str(annotation.subject.id)
