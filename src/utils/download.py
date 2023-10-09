@@ -48,6 +48,14 @@ def download_file(target_directory_name: str, config_key: str, gunzip=False) -> 
 
 
 def concatenate_gafs(file1, file2, output_file):
+    """
+    Concatenate two GAF files into a single file.
+
+    :param file1: The first GAF file.
+    :param file2: The second GAF file.
+    :param output_file: The output file.
+    :return: None
+    """
     # Open the first file and read its content
     with open(file1, "r") as f1:
         content1 = f1.readlines()

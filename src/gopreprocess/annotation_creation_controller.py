@@ -239,7 +239,7 @@ class AnnotationCreationController:
                     target_genes=target_genes,
                     hgnc_to_uniprot_map=hgnc_to_uniprot_map,
                     go_aspector=go_aspector,
-                    transformed_source_genes = transformed
+                    transformed_source_genes=transformed,
                 )
                 for new_annotation in new_annotations:
                     converted_target_annotations.append(new_annotation.to_gaf_2_2_tsv())
@@ -248,7 +248,6 @@ class AnnotationCreationController:
             converted_target_annotations, source_taxon=self.source_taxon, target_taxon=self.target_taxon
         )
 
-
     def generate_annotation(
         self,
         annotation: GoAssociation,
@@ -256,7 +255,7 @@ class AnnotationCreationController:
         target_genes: dict,
         hgnc_to_uniprot_map: dict,
         go_aspector: GoAspector,
-        transformed_source_genes: dict
+        transformed_source_genes: dict,
     ) -> List[GoAssociation]:
         """
         Generates a new annotation based on ortholog assignments.
@@ -283,18 +282,35 @@ class AnnotationCreationController:
 
         if str(annotation.subject.id) in source_genes.keys():
             for gene in source_genes[str(annotation.subject.id)]:
-                if (gene in transformed_source_genes and
-                        len(transformed_source_genes[gene]) > 1
-                        and go_aspector.is_biological_process(str(annotation.object.id))):
-                    print("NON_1TO1_BP" + str(annotation.subject.id) + " " + str(annotation.relation) +
-                          " " + str(annotation.object.id) +
-                          " " + str(annotation.evidence.type) +
-                          " " + str(annotation.evidence.has_supporting_reference))
-                    output = ("NON_1TO1_BP" + str(annotation.subject.id) + " "
-                              + str(annotation.relation) + " "
-                              + str(annotation.object.id) + " "
-                              + str(annotation.evidence.type) + " "
-                              + str(annotation.evidence.has_supporting_reference))
+                if (
+                    gene in transformed_source_genes
+                    and len(transformed_source_genes[gene]) > 1
+                    and go_aspector.is_biological_process(str(annotation.object.id))
+                ):
+                    print(
+                        "NON_1TO1_BP"
+                        + str(annotation.subject.id)
+                        + " "
+                        + str(annotation.relation)
+                        + " "
+                        + str(annotation.object.id)
+                        + " "
+                        + str(annotation.evidence.type)
+                        + " "
+                        + str(annotation.evidence.has_supporting_reference)
+                    )
+                    output = (
+                        "NON_1TO1_BP"
+                        + str(annotation.subject.id)
+                        + " "
+                        + str(annotation.relation)
+                        + " "
+                        + str(annotation.object.id)
+                        + " "
+                        + str(annotation.evidence.type)
+                        + " "
+                        + str(annotation.evidence.has_supporting_reference)
+                    )
                     annotation_skipped.append(output)
                 else:
                     new_annotation = copy.deepcopy(annotation)
