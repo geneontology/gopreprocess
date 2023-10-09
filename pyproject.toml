@@ -27,6 +27,7 @@ tox = "^4.6.4"
 [tool.poetry.scripts]
 convert_annotations = "src.gopreprocess.cli:convert_annotations"
 compare = "src.gopreprocess.cli:compare"
+download = "src.gopreprocess.cli:download"
 
 [tool.poetry.extras]
 docs = [

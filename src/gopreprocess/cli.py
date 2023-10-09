@@ -3,6 +3,7 @@ import click
 from gopreprocess.annotation_creation_controller import AnnotationCreationController
 from src.utils.decorators import timer
 from src.utils.differ import compare_files
+from src.utils.download import download_files
 
 
 # Create a group for the CLI commands
@@ -77,6 +78,35 @@ def compare(file1, file2, output):
     print("file2: ", file2)
     print("output: ", output)
     compare_files(file1, file2, output)
+
+
+@cli.command(name="download")
+@click.option("--source_taxon",
+              "-source_taxon", type=click.Path(),
+              required=True,
+              help="Source taxon in curie format.")
+@click.option(
+    "--target_taxon",
+    "-target_taxon",
+    type=click.Path(),
+    required=True,
+    help="Target taxon in curie format.",
+)
+def download(source_taxon, target_taxon):
+    """
+    Compare two GPAD or GAF files and report differences.
+
+    <file1>: Name of the source file to compare.
+    <file2>: Name of the target/second file to compare.
+
+    Options:
+      --output <output>: Prefix for output files/reports. (Default: comparison)
+      --group-by-column <column>: Columns to group the comparison. (Multiple values allowed)
+      --restrict-to-decreases: Restrict to decreases only.
+    """
+    print("source_taxon: ", source_taxon)
+    print("target_taxon: ", target_taxon)
+    download_files(source_taxon, target_taxon)
 
 
 if __name__ == "__main__":
