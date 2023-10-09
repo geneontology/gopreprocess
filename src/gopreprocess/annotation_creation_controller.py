@@ -9,16 +9,16 @@ from typing import List
 
 import pandas as pd
 import pystow
-from gopreprocess.processors.ontology_processor import get_GO_aspector
+from gopreprocess.file_processors.ontology_processor import get_GO_aspector
 from ontobio.model.association import ConjunctiveSet, Curie, GoAssociation, map_gp_type_label_to_curie
 from ontobio.util.go_utils import GoAspector
 
-from src.gopreprocess.processors.alliance_ortho_processor import OrthoProcessor
-from src.gopreprocess.processors.gafprocessor import GafProcessor
-from src.gopreprocess.processors.gpiprocessor import GpiProcessor
-from src.gopreprocess.processors.xref_processor import XrefProcessor
+from src.gopreprocess.file_processors.alliance_ortho_processor import OrthoProcessor
+from src.gopreprocess.file_processors.gafprocessor import GafProcessor
+from src.gopreprocess.file_processors.gpiprocessor import GpiProcessor
+from src.gopreprocess.file_processors.xref_processor import XrefProcessor
 from src.utils.decorators import timer
-from src.utils.download import download_files
+from src.utils.download import concatenate_gafs, download_file, download_files
 from src.utils.settings import iso_eco_code, taxon_to_provider
 
 
@@ -137,7 +137,7 @@ def dump_converted_annotations(
         header_filepath.writelines(file_contents)
 
 
-class AnnotationConverter:
+class AnnotationCreationController:
 
     """
     Converts annotations from one species to another based on ortholog relationships between the two species.
@@ -173,6 +173,11 @@ class AnnotationConverter:
         # assemble data structures needed to convert annotations: including the ortholog map,
         # the target genes data structure, and the source genes data structure.
         ortho_path, source_gaf_path, target_gpi_path = download_files(self.source_taxon, self.target_taxon)
+        if self.source_taxon == "NCBITaxon:9606":
+            human_iso_filepath = download_file(target_directory_name="HUMAN_ISO", config_key="HUMAN_ISO", gunzip=True)
+            print(human_iso_filepath, source_gaf_path)
+            concatenate_gafs(file1=source_gaf_path, file2=human_iso_filepath, output_file=source_gaf_path)
+
         # target genes example:
         # "MGI:MGI:1915609": {
         #     "id": "MGI:MGI:1915609",
@@ -190,7 +195,20 @@ class AnnotationConverter:
         # "HGNC:8984": [
         #     "MGI:1334433"
         # ]
+
         source_genes = OrthoProcessor(target_genes, ortho_path, self.target_taxon, self.source_taxon).genes
+
+        transformed = {}
+        for key, values in source_genes.items():
+            for value in values:
+                if value not in transformed:
+                    transformed[value] = []
+                transformed[value].append(key)
+
+        # transformed genes example:
+        # "MGI:1334433": [
+        #     "HGNC:8984","HGNC:8985"
+        # ]
 
         xrefs = XrefProcessor()
         uniprot_to_hgnc_map = xrefs.uniprot_to_hgnc_map
@@ -221,6 +239,7 @@ class AnnotationConverter:
                     target_genes=target_genes,
                     hgnc_to_uniprot_map=hgnc_to_uniprot_map,
                     go_aspector=go_aspector,
+                    transformed_source_genes=transformed,
                 )
                 for new_annotation in new_annotations:
                     converted_target_annotations.append(new_annotation.to_gaf_2_2_tsv())
@@ -236,6 +255,7 @@ class AnnotationConverter:
         target_genes: dict,
         hgnc_to_uniprot_map: dict,
         go_aspector: GoAspector,
+        transformed_source_genes: dict,
     ) -> List[GoAssociation]:
         """
         Generates a new annotation based on ortholog assignments.
@@ -247,6 +267,7 @@ class AnnotationConverter:
         :param target_genes: A dict of dictionaries containing the target gene details.
         :param hgnc_to_uniprot_map: A dict mapping HGNC IDs to UniProtKB IDs.
         :param go_aspector: A GoAspector object that holds the closure for Object Terms.
+        :param transformed_source_genes: A dict of lists containing the target gene details.
         :returns: The new generated annotation.
         :raises KeyError: If the gene ID is not found in the gene map.
         """
@@ -255,14 +276,31 @@ class AnnotationConverter:
 
         annotation_skipped = []
         annotations = []
-        if len(source_genes[str(annotation.subject.id)]) > 1 and go_aspector.is_biological_process(
-            str(annotation.object.id)
-        ):
-            output = "subject: " + str(annotation.subject.id) + " object: " + str(annotation.object.id)
-            annotation_skipped.append(output)
-        else:
-            if str(annotation.subject.id) in source_genes.keys():
-                for gene in source_genes[str(annotation.subject.id)]:
+
+        # this is used to measure how many orthologs a gene has, if it has more than one and the annotation
+        # is to any subclass_of "Biological Process" then we skip it
+
+        if str(annotation.subject.id) in source_genes.keys():
+            for gene in source_genes[str(annotation.subject.id)]:
+                if (
+                    gene in transformed_source_genes
+                    and len(transformed_source_genes[gene]) > 1
+                    and go_aspector.is_biological_process(str(annotation.object.id))
+                ):
+                    output = (
+                        "NON_1TO1_BP"
+                        + str(annotation.subject.id)
+                        + " "
+                        + str(annotation.relation)
+                        + " "
+                        + str(annotation.object.id)
+                        + " "
+                        + str(annotation.evidence.type)
+                        + " "
+                        + str(annotation.evidence.has_supporting_reference)
+                    )
+                    annotation_skipped.append(output)
+                else:
                     new_annotation = copy.deepcopy(annotation)
                     if str(annotation.subject.id) in hgnc_to_uniprot_map.keys():
                         uniprot_id = hgnc_to_uniprot_map[str(annotation.subject.id)]  # convert back to UniProtKB ID
@@ -286,9 +324,6 @@ class AnnotationConverter:
                     new_annotation.object_extensions = []
                     new_annotation.subject_extensions = []
                     new_annotation.provided_by = taxon_to_provider[self.target_taxon]
-
-                    # TODO: replace MGI with target_namespace
-
                     new_annotation.subject.fullname = target_genes[taxon_to_provider[self.target_taxon] + ":" + gene][
                         "fullname"
                     ]
@@ -306,7 +341,8 @@ class AnnotationConverter:
                     ]
                     annotations.append(new_annotation)
 
-        with open("skipped.txt", "w") as file:
+        print("length of annotation creation skipped_annotations: ", len(annotation_skipped))
+        with open("annotation_creation_skipped.txt", "w") as file:
             for annotation in annotation_skipped:
                 file.write(f"{annotation}\n")
         return annotations

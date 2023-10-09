@@ -83,6 +83,7 @@ class GafProcessor:
         self.target_taxon = target_taxon
         self.uniprot_to_hgnc_map = uniprot_to_hgnc_map
         self.parse_gaf()
+        self.skipped = []
 
     @timer
     def parse_gaf(self):
@@ -95,7 +96,6 @@ class GafProcessor:
         experimental_evidence_codes = get_experimental_eco_codes(EcoMap())
         with open(self.filepath, "r") as file:
             counter = 0
-            ecos_excluded = []
             for line in file:
                 annotation = p.parse_line(line)
                 for source_assoc in annotation.associations:
@@ -104,9 +104,8 @@ class GafProcessor:
                     if source_assoc.negated:
                         continue
                     if source_assoc.subject.id.namespace not in self.namespaces:
-                        continue
+                        continue  # remove self-annotations from MGI
                     if str(source_assoc.evidence.type) not in experimental_evidence_codes:
-                        ecos_excluded.append(source_assoc.evidence.type)
                         continue
                     if source_assoc.provided_by == self.taxon_to_provider[self.target_taxon]:
                         continue

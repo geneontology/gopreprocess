@@ -1,7 +1,7 @@
 """testing ontology processor."""
 import unittest
 
-from gopreprocess.processors.ontology_processor import get_GO_aspector
+from gopreprocess.file_processors.ontology_processor import get_GO_aspector
 
 
 class TestOntologyProcessor(unittest.TestCase):
