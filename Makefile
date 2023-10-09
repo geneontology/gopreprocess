@@ -32,3 +32,9 @@ compare_human:
 
 compare_rat:
 	poetry run compare -file1 Lori_rat.tsv -file2 mgi-rat-ortho.gaf -o compare_rat
+
+download_human:
+	poetry run download -source_taxon "NCBITaxon:9606" -target_taxon "NCBITaxon:10090"
+
+download_rat:
+	poetry run download -source_taxon "NCBITaxon:11060" -target_taxon "NCBITaxon:10090"
