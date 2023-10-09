@@ -22,7 +22,7 @@ install:
 	poetry install
 
 human:
-	poetry run convert-annotations --namespaces 'HUMAN','UniProtKB' --target_taxon "NCBITaxon:10090" --source_taxon "NCBITaxon:9606" --ortho_reference "GO_REF:0000096"
+	poetry run convert_annotations --namespaces 'HUMAN','UniProtKB' --target_taxon "NCBITaxon:10090" --source_taxon "NCBITaxon:9606" --ortho_reference "GO_REF:0000096"
 
 rat:
-	poetry run convert-annotations
+	poetry run convert_annotations
