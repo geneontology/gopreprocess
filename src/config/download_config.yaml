@@ -3,7 +3,7 @@ MGI_GAF:
 MGI_GPI:
   url: http://skyhook.berkeleybop.org/issue-325-gopreprocess/products/upstream_and_raw_data/mgi.gpi.gz
 ALLIANCE_ORTHO:
-  url: http://skyhook.berkeleybop.org/issue-325-gopreprocess/products/upstream_and_raw_data/ORTHOLOGY-ALLIANCE-JSON_COMBINED.json.gz
+  url: https://fms.alliancegenome.org/download/ORTHOLOGY-ALLIANCE-JSON_COMBINED.json.gz
 RGD:
   url: http://skyhook.berkeleybop.org/issue-325-gopreprocess/products/upstream_and_raw_data/rgd-src.gaf.gz
 HUMAN:
@@ -11,6 +11,6 @@ HUMAN:
 HUMAN_ISO:
   url: http://skyhook.berkeleybop.org/issue-325-gopreprocess/products/upstream_and_raw_data/goa_human_isoform-src.gaf.gz
 MGI_XREF:
-  url: http://skyhook.berkeleybop.org/issue-325-gopreprocess/products/upstream_and_raw_data/HOM_MouseHumanSequence.rpt
+  url: ftp://ftp.informatics.jax.org/pub/reports/HOM_MouseHumanSequence.rptHOM_MouseHumanSequence.rpt
 GO:
   url: http://skyhook.berkeleybop.org/issue-325-gopreprocess/ontology/go.json
