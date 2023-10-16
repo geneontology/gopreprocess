@@ -28,6 +28,8 @@ tox = "^4.6.4"
 convert_annotations = "src.gopreprocess.cli:convert_annotations"
 compare = "src.gopreprocess.cli:compare"
 download = "src.gopreprocess.cli:download"
+merge_files = "src.gopreprocess.cli:merge_files"
+get_goa_files = "src.gopreprocess.cli:get_goa_files"
 
 [tool.poetry.extras]
 docs = [
