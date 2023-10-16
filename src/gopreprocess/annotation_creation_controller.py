@@ -341,8 +341,7 @@ class AnnotationCreationController:
                     ]
                     annotations.append(new_annotation)
 
-        print("length of annotation creation skipped_annotations: ", len(annotation_skipped))
-        with open("annotation_creation_skipped.txt", "w") as file:
-            for annotation in annotation_skipped:
-                file.write(f"{annotation}\n")
+        # with open("annotation_creation_skipped.txt", "w") as file:
+        #     for annotation in annotation_skipped:
+        #         file.write(f"{annotation}\n")
         return annotations

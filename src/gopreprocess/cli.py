@@ -7,7 +7,7 @@ from src.utils.decorators import timer
 from src.utils.differ import compare_files
 from src.utils.download import download_file, download_files
 from src.utils.merge_gafs import merge_files_from_directory
-
+from gopreprocess.file_processors.protein_to_go_processor import add_protein_to_go_files
 
 # Create a group for the CLI commands
 @click.group()
@@ -114,6 +114,15 @@ def download(source_taxon, target_taxon):
 def merge_files():
     """Merge all GAF files from a directory into one output file."""
     merge_files_from_directory()
+
+
+@click.command()
+def get_goa_files():
+    """
+    Downloads the protein to GO annotation files for concantenation with other GAF files
+
+    """
+    add_protein_to_go_files()
 
 
 if __name__ == "__main__":
