@@ -2,12 +2,13 @@
 
 import click
 from gopreprocess.annotation_creation_controller import AnnotationCreationController
+from gopreprocess.file_processors.protein_to_go_processor import add_protein_to_go_files
 
 from src.utils.decorators import timer
 from src.utils.differ import compare_files
 from src.utils.download import download_file, download_files
 from src.utils.merge_gafs import merge_files_from_directory
-from gopreprocess.file_processors.protein_to_go_processor import add_protein_to_go_files
+
 
 # Create a group for the CLI commands
 @click.group()
@@ -118,10 +119,7 @@ def merge_files():
 
 @click.command()
 def get_goa_files():
-    """
-    Downloads the protein to GO annotation files for concantenation with other GAF files
-
-    """
+    """Downloads the protein to GO annotation files for concantenation with other GAF files."""
     add_protein_to_go_files()
 
 

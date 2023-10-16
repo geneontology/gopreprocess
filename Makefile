@@ -3,7 +3,7 @@ SHELL := bash
 .SHELLFLAGS := -eu -o pipefail -c
 .DEFAULT_GOAL := help
 
-all: install download_human download_rat convert_human convert_rat get_goa_files merge_gafs
+all: install test download_human download_rat convert_human convert_rat get_goa_files merge_gafs
 
 dev: install
 
