@@ -83,7 +83,7 @@ def compare_associations(assocs1, assocs2, output):
     # Convert assocs2 into a set of tuples for faster lookup
     assoc1_list = []
     for go in assocs1:
-        if type(go) == dict:
+        if go.isinstance(dict):
             continue
         new_tuple = (str(go.subject.id), str(go.object.id), str(go.evidence.type))
         assoc1_list.append(new_tuple)
@@ -92,7 +92,7 @@ def compare_associations(assocs1, assocs2, output):
     assoc2_list = []
 
     for go2 in assocs2:
-        if type(go2) == dict:
+        if go2.isinstance(dict):
             continue
         new_tuple = (str(go2.subject.id), str(go2.object.id), str(go2.evidence.type))
         assoc2_list.append(new_tuple)

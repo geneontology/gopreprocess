@@ -12,6 +12,8 @@ test: unit-tests lint spell
 lint:
 	poetry run tox -e lint-fix
 
+lint-fix: lint
+
 spell:
 	poetry run tox -e codespell
 
