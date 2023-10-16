@@ -119,7 +119,7 @@ def merge_files():
 
 @click.command()
 def get_goa_files():
-    """Downloads the protein to GO annotation files for concantenation with other GAF files."""
+    """Downloads the protein to GO annotation files for concatenation with other GAF files."""
     add_protein_to_go_files()
 
 
