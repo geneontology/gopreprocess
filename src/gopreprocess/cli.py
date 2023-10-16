@@ -1,9 +1,10 @@
 """Module contains the CLI commands for the gopreprocess package."""
 import click
 from gopreprocess.annotation_creation_controller import AnnotationCreationController
+
 from src.utils.decorators import timer
 from src.utils.differ import compare_files
-from src.utils.download import download_files, download_file
+from src.utils.download import download_file, download_files
 
 
 # Create a group for the CLI commands
@@ -81,10 +82,7 @@ def compare(file1, file2, output):
 
 
 @cli.command(name="download")
-@click.option("--source_taxon",
-              "-source_taxon", type=click.Path(),
-              required=True,
-              help="Source taxon in curie format.")
+@click.option("--source_taxon", "-source_taxon", type=click.Path(), required=True, help="Source taxon in curie format.")
 @click.option(
     "--target_taxon",
     "-target_taxon",
