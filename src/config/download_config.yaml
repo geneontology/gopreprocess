@@ -11,6 +11,6 @@ HUMAN:
 HUMAN_ISO:
   url: http://skyhook.berkeleybop.org/issue-325-gopreprocess/products/upstream_and_raw_data/goa_human_isoform-src.gaf.gz
 MGI_XREF:
-  url: ftp://ftp.informatics.jax.org/pub/reports/HOM_MouseHumanSequence.rptHOM_MouseHumanSequence.rpt
+  url: https://www.informatics.jax.org/downloads/reports/HOM_MouseHumanSequence.rpt
 GO:
   url: http://skyhook.berkeleybop.org/issue-325-gopreprocess/ontology/go.json
