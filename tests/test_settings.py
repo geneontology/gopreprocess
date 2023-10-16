@@ -8,7 +8,7 @@ class TestGetURL(unittest.TestCase):
 
     """Test the get_url function."""
 
-    @skip("gaf fle location in flux")
+    @skip("gaf file location in flux")
     def test_get_url(self):
         """Test the get_url function."""
         expected_url = "ftp.ebi.ac.uk/pub/databases/GO/goa/MOUSE/goa_mouse.gaf.gz"
