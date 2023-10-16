@@ -55,3 +55,12 @@ This process is injected into the regular GO pipeline in a couple of different s
 3) The Generate automated annotations stage - this is where the orthology annotation conversion step is run and the
    Protein2GO
    files are downloaded and merged together.
+
+
+# run diff code to compare with an existing file
+```bash
+poetry run compare -file1 file_path -file2 file_path -o file_output_prefix
+```
+By default, this will compare subject_id (gene or gene product id), object_id (go term id), and evidence_code between the two files 
+reporting the matching associations, the associations unique to file1 and those unique to file2.
+
