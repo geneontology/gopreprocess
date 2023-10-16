@@ -1,7 +1,7 @@
 MGI_GAF:
   url: http://skyhook.berkeleybop.org/issue-325-gopreprocess/products/upstream_and_raw_data/mgi-src.gaf.gz
 MGI_GPI:
-  url: http://skyhook.berkeleybop.org/issue-325-gopreprocess/products/upstream_and_raw_data/mgi.gpi.gz
+  url: http://snapshot.geneontology.org/products/upstream_and_raw_data/mgi-src.gpi.gz
 ALLIANCE_ORTHO:
   url: https://fms.alliancegenome.org/download/ORTHOLOGY-ALLIANCE-JSON_COMBINED.json.gz
 RGD:
