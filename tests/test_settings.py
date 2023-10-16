@@ -1,6 +1,7 @@
 """Test the settings module."""
 import unittest
 from unittest import skip
+
 from src.utils.settings import get_url
 
 
