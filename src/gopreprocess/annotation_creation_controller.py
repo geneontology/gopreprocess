@@ -124,7 +124,7 @@ def dump_converted_annotations(
 
     # get the new file we have to create to add the header via pystow, so everything is managed together
     header_filepath = pystow.join(
-        key=taxon_to_provider[target_taxon],
+        key="GAF_OUTPUT",
         name=taxon_to_provider[target_taxon].lower() + "-" + taxon_to_provider[source_taxon].lower() + "-ortho.gaf",
         ensure_exists=True,
     )
