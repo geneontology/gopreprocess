@@ -1,7 +1,6 @@
-"""
-Utils for merging files together
-"""
+"""Utils for merging files together."""
 from pystow import join
+
 from src.utils.settings import taxon_to_provider
 
 
@@ -11,7 +10,6 @@ def merge_files_from_directory():
 
     :return: None
     """
-
     source_directory = join(
         key="GAF_OUTPUT",
         ensure_exists=True,
@@ -21,9 +19,8 @@ def merge_files_from_directory():
 
     target_file_output = join(
         key=taxon_to_provider[target_taxon],
-        name=taxon_to_provider[target_taxon].lower()
-        + "-merged-ortho.gaf",
-        ensure_exists=True
+        name=taxon_to_provider[target_taxon].lower() + "-merged-ortho.gaf",
+        ensure_exists=True,
     )
 
     # Ensure the directory exists
@@ -41,10 +38,10 @@ def merge_files_from_directory():
 
     # Process each file
     for file in gaf_files:
-        with open(file, 'r') as f:
+        with open(file, "r") as f:
             for line in f:
                 # If the line starts with '!', it's a header line
-                if line.startswith('!'):
+                if line.startswith("!"):
                     headers.append(line.strip())
                 else:
                     data_lines.append(line)
@@ -56,10 +53,10 @@ def merge_files_from_directory():
     unique_headers.sort()
 
     # Write the merged file
-    with open(target_file_output, 'w') as out:
+    with open(target_file_output, "w") as out:
         # Write the merged headers
         for header in unique_headers:
-            out.write(header + '\n')
+            out.write(header + "\n")
 
         # Write the data lines
         for line in data_lines:

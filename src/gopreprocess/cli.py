@@ -1,5 +1,4 @@
 """Module contains the CLI commands for the gopreprocess package."""
-from pathlib import Path
 
 import click
 from gopreprocess.annotation_creation_controller import AnnotationCreationController
@@ -113,9 +112,7 @@ def download(source_taxon, target_taxon):
 
 @click.command()
 def merge_files():
-    """
-    Merge all GAF files from a directory into one output file.
-    """
+    """Merge all GAF files from a directory into one output file."""
     merge_files_from_directory()
 
 
