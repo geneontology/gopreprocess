@@ -3,7 +3,7 @@ import click
 from gopreprocess.annotation_creation_controller import AnnotationCreationController
 from src.utils.decorators import timer
 from src.utils.differ import compare_files
-from src.utils.download import download_files
+from src.utils.download import download_files, download_file
 
 
 # Create a group for the CLI commands
@@ -107,6 +107,7 @@ def download(source_taxon, target_taxon):
     print("source_taxon: ", source_taxon)
     print("target_taxon: ", target_taxon)
     download_files(source_taxon, target_taxon)
+    download_file("MGI_GPI", "MGI_GPI", gunzip=True)
 
 
 if __name__ == "__main__":
