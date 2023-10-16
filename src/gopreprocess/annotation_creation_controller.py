@@ -5,8 +5,8 @@ As input, this package takes a GAF from one species and generates a GAF for anot
 to map genes between species).
 """
 import copy
-from typing import List
 import datetime
+from typing import List
 
 import pandas as pd
 import pystow
