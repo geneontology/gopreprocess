@@ -100,15 +100,16 @@ class GafProcessor:
                 annotation = p.parse_line(line)
                 for source_assoc in annotation.associations:
                     if isinstance(source_assoc, dict):
-                        continue
+                        continue  # skip the header
                     if source_assoc.negated:
-                        continue
+                        continue  # no negated annotations are convertible
                     if source_assoc.subject.id.namespace not in self.namespaces:
-                        continue  # remove self-annotations from MGI
+                        continue  # remove annotations that don't have a subject in the namespaces we're interested in
                     if str(source_assoc.evidence.type) not in experimental_evidence_codes:
                         continue
-                    if source_assoc.provided_by == self.taxon_to_provider[self.target_taxon]:
-                        continue
+                    if (source_assoc.provided_by == self.taxon_to_provider[self.target_taxon]
+                            or source_assoc.provided_by == "GO_Central"):
+                        continue  # remove self-annotations
                     has_reference = any(
                         reference.namespace == "PMID" for reference in source_assoc.evidence.has_supporting_reference
                     )

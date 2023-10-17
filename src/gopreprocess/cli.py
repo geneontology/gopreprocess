@@ -114,8 +114,8 @@ def download(source_taxon, target_taxon):
 @click.command()
 def merge_files():
     """Merge all GAF files from a directory into one output file."""
-    merge_files_from_directory()
-
+    resulting_file = merge_files_from_directory("GAF_OUTPUT")
+    print("merged file path", resulting_file)
 
 @click.command()
 def get_goa_files():

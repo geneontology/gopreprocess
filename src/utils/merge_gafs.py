@@ -4,14 +4,14 @@ from pystow import join
 from src.utils.settings import taxon_to_provider
 
 
-def merge_files_from_directory():
+def merge_files_from_directory(source_directory: str):
     """
     Merge all .gaf files in the given directory into a single file.
 
     :return: None
     """
     source_directory = join(
-        key="GAF_OUTPUT",
+        key=source_directory,
         ensure_exists=True,
     )
 
@@ -61,3 +61,7 @@ def merge_files_from_directory():
         # Write the data lines
         for line in data_lines:
             out.write(line)
+
+    out.close()
+
+    return target_file_output
