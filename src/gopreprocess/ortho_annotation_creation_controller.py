@@ -34,7 +34,7 @@ def dump_converted_annotations(
     converted_target_annotations: List[List[str]], source_taxon: str, target_taxon: str
 ) -> None:
     """
-    Dumps the converted annotations to a JSON file.
+    Dumps the converted annotations to a TSV file.
 
     :param converted_target_annotations: The converted annotations.
     :type converted_target_annotations: List[List[str]]
