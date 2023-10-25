@@ -71,7 +71,7 @@ class P2GAnnotationCreationController:
         converted_target_annotations = []
 
         p2go_file = download_file(target_directory_name="GOA_MOUSE", config_key="GOA_MOUSE", gunzip=True)
-        target_gpi_path = download_files(target_directory_name="MGI_GPI", config_key="MGI_GPI")
+        target_gpi_path = download_file(target_directory_name="MGI_GPI", config_key="MGI_GPI")
 
         gpi_processor = GpiProcessor(target_gpi_path)
         xrefs = gpi_processor.get_xrefs()
