@@ -1,12 +1,12 @@
-from typing import List
-from gopreprocess.file_processors.ontology_processor import get_GO_aspector
-from src.gopreprocess.file_processors.alliance_ortho_processor import OrthoProcessor
+"""
+This module contains the Protein 2 GO AnnotationConverter class.
+"""
 from src.gopreprocess.file_processors.gafprocessor import GafProcessor
-from src.gopreprocess.file_processors.gpiprocessor import GpiProcessor
-from src.gopreprocess.file_processors.xref_processor import XrefProcessor
 from src.utils.decorators import timer
 from src.utils.download import concatenate_gafs, download_file, download_files
-from src.utils.settings import taxon_to_provider
+from src.gopreprocess.file_processors.gpiprocessor import GpiProcessor
+from ontobio.model.association import Curie, GoAssociation
+import copy
 
 
 class P2GAnnotationCreationController:
@@ -21,6 +21,45 @@ class P2GAnnotationCreationController:
         Initialize the AnnotationConverter class.
 
         """
+
+    @timer
+    def generate_annotation(
+        self,
+        annotation: GoAssociation,
+        xrefs: dict
+    ) -> GoAssociation:
+        """
+        Generate a new annotation based on the given protein 2 GO annotation.
+
+        :param annotation: The protein 2 GO annotation.
+        :type annotation: GoAssociation
+        :param xrefs: The xrefs dictionary from the parsed GPI file, mapping the gene of the target
+        species to the set of UniProt ids for the source - in this case, the source is the protein 2 GO GAF file,
+        so really we're still dealing with the source taxon.
+
+        :return: A new annotation.
+        :rtype: GoAssociation
+        """
+
+        for key, values in xrefs.items():
+            if "UniProtKB:"+str(annotation.subject.id) in values:
+                if len(values) > 1:
+                    continue
+                else:
+                    new_gene = Curie(namespace="MGI", identity=key)
+                    new_annotation = copy.deepcopy(annotation)
+                    # not sure why this is necessary, but it is, else we get a Subject with an extra tuple wrapper
+                    new_annotation.subject.id = new_gene
+                    new_annotation.subject.synonyms = []
+                    new_annotation.object.taxon = Curie.from_str("NCBITaxon:10090")
+                    new_annotation.object_extensions = []
+                    new_annotation.subject_extensions = []
+                    new_annotation.provided_by = "GO_Central"
+            else:
+                continue
+        return annotation
+
+
 
     @timer
     def convert_annotations(self) -> None:
@@ -49,7 +88,8 @@ class P2GAnnotationCreationController:
         #     ]
         # }
 
-        target_genes = GpiProcessor(target_gpi_path).target_genes
+        gpi_processor = GpiProcessor(target_gpi_path)
+        xrefs = gpi_processor.get_xrefs()
 
         # source genes example:
         # "HGNC:8984": [
@@ -61,16 +101,11 @@ class P2GAnnotationCreationController:
         source_annotations = gp.parse_p2g_gaf()
 
         for annotation in source_annotations:
-            new_annotations = self.generate_annotation(
+            new_annotation = self.generate_annotation(
                     annotation=annotation,
-                    source_genes=source_genes,
-                    target_genes=target_genes,
-                    hgnc_to_uniprot_map=hgnc_to_uniprot_map,
-                    go_aspector=go_aspector,
-                    transformed_source_genes=transformed,
+                    xrefs=xrefs
             )
-            for new_annotation in new_annotations:
-                converted_target_annotations.append(new_annotation.to_gaf_2_2_tsv())
+            converted_target_annotations.append(new_annotation.to_gaf_2_2_tsv())
 
         dump_converted_annotations(
             converted_target_annotations, source_taxon=self.source_taxon, target_taxon=self.target_taxon
