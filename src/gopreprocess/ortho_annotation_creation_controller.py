@@ -218,13 +218,14 @@ class AnnotationCreationController:
         hgnc_to_uniprot_map = xrefs.hgnc_to_uniprot_map
 
         # assign the output of processing the source GAF to a source_annotations variable
-        source_annotations = GafProcessor(
+        gp = GafProcessor(
             source_gaf_path,
             taxon_to_provider=taxon_to_provider,
             target_taxon=self.target_taxon,
             namespaces=self.namespaces,
             uniprot_to_hgnc_map=uniprot_to_hgnc_map,
-        ).convertible_annotations
+        )
+        source_annotations = gp.parse_ortho_gaf()
 
         source_gene_set = set(source_genes.keys())
 
@@ -344,7 +345,4 @@ class AnnotationCreationController:
                     ]
                     annotations.append(new_annotation)
 
-        # with open("annotation_creation_skipped.txt", "w") as file:
-        #     for annotation in annotation_skipped:
-        #         file.write(f"{annotation}\n")
         return annotations

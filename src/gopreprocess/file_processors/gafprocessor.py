@@ -62,10 +62,10 @@ class GafProcessor:
 
     def __init__(
         self,
-        filepath: Path,
-        namespaces: List,
-        taxon_to_provider: dict,
-        target_taxon: str,
+        filepath: Path = None,
+        namespaces: List = None,
+        taxon_to_provider: dict = None,
+        target_taxon: str = None,
         uniprot_to_hgnc_map: dict = None,
     ):
         """
@@ -79,14 +79,14 @@ class GafProcessor:
         self.filepath = filepath
         self.namespaces = namespaces
         self.convertible_annotations = []
+        self.convertible_p2g_annotations = []
         self.taxon_to_provider = taxon_to_provider
         self.target_taxon = target_taxon
         self.uniprot_to_hgnc_map = uniprot_to_hgnc_map
-        self.parse_gaf()
         self.skipped = []
 
     @timer
-    def parse_gaf(self):
+    def parse_ortho_gaf(self):
         """
         Parses the GAF file and processes the annotations.
 
@@ -131,3 +131,32 @@ class GafProcessor:
                                 namespace=mapped_id.split(":")[0], identity=mapped_id.split(":")[1]
                             )
                     self.convertible_annotations.append(source_assoc)
+
+    @timer
+    def parse_p2g_gaf(self):
+        """
+        Parses the protein to GO GAF file and processes the annotations.
+
+        :return: None.
+        """
+        p = configure_parser()
+        ecomap = EcoMap()
+        experimental_evidence_codes = []
+        for code, _, eco_id in ecomap.derived_mappings():
+            # remove PANTHER annotations
+            if code in ["IBA"]:
+                experimental_evidence_codes.append(eco_id)
+        with open(self.filepath, "r") as file:
+            for line in file:
+                annotation = p.parse_line(line)
+                for source_assoc in annotation.associations:
+                    if isinstance(source_assoc, dict):
+                        continue  # skip the header
+                    if (source_assoc.provided_by == self.taxon_to_provider[self.target_taxon]
+                            or source_assoc.provided_by == "GO_Central" or source_assoc.provided_by == "GOC"):
+                        continue  # remove self-annotations
+                    if str(source_assoc.evidence.type) in experimental_evidence_codes:
+                        continue
+                    if str(source_assoc.object.id) in ["GO:0005575", "GO:0008150", "GO:0003674"]:
+                        continue
+                    self.convertible_p2g_annotations.append(source_assoc)

@@ -6,7 +6,7 @@ from src.gopreprocess.file_processors.gafprocessor import GafProcessor
 from src.gopreprocess.file_processors.xref_processor import XrefProcessor
 from src.utils.settings import taxon_to_provider
 from src.utils.merge_gafs import merge_files_from_directory
-from src.gopreprocess.annotation_creation_controller import dump_converted_annotations
+from src.gopreprocess.ortho_annotation_creation_controller import dump_converted_annotations
 
 @timer
 def add_protein_to_go_files():

@@ -1,9 +1,9 @@
 """Module contains the CLI commands for the gopreprocess package."""
 
 import click
-from gopreprocess.annotation_creation_controller import AnnotationCreationController
+from gopreprocess.ortho_annotation_creation_controller import AnnotationCreationController
 from gopreprocess.file_processors.protein_to_go_processor import add_protein_to_go_files
-
+from gopreprocess.g2p_annotation_creation_controller import P2GAnnotationCreationController
 from src.utils.decorators import timer
 from src.utils.differ import compare_files
 from src.utils.download import download_file, download_files
@@ -29,15 +29,15 @@ def cli():
 @click.option(
     "--target_taxon",
     default="NCBITaxon:10090",
-    help="Target taxon in curie format using NCBITaxon prefix. " "e.g. NCBITaxon:10090",
+    help="Target taxon in curie format using NCBITaxon prefix., e.g. NCBITaxon:10090",
 )
 @click.option(
     "--source_taxon",
     default="NCBITaxon:10116",
-    help="Source taxon in curie format using NCBITaxon prefix. " "e.g. NCBITaxon:10116",
+    help="Source taxon in curie format using NCBITaxon prefix, e.g. NCBITaxon:10116",
 )
 @click.option(
-    "--ortho_reference", default="GO_REF:0000096", help="Ortho reference in curie format. " "e.g. GO_REF:0000096"
+    "--ortho_reference", default="GO_REF:0000096", help="Ortho reference in curie format, e.g. GO_REF:0000096"
 )
 def convert_annotations(namespaces, target_taxon, source_taxon, ortho_reference):
     """Converts annotations from one taxon to another using orthology."""
@@ -117,10 +117,29 @@ def merge_files():
     resulting_file = merge_files_from_directory("GAF_OUTPUT")
     print("merged file path", resulting_file)
 
+
 @click.command()
 def get_goa_files():
     """Downloads the protein to GO annotation files for concatenation with other GAF files."""
     add_protein_to_go_files()
+
+
+@cli.command(name="convert_g2p_annotations")
+@click.option(
+    "--namespaces",
+    default=["RGD", "UniProtKB"],
+    help="List of providers in the source GAF that should be "
+    "used to retrieve source annotations for conversion. "
+    "e.g. [RGD, HGNC, UniProtKB]",
+)
+def convert_g2p_annotations():
+    """
+    Converts annotations from one taxon to another using orthology.
+
+    """
+
+    converter = P2GAnnotationCreationController()
+    converter.convert_annotations()
 
 
 if __name__ == "__main__":
