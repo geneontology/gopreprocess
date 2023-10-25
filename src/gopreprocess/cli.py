@@ -125,13 +125,6 @@ def get_goa_files():
 
 
 @cli.command(name="convert_g2p_annotations")
-@click.option(
-    "--namespaces",
-    default=["RGD", "UniProtKB"],
-    help="List of providers in the source GAF that should be "
-    "used to retrieve source annotations for conversion. "
-    "e.g. [RGD, HGNC, UniProtKB]",
-)
 def convert_g2p_annotations():
     """
     Converts annotations from one taxon to another using orthology.
