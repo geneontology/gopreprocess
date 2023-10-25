@@ -70,31 +70,11 @@ class P2GAnnotationCreationController:
         """
         converted_target_annotations = []
 
-        # assemble data structures needed to convert annotations: including the ortholog map,
-        # the target genes data structure, and the source genes data structure.
-
         p2go_file = download_file(target_directory_name="GOA_MOUSE", config_key="GOA_MOUSE", gunzip=True)
         target_gpi_path = download_files(target_directory_name="MGI_GPI", config_key="MGI_GPI")
 
-        # target genes example:
-        # "MGI:MGI:1915609": {
-        #     "id": "MGI:MGI:1915609",
-        #     "fullname": [
-        #         "RIKEN cDNA 0610010K14 gene"
-        #     ],
-        #     "label": "0610010K14Rik",
-        #     "type": [
-        #         "protein_coding_gene"
-        #     ]
-        # }
-
         gpi_processor = GpiProcessor(target_gpi_path)
         xrefs = gpi_processor.get_xrefs()
-
-        # source genes example:
-        # "HGNC:8984": [
-        #     "MGI:1334433"
-        # ]
 
         # assign the output of processing the source GAF to a source_annotations variable
         gp = GafProcessor(filepath=p2go_file)
@@ -107,8 +87,6 @@ class P2GAnnotationCreationController:
             )
             converted_target_annotations.append(new_annotation.to_gaf_2_2_tsv())
 
-
-        # get the new file we have to create to add the header via pystow, so everything is managed together
         header_filepath = pystow.join(
             key="GAF_OUTPUT",
             name="mgi-p2g-converted.gaf",
