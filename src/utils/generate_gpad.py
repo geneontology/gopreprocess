@@ -1,10 +1,12 @@
 """Methods to extract a GPAD 2.0 from merged GAFs."""
+import datetime
+from pathlib import Path
+
+import pystow
 from ontobio.ecomap import EcoMap
 from ontobio.io.gafparser import GafParser
-from pathlib import Path
+
 from src.utils.decorators import timer
-import datetime
-import pystow
 
 
 @timer
@@ -19,6 +21,7 @@ def configure_parser() -> GafParser:
     p.config.ecomap = EcoMap()
     p.config.remove_double_prefixes = True
     return p
+
 
 @timer
 def get_gpad() -> Path:

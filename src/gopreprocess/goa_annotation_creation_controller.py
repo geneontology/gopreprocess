@@ -1,7 +1,7 @@
 """Protein 2 GO AnnotationConverter class."""
 import copy
 import datetime
-from typing import Any, Optional, Union, List
+from typing import Any, List, Optional, Union
 
 import pystow
 from ontobio.model.association import Curie, GoAssociation
@@ -25,11 +25,8 @@ def generate_annotation(annotation: GoAssociation, xrefs: dict) -> Union[GoAssoc
     :return: A new annotation.
     :rtype: GoAssociation
     """
-
     if str(annotation.subject.id) in xrefs.keys():
-        new_gene = Curie(namespace="MGI",
-                         identity=xrefs[str(annotation.subject.id)].replace("MGI:MGI:", "MGI:")
-                         )
+        new_gene = Curie(namespace="MGI", identity=xrefs[str(annotation.subject.id)].replace("MGI:MGI:", "MGI:"))
         new_annotation = copy.deepcopy(annotation)
         new_annotation.subject.id = new_gene
         new_annotation.subject.synonyms = []
