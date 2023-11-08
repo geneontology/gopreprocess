@@ -31,6 +31,7 @@ download = "src.gopreprocess.cli:download"
 merge_files = "src.gopreprocess.cli:merge_files"
 get_goa_files = "src.gopreprocess.cli:get_goa_files"
 convert_g2p_annotations = "src.gopreprocess.cli:convert_g2p_annotations"
+get_gpad_files = "src.gopreprocess.cli:gpad_files"
 
 [tool.poetry.extras]
 docs = [
