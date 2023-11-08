@@ -152,7 +152,7 @@ class GafProcessor:
                 for source_assoc in annotation.associations:
                     if isinstance(source_assoc, dict):
                         continue  # skip the header
-                    if (source_assoc.provided_by == self.taxon_to_provider[self.target_taxon]
+                    if (source_assoc.provided_by == "MGI"
                             or source_assoc.provided_by == "GO_Central" or source_assoc.provided_by == "GOC"):
                         continue  # remove self-annotations
                     if str(source_assoc.evidence.type) in experimental_evidence_codes:
@@ -160,3 +160,4 @@ class GafProcessor:
                     if str(source_assoc.object.id) in ["GO:0005575", "GO:0008150", "GO:0003674"]:
                         continue
                     self.convertible_p2g_annotations.append(source_assoc)
+        return self.convertible_p2g_annotations

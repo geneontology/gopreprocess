@@ -6,6 +6,22 @@ from ontobio.io.entityparser import GpiParser
 
 from src.utils.decorators import timer
 
+@timer
+def eliminate_repeated_values(input_dict):
+    # Reverse the dictionary to identify unique values
+    reversed_dict = {}
+    for key, value in input_dict.items():
+        if value not in reversed_dict:
+            reversed_dict[value] = key
+        else:
+            # If the value is already in the reversed_dict, set it to None to indicate it's not unique
+            reversed_dict[value] = None
+
+    # Create a new dictionary with only the unique values
+    output_dict = {key: value for value, key in reversed_dict.items() if key is not None}
+
+    return output_dict
+
 
 class GpiProcessor:
 
@@ -54,6 +70,7 @@ class GpiProcessor:
 
         return target_genes
 
+    @timer
     def get_xrefs(self) -> dict:
         """
         Parses the GPI using teh GpiParser class, extracts column 9, the xrefs into a dictionary that contains the gene
@@ -62,16 +79,23 @@ class GpiProcessor:
         :return: dictionary of gene ids and xrefs
         """
         p = GpiParser()
-        xrefs = {}
+        uniprot_ids = {}
         with open(self.filepath, "r") as file:
             for line in file:
                 original_line, gpi_object = p.parse_line(line)
                 if original_line.startswith("!"):
                     continue
                 else:
-                    for gene in gpi_object:
-                        if len(gene.get('xrefs')) > 1:
+                    # parse_line returns a list of dictionaries for some reason.
+                    for row in gpi_object:
+                        if row.get("xrefs") is None:
                             continue
                         else:
-                            xrefs[str(gene.get("id"))] = gene.get("xrefs")
+                            for xid in row.get('xrefs'):
+                                # we only want 1:1 mappings between genes and each xref
+                                if xid.startswith("UniProtKB:"):
+                                    uniprot_ids[row.get("id")] = xid
+
+        # eliminate duplicate mappings
+        xrefs = eliminate_repeated_values(uniprot_ids)
         return xrefs

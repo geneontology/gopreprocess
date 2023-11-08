@@ -11,6 +11,35 @@ import pystow
 import datetime
 
 
+def generate_annotation(annotation: GoAssociation, xrefs: dict) -> GoAssociation:
+    """
+    Generate a new annotation based on the given protein 2 GO annotation.
+
+    :param annotation: The protein 2 GO annotation.
+    :type annotation: GoAssociation
+    :param xrefs: The xrefs dictionary from the parsed GPI file, mapping the gene of the target
+    species to the set of UniProt ids for the source - in this case, the source is the protein 2 GO GAF file,
+    so really we're still dealing with the source taxon.
+
+    :return: A new annotation.
+    :rtype: GoAssociation
+    """
+    first_item = next(iter(xrefs.items()))
+    print(first_item)
+
+    if "UniProtKB:"+str(annotation.subject.id) in xrefs:
+        new_gene = Curie(namespace="MGI", identity=xrefs["UniProtKB:"+str(annotation.subject.id)])
+        new_annotation = copy.copy(annotation)
+        # not sure why this is necessary, but it is, else we get a Subject with an extra tuple wrapper
+        annotation.subject.id = new_gene
+        new_annotation.subject.synonyms = []
+        new_annotation.object.taxon = Curie.from_str("NCBITaxon:10090")
+        new_annotation.object_extensions = []
+        new_annotation.subject_extensions = []
+        new_annotation.provided_by = "GO_Central"
+    return annotation
+
+
 class P2GAnnotationCreationController:
 
     """
@@ -25,43 +54,6 @@ class P2GAnnotationCreationController:
         """
 
     @timer
-    def generate_annotation(
-        self,
-        annotation: GoAssociation,
-        xrefs: dict
-    ) -> GoAssociation:
-        """
-        Generate a new annotation based on the given protein 2 GO annotation.
-
-        :param annotation: The protein 2 GO annotation.
-        :type annotation: GoAssociation
-        :param xrefs: The xrefs dictionary from the parsed GPI file, mapping the gene of the target
-        species to the set of UniProt ids for the source - in this case, the source is the protein 2 GO GAF file,
-        so really we're still dealing with the source taxon.
-
-        :return: A new annotation.
-        :rtype: GoAssociation
-        """
-
-        for key, values in xrefs.items():
-            if "UniProtKB:"+str(annotation.subject.id) in values:
-                if len(values) > 1:
-                    continue
-                else:
-                    new_gene = Curie(namespace="MGI", identity=key)
-                    new_annotation = copy.deepcopy(annotation)
-                    # not sure why this is necessary, but it is, else we get a Subject with an extra tuple wrapper
-                    new_annotation.subject.id = new_gene
-                    new_annotation.subject.synonyms = []
-                    new_annotation.object.taxon = Curie.from_str("NCBITaxon:10090")
-                    new_annotation.object_extensions = []
-                    new_annotation.subject_extensions = []
-                    new_annotation.provided_by = "GO_Central"
-            else:
-                continue
-        return annotation
-
-    @timer
     def convert_annotations(self) -> None:
         """
         Convert Protein to GO annotations from source to target taxon.
@@ -71,7 +63,7 @@ class P2GAnnotationCreationController:
         converted_target_annotations = []
 
         p2go_file = download_file(target_directory_name="GOA_MOUSE", config_key="GOA_MOUSE", gunzip=True)
-        target_gpi_path = download_file(target_directory_name="MGI_GPI", config_key="MGI_GPI")
+        target_gpi_path = download_file(target_directory_name="MGI_GPI", config_key="MGI_GPI", gunzip=True)
 
         gpi_processor = GpiProcessor(target_gpi_path)
         xrefs = gpi_processor.get_xrefs()
@@ -81,7 +73,7 @@ class P2GAnnotationCreationController:
         source_annotations = gp.parse_p2g_gaf()
 
         for annotation in source_annotations:
-            new_annotation = self.generate_annotation(
+            new_annotation = generate_annotation(
                     annotation=annotation,
                     xrefs=xrefs
             )
