@@ -29,7 +29,7 @@ def get_gpad() -> Path:
     """
     merged_gaf_filepath = pystow.join(
         key="MGI",
-        name="mgi-merged-ortho.gaf",
+        name="mgi-merged.gaf",
         ensure_exists=True,
     )
     gpad_rows = []
@@ -46,7 +46,7 @@ def get_gpad() -> Path:
 
     merged_gpad_filepath = pystow.join(
         key="MGI",
-        name="mgi-merged-gpad.gaf",
+        name="mgi-merged.gpad",
         ensure_exists=True,
     )
 

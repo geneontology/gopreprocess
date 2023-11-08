@@ -51,6 +51,7 @@ merge_gafs:
 	poetry run merge_files
 
 get_gpad:
+	poetry run merge_files
 	poetry run get_gpad_files
 
 merge_files: merge_gafs

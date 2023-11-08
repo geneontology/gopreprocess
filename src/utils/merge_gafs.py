@@ -19,7 +19,7 @@ def merge_files_from_directory(source_directory: str):
 
     target_file_output = join(
         key=taxon_to_provider[target_taxon],
-        name=taxon_to_provider[target_taxon].lower() + "-merged-ortho.gaf",
+        name=taxon_to_provider[target_taxon].lower() + "-merged.gaf",
         ensure_exists=True,
     )
 
