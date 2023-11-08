@@ -28,7 +28,7 @@ def generate_annotation(annotation: GoAssociation, xrefs: dict) -> Union[GoAssoc
 
     if str(annotation.subject.id) in xrefs.keys():
         new_gene = Curie(namespace="MGI",
-                         identity=str(xrefs[annotation.subject.id]).replace("MGI:MGI:", "MGI:")
+                         identity=xrefs[str(annotation.subject.id)].replace("MGI:MGI:", "MGI:")
                          )
         new_annotation = copy.deepcopy(annotation)
         new_annotation.subject.id = new_gene
