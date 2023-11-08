@@ -24,9 +24,9 @@ def generate_annotation(annotation: GoAssociation, xrefs: dict) -> GoAssociation
     so really we're still dealing with the source taxon.
 
     :return: A new annotation.
-    :rtype: GoAssociation)
+    :rtype: GoAssociation
     """
-    if str(annotation.subject.id) in xrefs.keys():
+    if annotation.subject.id in xrefs.keys():
         new_gene = Curie(namespace="MGI",
                          identity=xrefs[str(annotation.subject.id)].replace("MGI:MGI:", "MGI:"))
         new_annotation = copy.deepcopy(annotation)
@@ -52,8 +52,10 @@ def get_source_annotations(isoform: bool, taxon: str) -> tuple[dict, Any, Option
     source annotations.
     :rtype: tuple[dict, Any]
     """
-    p2go_file = download_file(target_directory_name="GOA_MOUSE",
-                              config_key="GOA_MOUSE",
+
+    taxon = taxon.replace("NCBITaxon:", "taxon_")
+    p2go_file = download_file(target_directory_name=f"GOA_{taxon}",
+                              config_key=f"GOA_{taxon}",
                               gunzip=True)
 
     target_gpi_path = download_file(target_directory_name="MGI_GPI",
@@ -68,8 +70,8 @@ def get_source_annotations(isoform: bool, taxon: str) -> tuple[dict, Any, Option
     source_annotations = gp.parse_p2g_gaf()
 
     if isoform:
-        p2go_isoform_file = download_file(target_directory_name="GOA_MOUSE",
-                                          config_key="GOA_MOUSE",
+        p2go_isoform_file = download_file(target_directory_name=f"GOA_{taxon}",
+                                          config_key=f"GOA_{taxon}",
                                           gunzip=True)
         gp_isoform = GafProcessor(filepath=p2go_isoform_file)
         source_isoform_annotations = gp_isoform.parse_p2g_gaf()
