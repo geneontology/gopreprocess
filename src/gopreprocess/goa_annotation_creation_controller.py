@@ -1,7 +1,7 @@
 """Protein 2 GO AnnotationConverter class."""
 import copy
 import datetime
-from typing import Any, Optional
+from typing import Any, Optional, Union
 
 import pystow
 from ontobio.model.association import Curie, GoAssociation
@@ -12,7 +12,7 @@ from src.utils.decorators import timer
 from src.utils.download import download_file
 
 
-def generate_annotation(annotation: GoAssociation, xrefs: dict) -> GoAssociation:
+def generate_annotation(annotation: GoAssociation, xrefs: dict) -> Union[GoAssociation, None]:
     """
     Generate a new annotation based on the given protein 2 GO annotation.
 
@@ -28,7 +28,6 @@ def generate_annotation(annotation: GoAssociation, xrefs: dict) -> GoAssociation
     if annotation.subject.id in xrefs.keys():
         new_gene = Curie(namespace="MGI", identity=xrefs[annotation.subject.id].replace("MGI:MGI:", "MGI:"))
         new_annotation = copy.deepcopy(annotation)
-        # not sure why this is necessary, but it is, else we get a Subject with an extra tuple wrapper
         new_annotation.subject.id = new_gene
         new_annotation.subject.synonyms = []
         new_annotation.object.taxon = Curie.from_str("NCBITaxon:10090")
