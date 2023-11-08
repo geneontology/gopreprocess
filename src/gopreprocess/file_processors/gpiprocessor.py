@@ -17,10 +17,7 @@ def eliminate_repeated_values(input_dict):
     :rtype: dict
     """
     # Reverse the dictionary to identify unique values
-    first_item = next(iter(input_dict.items()))
-    print(first_item)
     reversed_dict = {}
-    print(len(input_dict))
     for key, value in input_dict.items():
         if value not in reversed_dict:
             reversed_dict[value] = key
@@ -30,9 +27,13 @@ def eliminate_repeated_values(input_dict):
 
     # Create a new dictionary with only the unique values
     output_dict = {value: key for value, key in reversed_dict.items() if key is not None}
-    print(len(output_dict))
-    first_item = next(iter(output_dict.items()))
-    print(first_item)
+    filename = 'output_dict.txt'
+
+    # Write the dictionary to a file
+    with open(filename, 'w') as file:
+        for key, value in output_dict.items():
+            file.write(f'{key} {value}\n')
+
     return output_dict
 
 
@@ -107,6 +108,8 @@ class GpiProcessor:
                         if row.get("xrefs") is None:
                             continue
                         else:
+                            if not row.get("id").startswith("MGI:"):
+                                continue
                             for xid in row.get('xrefs'):
                                 # we only want 1:1 mappings between genes and each xref
                                 if xid.startswith("UniProtKB:"):

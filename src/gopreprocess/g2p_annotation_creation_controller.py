@@ -24,9 +24,9 @@ def generate_annotation(annotation: GoAssociation, xrefs: dict) -> GoAssociation
     :return: A new annotation.
     :rtype: GoAssociation
     """
-
-    if annotation.subject.id in xrefs:
-        new_gene = Curie(namespace="MGI", identity=xrefs[annotation.subject.id])
+    if str(annotation.subject.id) in xrefs.keys():
+        new_gene = Curie(namespace="MGI",
+                         identity=xrefs[str(annotation.subject.id).replace("MGI:MGI:", "MGI:")])
         new_annotation = copy.deepcopy(annotation)
         # not sure why this is necessary, but it is, else we get a Subject with an extra tuple wrapper
         new_annotation.subject.id = new_gene
@@ -65,20 +65,17 @@ class P2GAnnotationCreationController:
 
         gpi_processor = GpiProcessor(target_gpi_path)
         xrefs = gpi_processor.get_xrefs()
-        first_item = next(iter(xrefs.items()))
-        print(first_item)
+
         # assign the output of processing the source GAF to a source_annotations variable
         gp = GafProcessor(filepath=p2go_file)
         source_annotations = gp.parse_p2g_gaf()
 
         for annotation in source_annotations:
-            print(annotation.subject.id)
             new_annotation = generate_annotation(
                     annotation=annotation,
                     xrefs=xrefs
             )
             if new_annotation is not None:
-                print(new_annotation)
                 converted_target_annotations.append(new_annotation.to_gaf_2_2_tsv())
 
         header_filepath = pystow.join(
