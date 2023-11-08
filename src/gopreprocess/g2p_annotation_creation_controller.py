@@ -36,7 +36,7 @@ def generate_annotation(annotation: GoAssociation, xrefs: dict) -> GoAssociation
         new_annotation.object_extensions = []
         new_annotation.subject_extensions = []
         new_annotation.provided_by = "GO_Central"
-    return new_annotation
+        return new_annotation
 
 
 class P2GAnnotationCreationController:
