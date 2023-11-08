@@ -14,9 +14,9 @@ from gopreprocess.file_processors.ontology_processor import get_GO_aspector
 from ontobio.model.association import ConjunctiveSet, Curie, GoAssociation, map_gp_type_label_to_curie
 from ontobio.util.go_utils import GoAspector
 
-from src.gopreprocess.file_processors.alliance_ortho_processor import OrthoProcessor
-from src.gopreprocess.file_processors.gafprocessor import GafProcessor
-from src.gopreprocess.file_processors.gpiprocessor import GpiProcessor
+from src.gopreprocess.file_processors.alliance_orthology_processor import OrthoProcessor
+from src.gopreprocess.file_processors.gaf_processor import GafProcessor
+from src.gopreprocess.file_processors.gpi_processor import GpiProcessor
 from src.gopreprocess.file_processors.xref_processor import XrefProcessor
 from src.utils.decorators import timer
 from src.utils.download import concatenate_gafs, download_file, download_files
@@ -34,7 +34,7 @@ def dump_converted_annotations(
     converted_target_annotations: List[List[str]], source_taxon: str, target_taxon: str
 ) -> None:
     """
-    Dumps the converted annotations to a JSON file.
+    Dumps the converted annotations to a TSV file.
 
     :param converted_target_annotations: The converted annotations.
     :type converted_target_annotations: List[List[str]]
@@ -218,13 +218,14 @@ class AnnotationCreationController:
         hgnc_to_uniprot_map = xrefs.hgnc_to_uniprot_map
 
         # assign the output of processing the source GAF to a source_annotations variable
-        source_annotations = GafProcessor(
+        gp = GafProcessor(
             source_gaf_path,
             taxon_to_provider=taxon_to_provider,
             target_taxon=self.target_taxon,
             namespaces=self.namespaces,
             uniprot_to_hgnc_map=uniprot_to_hgnc_map,
-        ).convertible_annotations
+        )
+        source_annotations = gp.parse_ortho_gaf()
 
         source_gene_set = set(source_genes.keys())
 
@@ -344,7 +345,4 @@ class AnnotationCreationController:
                     ]
                     annotations.append(new_annotation)
 
-        # with open("annotation_creation_skipped.txt", "w") as file:
-        #     for annotation in annotation_skipped:
-        #         file.write(f"{annotation}\n")
         return annotations

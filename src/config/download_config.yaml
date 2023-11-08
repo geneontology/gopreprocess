@@ -14,7 +14,7 @@ MGI_XREF:
   url: https://www.informatics.jax.org/downloads/reports/HOM_MouseHumanSequence.rpt
 GO:
   url: http://skyhook.berkeleybop.org/issue-325-gopreprocess/ontology/go.json
-GOA_MOUSE:
+GOA_taxon_9606:
   url: https://ftp.ebi.ac.uk/pub/databases/GO/goa/MOUSE/goa_mouse.gaf.gz
-GOA_MOUSE_ISOFORM:
+GOA_taxon_9606_ISOFORM:
   url: https://ftp.ebi.ac.uk/pub/databases/GO/goa/MOUSE/goa_mouse_isoform.gaf.gz

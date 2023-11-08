@@ -11,7 +11,6 @@ test: unit-tests lint spell
 
 lint:
 	poetry run tox -e lint-fix
-
 lint-fix: lint
 
 spell:
@@ -40,6 +39,10 @@ compare_human:
 
 compare_rat:
 	poetry run compare -file1 Lori_rat.tsv -file2 mgi-rat-ortho.gaf -o compare_rat
+
+
+convert_g2p_annotations:
+	poetry run convert_g2p_annotations --source_taxon "NCBITaxon:9606" --isoform=True
 
 get_goa_files:
 	poetry run get_goa_files

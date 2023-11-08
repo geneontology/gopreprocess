@@ -1,8 +1,9 @@
 """Module contains the CLI commands for the gopreprocess package."""
 
 import click
-from gopreprocess.annotation_creation_controller import AnnotationCreationController
 from gopreprocess.file_processors.protein_to_go_processor import add_protein_to_go_files
+from gopreprocess.goa_annotation_creation_controller import P2GAnnotationCreationController
+from gopreprocess.ortho_annotation_creation_controller import AnnotationCreationController
 
 from src.utils.decorators import timer
 from src.utils.differ import compare_files
@@ -29,15 +30,15 @@ def cli():
 @click.option(
     "--target_taxon",
     default="NCBITaxon:10090",
-    help="Target taxon in curie format using NCBITaxon prefix. " "e.g. NCBITaxon:10090",
+    help="Target taxon in curie format using NCBITaxon prefix., e.g. NCBITaxon:10090",
 )
 @click.option(
     "--source_taxon",
     default="NCBITaxon:10116",
-    help="Source taxon in curie format using NCBITaxon prefix. " "e.g. NCBITaxon:10116",
+    help="Source taxon in curie format using NCBITaxon prefix, e.g. NCBITaxon:10116",
 )
 @click.option(
-    "--ortho_reference", default="GO_REF:0000096", help="Ortho reference in curie format. " "e.g. GO_REF:0000096"
+    "--ortho_reference", default="GO_REF:0000096", help="Ortho reference in curie format, e.g. GO_REF:0000096"
 )
 def convert_annotations(namespaces, target_taxon, source_taxon, ortho_reference):
     """Converts annotations from one taxon to another using orthology."""
@@ -85,11 +86,11 @@ def compare(file1, file2, output):
 
 
 @cli.command(name="download")
-@click.option("--source_taxon", "-source_taxon", type=click.Path(), required=True, help="Source taxon in curie format.")
+@click.option("--source_taxon", "-source_taxon", type=str, required=True, help="Source taxon in curie format.")
 @click.option(
     "--target_taxon",
     "-target_taxon",
-    type=click.Path(),
+    type=str,
     required=True,
     help="Target taxon in curie format.",
 )
@@ -114,13 +115,36 @@ def download(source_taxon, target_taxon):
 @click.command()
 def merge_files():
     """Merge all GAF files from a directory into one output file."""
-    merge_files_from_directory()
+    resulting_file = merge_files_from_directory("GAF_OUTPUT")
+    print("merged file path", resulting_file)
 
 
 @click.command()
 def get_goa_files():
     """Downloads the protein to GO annotation files for concatenation with other GAF files."""
     add_protein_to_go_files()
+
+
+@cli.command(name="convert_g2p_annotations")
+@click.option("--source_taxon", "-source_taxon", type=str, required=True, help="Source taxon in curie format.")
+@click.option(
+    "--isoform",
+    "-isoform",
+    type=bool,
+    required=True,
+    help="Whether or not to process an isoform file as well.",
+)
+def convert_g2p_annotations(isoform: bool, source_taxon: str):
+    """
+    Converts annotations from one taxon to another using orthology.
+
+    :param isoform: Whether to process isoform annotations.
+    :type isoform: bool
+    :param source_taxon: The source taxon in curie format.
+    :type source_taxon: str
+    """
+    converter = P2GAnnotationCreationController()
+    converter.convert_annotations(isoform=isoform, taxon=source_taxon)
 
 
 if __name__ == "__main__":
