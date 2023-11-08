@@ -9,7 +9,10 @@ from src.utils.decorators import timer
 @timer
 def eliminate_repeated_values(input_dict):
     # Reverse the dictionary to identify unique values
+    first_item = next(iter(input_dict.items()))
+    print(first_item)
     reversed_dict = {}
+    print(len(input_dict))
     for key, value in input_dict.items():
         if value not in reversed_dict:
             reversed_dict[value] = key
@@ -18,8 +21,10 @@ def eliminate_repeated_values(input_dict):
             reversed_dict[value] = None
 
     # Create a new dictionary with only the unique values
-    output_dict = {key: value for value, key in reversed_dict.items() if key is not None}
-
+    output_dict = {value: key for value, key in reversed_dict.items() if key is not None}
+    print(len(output_dict))
+    first_item = next(iter(output_dict.items()))
+    print(first_item)
     return output_dict
 
 

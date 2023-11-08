@@ -41,9 +41,10 @@ def download_file(target_directory_name: str, config_key: str, gunzip=False) -> 
 
     """
     if gunzip:
-        file_path = pystow.ensure_gunzip(target_directory_name, url=get_url(config_key), force=True)
+        # TODO: convert back to force
+        file_path = pystow.ensure_gunzip(target_directory_name, url=get_url(config_key), force=False)
     else:
-        file_path = pystow.ensure(target_directory_name, url=get_url(config_key), force=True)
+        file_path = pystow.ensure(target_directory_name, url=get_url(config_key), force=False)
     return file_path
 
 

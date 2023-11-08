@@ -5,7 +5,7 @@ from src.gopreprocess.file_processors.gafprocessor import GafProcessor
 from src.utils.decorators import timer
 from src.utils.download import concatenate_gafs, download_file, download_files
 from src.gopreprocess.file_processors.gpiprocessor import GpiProcessor
-from ontobio.model.association import Curie, GoAssociation
+from ontobio.model.association import Curie, GoAssociation, ConjunctiveSet
 import copy
 import pystow
 import datetime
@@ -24,16 +24,15 @@ def generate_annotation(annotation: GoAssociation, xrefs: dict) -> GoAssociation
     :return: A new annotation.
     :rtype: GoAssociation
     """
-    first_item = next(iter(xrefs.items()))
-    print(first_item)
 
     if "UniProtKB:"+str(annotation.subject.id) in xrefs:
         new_gene = Curie(namespace="MGI", identity=xrefs["UniProtKB:"+str(annotation.subject.id)])
-        new_annotation = copy.copy(annotation)
+        new_annotation = copy.deepcopy(annotation)
         # not sure why this is necessary, but it is, else we get a Subject with an extra tuple wrapper
         annotation.subject.id = new_gene
         new_annotation.subject.synonyms = []
         new_annotation.object.taxon = Curie.from_str("NCBITaxon:10090")
+        new_annotation.evidence.with_support_from = []
         new_annotation.object_extensions = []
         new_annotation.subject_extensions = []
         new_annotation.provided_by = "GO_Central"
@@ -67,7 +66,8 @@ class P2GAnnotationCreationController:
 
         gpi_processor = GpiProcessor(target_gpi_path)
         xrefs = gpi_processor.get_xrefs()
-
+        first_item = next(iter(xrefs.items()))
+        print(first_item)
         # assign the output of processing the source GAF to a source_annotations variable
         gp = GafProcessor(filepath=p2go_file)
         source_annotations = gp.parse_p2g_gaf()
