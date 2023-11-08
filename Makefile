@@ -42,7 +42,7 @@ compare_rat:
 
 
 convert_g2p_annotations:
-	poetry run convert_g2p_annotations
+	poetry run convert_g2p_annotations --source_taxon "NCBITaxon:9606" --isoform=True
 
 get_goa_files:
 	poetry run get_goa_files

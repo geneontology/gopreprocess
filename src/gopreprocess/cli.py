@@ -85,11 +85,15 @@ def compare(file1, file2, output):
 
 
 @cli.command(name="download")
-@click.option("--source_taxon", "-source_taxon", type=click.Path(), required=True, help="Source taxon in curie format.")
+@click.option("--source_taxon",
+              "-source_taxon",
+              type=str,
+              required=True,
+              help="Source taxon in curie format.")
 @click.option(
     "--target_taxon",
     "-target_taxon",
-    type=click.Path(),
+    type=str,
     required=True,
     help="Target taxon in curie format.",
 )
@@ -125,6 +129,18 @@ def get_goa_files():
 
 
 @cli.command(name="convert_g2p_annotations")
+@click.option("--source_taxon",
+              "-source_taxon",
+              type=str,
+              required=True,
+              help="Source taxon in curie format.")
+@click.option(
+    "--isoforms",
+    "-isoforms",
+    type=bool,
+    required=True,
+    help="Whether or not to process an isoform file as well.",
+)
 def convert_g2p_annotations():
     """
     Converts annotations from one taxon to another using orthology.
