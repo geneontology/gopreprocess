@@ -2,7 +2,7 @@
 
 from src.utils.decorators import timer
 from src.utils.download import download_file
-from src.gopreprocess.file_processors.gafprocessor import GafProcessor
+from src.gopreprocess.file_processors.gaf_processor import GafProcessor
 from src.gopreprocess.file_processors.xref_processor import XrefProcessor
 from src.utils.settings import taxon_to_provider
 from src.utils.merge_gafs import merge_files_from_directory

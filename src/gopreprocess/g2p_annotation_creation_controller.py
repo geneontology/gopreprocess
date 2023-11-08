@@ -3,10 +3,10 @@ This module contains the Protein 2 GO AnnotationConverter class.
 """
 from typing import Any, Optional
 
-from src.gopreprocess.file_processors.gafprocessor import GafProcessor
+from src.gopreprocess.file_processors.gaf_processor import GafProcessor
 from src.utils.decorators import timer
 from src.utils.download import download_file
-from src.gopreprocess.file_processors.gpiprocessor import GpiProcessor
+from src.gopreprocess.file_processors.gpi_processor import GpiProcessor
 from ontobio.model.association import Curie, GoAssociation
 import copy
 import pystow
