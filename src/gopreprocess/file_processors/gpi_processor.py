@@ -29,11 +29,16 @@ def eliminate_repeated_values(input_dict):
 
     # Create a new dictionary with only the unique values
     output_dict = {value: key for value, key in reversed_dict.items() if key is not None}
+    qc_output_dict = {value: key for value, key in reversed_dict.items() if key is None}
     filename = "output_dict.txt"
-
+    qc_filename = "removed_xrefs_output_dict.txt"
     # Write the dictionary to a file
     with open(filename, "w") as file:
         for key, value in output_dict.items():
+            file.write(f"{key} {value}\n")
+
+    with open(qc_filename, "w") as file:
+        for key, value in qc_output_dict.items():
             file.write(f"{key} {value}\n")
 
     return output_dict
