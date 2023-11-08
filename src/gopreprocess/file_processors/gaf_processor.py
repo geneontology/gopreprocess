@@ -4,7 +4,7 @@ from typing import List
 
 from ontobio.ecomap import EcoMap
 from ontobio.io.gafparser import GafParser
-from ontobio.model.association import Curie
+from ontobio.model.association import Curie, GoAssociation
 
 from src.utils.decorators import timer
 
@@ -78,7 +78,7 @@ class GafProcessor:
         """
         self.filepath = filepath
         self.namespaces = namespaces
-        self.convertible_annotations = []
+        self.convertible_annotations = List[GoAssociation]
         self.convertible_p2g_annotations = []
         self.taxon_to_provider = taxon_to_provider
         self.target_taxon = target_taxon
@@ -161,8 +161,8 @@ class GafProcessor:
                     ):
                         continue  # remove self-annotations
                     if str(source_assoc.evidence.type) in experimental_evidence_codes:
-                        continue
+                        continue  # no IBAs
                     if str(source_assoc.object.id) in ["GO:0005575", "GO:0008150", "GO:0003674"]:
-                        continue
+                        continue  # remove root terms
                     self.convertible_p2g_annotations.append(source_assoc)
         return self.convertible_p2g_annotations
