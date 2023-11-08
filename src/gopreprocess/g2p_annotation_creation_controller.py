@@ -70,8 +70,8 @@ def get_source_annotations(isoform: bool, taxon: str) -> tuple[dict, Any, Option
     source_annotations = gp.parse_p2g_gaf()
 
     if isoform:
-        p2go_isoform_file = download_file(target_directory_name=f"GOA_{taxon}",
-                                          config_key=f"GOA_{taxon}",
+        p2go_isoform_file = download_file(target_directory_name=f"GOA_{taxon}_ISOFORM",
+                                          config_key=f"GOA_{taxon}_ISOFORM",
                                           gunzip=True)
         gp_isoform = GafProcessor(filepath=p2go_isoform_file)
         source_isoform_annotations = gp_isoform.parse_p2g_gaf()
