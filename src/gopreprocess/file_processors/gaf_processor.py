@@ -107,8 +107,10 @@ class GafProcessor:
                         continue  # remove annotations that don't have a subject in the namespaces we're interested in
                     if str(source_assoc.evidence.type) not in experimental_evidence_codes:
                         continue
-                    if (source_assoc.provided_by == self.taxon_to_provider[self.target_taxon]
-                            or source_assoc.provided_by == "GO_Central"):
+                    if (
+                        source_assoc.provided_by == self.taxon_to_provider[self.target_taxon]
+                        or source_assoc.provided_by == "GO_Central"
+                    ):
                         continue  # remove self-annotations
                     has_reference = any(
                         reference.namespace == "PMID" for reference in source_assoc.evidence.has_supporting_reference
@@ -152,8 +154,11 @@ class GafProcessor:
                 for source_assoc in annotation.associations:
                     if isinstance(source_assoc, dict):
                         continue  # skip the header
-                    if (source_assoc.provided_by == "MGI"
-                            or source_assoc.provided_by == "GO_Central" or source_assoc.provided_by == "GOC"):
+                    if (
+                        source_assoc.provided_by == "MGI"
+                        or source_assoc.provided_by == "GO_Central"
+                        or source_assoc.provided_by == "GOC"
+                    ):
                         continue  # remove self-annotations
                     if str(source_assoc.evidence.type) in experimental_evidence_codes:
                         continue

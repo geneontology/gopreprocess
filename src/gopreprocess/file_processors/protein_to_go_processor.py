@@ -1,12 +1,13 @@
 """Module contains the Ontology processor class."""
 
-from src.utils.decorators import timer
-from src.utils.download import download_file
 from src.gopreprocess.file_processors.gaf_processor import GafProcessor
 from src.gopreprocess.file_processors.xref_processor import XrefProcessor
-from src.utils.settings import taxon_to_provider
-from src.utils.merge_gafs import merge_files_from_directory
 from src.gopreprocess.ortho_annotation_creation_controller import dump_converted_annotations
+from src.utils.decorators import timer
+from src.utils.download import download_file
+from src.utils.merge_gafs import merge_files_from_directory
+from src.utils.settings import taxon_to_provider
+
 
 @timer
 def add_protein_to_go_files():
@@ -23,7 +24,7 @@ def add_protein_to_go_files():
 
     resulting_merged_file = merge_files_from_directory("P2G_OUTPUT")
 
-    #TODO: genericize
+    # TODO: genericize
     target_taxon = "NCBITaxon:10090"
     namespaces = ["UniProtKB"]
 
@@ -35,6 +36,5 @@ def add_protein_to_go_files():
         namespaces=namespaces,
         uniprot_to_hgnc_map=uniprot_to_hgnc_map,
     ).convertible_annotations
-
 
     dump_converted_annotations(source_annotations, target_taxon, namespaces, "GAF_OUTPUT")

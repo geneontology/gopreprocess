@@ -6,6 +6,7 @@ from ontobio.io.entityparser import GpiParser
 
 from src.utils.decorators import timer
 
+
 @timer
 def eliminate_repeated_values(input_dict):
     """
@@ -15,6 +16,7 @@ def eliminate_repeated_values(input_dict):
     :type input_dict: dict
     :return: A new dictionary with only the unique values.
     :rtype: dict
+
     """
     # Reverse the dictionary to identify unique values
     reversed_dict = {}
@@ -27,29 +29,23 @@ def eliminate_repeated_values(input_dict):
 
     # Create a new dictionary with only the unique values
     output_dict = {value: key for value, key in reversed_dict.items() if key is not None}
-    filename = 'output_dict.txt'
+    filename = "output_dict.txt"
 
     # Write the dictionary to a file
-    with open(filename, 'w') as file:
+    with open(filename, "w") as file:
         for key, value in output_dict.items():
-            file.write(f'{key} {value}\n')
+            file.write(f"{key} {value}\n")
 
     return output_dict
 
 
 class GpiProcessor:
+
     """
     A class for processing GPI (Gene Product Information) files.
 
-    Attributes
-    ----------
-        filepath (str): The path to the GPI file.
-        target_genes (List[str]): A list of gene IDs extracted from the GPI file.
-
-    Methods
-    -------
-        __init__(self, filepath): Initializes a new instance of GpiProcessor.
-        parse_gpi(self): Parses the GPI file and extracts the gene IDs.
+    :param filepath: The path to the GPI file.
+    :type filepath: str
     """
 
     def __init__(self, filepath: Path):
@@ -90,8 +86,10 @@ class GpiProcessor:
     @timer
     def get_xrefs(self) -> dict:
         """
-        Parses the GPI using the GpiParser class, extracts column 9, the xrefs into a dictionary that contains the gene
-         as the key and the xrefs as a list of values.
+        Parses the GPI using the GpiParser class.
+
+        Extracts column 9, the xrefs into a dictionary that contains the gene as the key and the xrefs as a
+        list of values.
 
         :return: dictionary of gene ids and xrefs
         """
@@ -110,7 +108,7 @@ class GpiProcessor:
                         else:
                             if not row.get("id").startswith("MGI:"):
                                 continue
-                            for xid in row.get('xrefs'):
+                            for xid in row.get("xrefs"):
                                 # we only want 1:1 mappings between genes and each xref
                                 if xid.startswith("UniProtKB:"):
                                     uniprot_ids[row.get("id")] = xid

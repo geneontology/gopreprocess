@@ -1,9 +1,10 @@
 """Module contains the CLI commands for the gopreprocess package."""
 
 import click
-from gopreprocess.ortho_annotation_creation_controller import AnnotationCreationController
 from gopreprocess.file_processors.protein_to_go_processor import add_protein_to_go_files
-from gopreprocess.g2p_annotation_creation_controller import P2GAnnotationCreationController
+from gopreprocess.goa_annotation_creation_controller import P2GAnnotationCreationController
+from gopreprocess.ortho_annotation_creation_controller import AnnotationCreationController
+
 from src.utils.decorators import timer
 from src.utils.differ import compare_files
 from src.utils.download import download_file, download_files
@@ -85,11 +86,7 @@ def compare(file1, file2, output):
 
 
 @cli.command(name="download")
-@click.option("--source_taxon",
-              "-source_taxon",
-              type=str,
-              required=True,
-              help="Source taxon in curie format.")
+@click.option("--source_taxon", "-source_taxon", type=str, required=True, help="Source taxon in curie format.")
 @click.option(
     "--target_taxon",
     "-target_taxon",
@@ -129,11 +126,7 @@ def get_goa_files():
 
 
 @cli.command(name="convert_g2p_annotations")
-@click.option("--source_taxon",
-              "-source_taxon",
-              type=str,
-              required=True,
-              help="Source taxon in curie format.")
+@click.option("--source_taxon", "-source_taxon", type=str, required=True, help="Source taxon in curie format.")
 @click.option(
     "--isoform",
     "-isoform",
@@ -150,7 +143,6 @@ def convert_g2p_annotations(isoform: bool, source_taxon: str):
     :param source_taxon: The source taxon in curie format.
     :type source_taxon: str
     """
-
     converter = P2GAnnotationCreationController()
     converter.convert_annotations(isoform=isoform, taxon=source_taxon)
 
