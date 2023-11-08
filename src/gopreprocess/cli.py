@@ -1,7 +1,6 @@
 """Module contains the CLI commands for the gopreprocess package."""
 
 import click
-from gopreprocess.file_processors.protein_to_go_processor import add_protein_to_go_files
 from gopreprocess.goa_annotation_creation_controller import P2GAnnotationCreationController
 from gopreprocess.ortho_annotation_creation_controller import AnnotationCreationController
 
@@ -117,12 +116,6 @@ def merge_files():
     """Merge all GAF files from a directory into one output file."""
     resulting_file = merge_files_from_directory("GAF_OUTPUT")
     print("merged file path", resulting_file)
-
-
-@click.command()
-def get_goa_files():
-    """Downloads the protein to GO annotation files for concatenation with other GAF files."""
-    add_protein_to_go_files()
 
 
 @cli.command(name="convert_g2p_annotations")
