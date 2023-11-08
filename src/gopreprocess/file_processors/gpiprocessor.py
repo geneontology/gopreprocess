@@ -8,6 +8,14 @@ from src.utils.decorators import timer
 
 @timer
 def eliminate_repeated_values(input_dict):
+    """
+    Eliminates repeated values from a dictionary.
+
+    :param input_dict: The input dictionary.
+    :type input_dict: dict
+    :return: A new dictionary with only the unique values.
+    :rtype: dict
+    """
     # Reverse the dictionary to identify unique values
     first_item = next(iter(input_dict.items()))
     print(first_item)
@@ -29,7 +37,6 @@ def eliminate_repeated_values(input_dict):
 
 
 class GpiProcessor:
-
     """
     A class for processing GPI (Gene Product Information) files.
 
@@ -56,7 +63,11 @@ class GpiProcessor:
 
     @timer
     def get_target_genes(self) -> dict:
-        """Parses the GPI file and extracts the gene IDs."""
+        """
+        Parses the GPI file and extracts the gene IDs.
+
+        :return: A dictionary of gene IDs.
+        """
         p = GpiParser()
         target_genes = {}
         with open(self.filepath, "r") as file:
@@ -78,7 +89,7 @@ class GpiProcessor:
     @timer
     def get_xrefs(self) -> dict:
         """
-        Parses the GPI using teh GpiParser class, extracts column 9, the xrefs into a dictionary that contains the gene
+        Parses the GPI using the GpiParser class, extracts column 9, the xrefs into a dictionary that contains the gene
          as the key and the xrefs as a list of values.
 
         :return: dictionary of gene ids and xrefs

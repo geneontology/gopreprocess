@@ -25,18 +25,17 @@ def generate_annotation(annotation: GoAssociation, xrefs: dict) -> GoAssociation
     :rtype: GoAssociation
     """
 
-    if "UniProtKB:"+str(annotation.subject.id) in xrefs:
-        new_gene = Curie(namespace="MGI", identity=xrefs["UniProtKB:"+str(annotation.subject.id)])
+    if annotation.subject.id in xrefs:
+        new_gene = Curie(namespace="MGI", identity=xrefs[annotation.subject.id])
         new_annotation = copy.deepcopy(annotation)
         # not sure why this is necessary, but it is, else we get a Subject with an extra tuple wrapper
-        annotation.subject.id = new_gene
+        new_annotation.subject.id = new_gene
         new_annotation.subject.synonyms = []
         new_annotation.object.taxon = Curie.from_str("NCBITaxon:10090")
-        new_annotation.evidence.with_support_from = []
-        new_annotation.object_extensions = []
-        new_annotation.subject_extensions = []
         new_annotation.provided_by = "GO_Central"
         return new_annotation
+    else:
+        return None
 
 
 class P2GAnnotationCreationController:
@@ -73,11 +72,14 @@ class P2GAnnotationCreationController:
         source_annotations = gp.parse_p2g_gaf()
 
         for annotation in source_annotations:
+            print(annotation.subject.id)
             new_annotation = generate_annotation(
                     annotation=annotation,
                     xrefs=xrefs
             )
-            converted_target_annotations.append(new_annotation.to_gaf_2_2_tsv())
+            if new_annotation is not None:
+                print(new_annotation)
+                converted_target_annotations.append(new_annotation.to_gaf_2_2_tsv())
 
         header_filepath = pystow.join(
             key="GAF_OUTPUT",
