@@ -26,8 +26,9 @@ def configure_parser() -> GafParser:
 @timer
 def get_gpad() -> Path:
     """
-    Parses the GAF file and processes the annotations.
+    Parses the merged GAF file, as well as the MGI noctua file and reprocess as GPAD2.0 annotations.
 
+    Note: this is likely a temporary bit of code that will be subsumed by changes to the GO_Central pipeline.
     :return: None.
     """
     merged_gaf_filepath = pystow.join(
