@@ -135,20 +135,24 @@ def get_goa_files():
               required=True,
               help="Source taxon in curie format.")
 @click.option(
-    "--isoforms",
-    "-isoforms",
+    "--isoform",
+    "-isoform",
     type=bool,
     required=True,
     help="Whether or not to process an isoform file as well.",
 )
-def convert_g2p_annotations():
+def convert_g2p_annotations(isoform: bool, source_taxon: str):
     """
     Converts annotations from one taxon to another using orthology.
 
+    :param isoform: Whether to process isoform annotations.
+    :type isoform: bool
+    :param source_taxon: The source taxon in curie format.
+    :type source_taxon: str
     """
 
     converter = P2GAnnotationCreationController()
-    converter.convert_annotations()
+    converter.convert_annotations(isoform=isoform, taxon=source_taxon)
 
 
 if __name__ == "__main__":
