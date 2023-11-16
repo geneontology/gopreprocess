@@ -61,6 +61,7 @@ def get_gpad() -> tuple[Path, Path]:
     p = configure_parser()
     with open(merged_gaf_filepath, "r") as file:
         for line in file:
+            line = line.replace('"', '')
             annotations = p.parse_line(line)
             if annotations:
                 for assoc in annotations.associations:

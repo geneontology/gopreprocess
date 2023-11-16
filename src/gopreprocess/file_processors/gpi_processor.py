@@ -121,3 +121,37 @@ class GpiProcessor:
         # eliminate duplicate mappings
         xrefs = eliminate_repeated_values(uniprot_ids)
         return xrefs
+
+    @timer
+    def get_protein_xrefs(self) -> dict:
+        """
+        Parses the GPI using the GpiParser class.
+
+        Extracts column 9, the xrefs into a dictionary that contains the protein (PRO id) as the key and the xrefs as a
+        list of values.
+
+        :return: dictionary of protein ids and xrefs
+        """
+        p = GpiParser()
+        uniprot_ids = {}
+        with open(self.filepath, "r") as file:
+            for line in file:
+                original_line, gpi_object = p.parse_line(line)
+                if original_line.startswith("!"):
+                    continue
+                else:
+                    # parse_line returns a list of dictionaries for some reason.
+                    for row in gpi_object:
+                        if row.get("xrefs") is None:
+                            continue
+                        else:
+                            if not row.get("id").startswith("PR:"):
+                                continue
+                            for xid in row.get("xrefs"):
+                                # we only want 1:1 mappings between genes and each xref
+                                if xid.startswith("UniProtKB:"):
+                                    uniprot_ids[row.get("id")] = xid
+
+        # eliminate duplicate mappings
+        xrefs = eliminate_repeated_values(uniprot_ids)
+        return xrefs

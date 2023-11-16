@@ -135,7 +135,7 @@ def gpad_files():
     required=True,
     help="Whether or not to process an isoform file as well.",
 )
-def convert_g2p_annotations(isoform: bool, source_taxon: str):
+def convert_p2g_annotations(isoform: bool, source_taxon: str):
     """
     Converts annotations from one taxon to another using orthology.
 
