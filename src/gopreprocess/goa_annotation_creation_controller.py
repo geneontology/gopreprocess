@@ -71,9 +71,9 @@ def get_source_annotations(isoform: bool, taxon: str) -> tuple[dict, List[GoAsso
         )
         gp_isoform = GafProcessor(filepath=p2go_isoform_file)
         source_isoform_annotations = gp_isoform.parse_p2g_gaf()
-        return xrefs, source_annotations, source_isoform_annotations
+        return xrefs, protein_xrefs, source_annotations, source_isoform_annotations
     else:
-        return xrefs, source_annotations, None
+        return xrefs, xrefs, source_annotations, None
 
 
 def dump_annotations(annotations, isoform):
@@ -111,7 +111,7 @@ class P2GAnnotationCreationController:
         :returns: None
         """
         # Gather source annotations and cross-references
-        xrefs, source_annotations, isoform_annotations = get_source_annotations(isoform=isoform, taxon=taxon)
+        xrefs, protein_xrefs, source_annotations, isoform_annotations = get_source_annotations(isoform=isoform, taxon=taxon)
 
         # Convert source annotations to target format
         converted_target_annotations = [
@@ -128,7 +128,7 @@ class P2GAnnotationCreationController:
             converted_target_isoform_annotations = [
                 annotation_obj.to_gaf_2_2_tsv()
                 for annotation in isoform_annotations
-                if (annotation_obj := generate_annotation(annotation=annotation, xrefs=xrefs,
+                if (annotation_obj := generate_annotation(annotation=annotation, xrefs=protein_xrefs,
                                                           isoform=isoform)) is not None
             ]
 
