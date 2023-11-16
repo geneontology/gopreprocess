@@ -133,6 +133,7 @@ class GafProcessor:
                                 namespace=mapped_id.split(":")[0], identity=mapped_id.split(":")[1]
                             )
                     self.convertible_annotations.append(source_assoc)
+        return self.convertible_annotations
 
     @timer
     def parse_p2g_gaf(self):
