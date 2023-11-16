@@ -1,11 +1,9 @@
-import logging
 from pathlib import Path
-from ontobio.io.gafparser import GafParser
 from ontobio.io.gpadparser import GpadParser
-from ontobio.model.association import Curie, GoAssociation
 import pystow
 from utils.decorators import timer
 import datetime
+
 
 class GpadProcessor:
 
