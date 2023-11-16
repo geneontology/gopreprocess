@@ -78,7 +78,7 @@ class GafProcessor:
         """
         self.filepath = filepath
         self.namespaces = namespaces
-        self.convertible_annotations = List[GoAssociation]
+        self.convertible_annotations = []
         self.convertible_p2g_annotations = []
         self.taxon_to_provider = taxon_to_provider
         self.target_taxon = target_taxon
