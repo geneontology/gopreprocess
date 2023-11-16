@@ -55,3 +55,5 @@ get_gpad:
 	poetry run get_gpad_files
 
 merge_files: merge_gafs
+
+kit_and_kaboodle: download_human download_rat convert_human convert_rat get_goa_files convert_p2g_annotations merge_gafs get_gpad
