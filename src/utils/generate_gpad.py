@@ -1,13 +1,14 @@
 """Methods to extract a GPAD 2.0 from merged GAFs."""
 import datetime
 from pathlib import Path
-from src.gopreprocess.file_processors.gpad_processor import GpadProcessor
 
 import pystow
 from ontobio.ecomap import EcoMap
 from ontobio.io.gafparser import GafParser
-from src.utils.download import download_file
+
+from src.gopreprocess.file_processors.gpad_processor import GpadProcessor
 from src.utils.decorators import timer
+from src.utils.download import download_file
 
 
 @timer
@@ -39,17 +40,17 @@ def concatenate_files(file_path1, file_path2, output_file_path):
     content2 = ""
 
     # Read and process the first file
-    with open(file_path1, 'r') as infile1:
+    with open(file_path1, "r") as infile1:
         for line in infile1:
-            if line.startswith('!'):
+            if line.startswith("!"):
                 header1 += line
             else:
                 content1 += line
 
     # Read and process the second file
-    with open(file_path2, 'r') as infile2:
+    with open(file_path2, "r") as infile2:
         for line in infile2:
-            if line.startswith('!'):
+            if line.startswith("!"):
                 header2 += line
             else:
                 content2 += line
@@ -59,7 +60,7 @@ def concatenate_files(file_path1, file_path2, output_file_path):
     final_content = content1 + content2
 
     # Write the concatenated result to the output file
-    with open(output_file_path, 'w') as outfile:
+    with open(output_file_path, "w") as outfile:
         outfile.write(final_header)
         outfile.write(final_content)
 
@@ -72,7 +73,6 @@ def get_gpad() -> tuple[Path, Path]:
     Note: this is likely a temporary bit of code that will be subsumed by changes to the GO_Central pipeline.
     :return: None.
     """
-
     noctua_gpad = download_file(target_directory_name="MGI_NOCTUA", config_key="MGI_NOCTUA", gunzip=True)
 
     gp = GpadProcessor(noctua_gpad)
@@ -87,14 +87,12 @@ def get_gpad() -> tuple[Path, Path]:
     p = configure_parser()
     with open(merged_gaf_filepath, "r") as file:
         for line in file:
-            line = line.replace('"', '')
+            line = line.replace('"', "")
             annotations = p.parse_line(line)
             if annotations:
                 for assoc in annotations.associations:
                     if isinstance(assoc, dict):
                         continue  # skip the header
-                    if assoc.subject.id == "MGI:MGI:101757" or assoc.subject.id == "MGI:101757":
-                        print(assoc.subject.id)
                     gpad_row = assoc.to_gpad_2_0_tsv()
                     gpad_rows.append(gpad_row)
 

@@ -1,8 +1,9 @@
-from pathlib import Path
-from ontobio.io.gpadparser import GpadParser
-import pystow
-from utils.decorators import timer
 import datetime
+from pathlib import Path
+
+import pystow
+from ontobio.io.gpadparser import GpadParser
+from utils.decorators import timer
 
 
 class GpadProcessor:
@@ -45,10 +46,7 @@ class GpadProcessor:
         return new_gpad_filepath
 
     def dump_annotations(self, annotations: []):
-        """
-        Dump annotations to a file.
-
-        """
+        """Dump annotations to a file."""
         file_suffix = self.gpad_filepath.stem.split("_")[0]
         header_filepath = pystow.join(
             key="GPAD_2_OUTPUT",

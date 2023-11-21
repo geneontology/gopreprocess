@@ -4,7 +4,7 @@ from typing import List
 
 from ontobio.ecomap import EcoMap
 from ontobio.io.gafparser import GafParser
-from ontobio.model.association import Curie, GoAssociation
+from ontobio.model.association import Curie
 
 from src.utils.decorators import timer
 

@@ -111,7 +111,9 @@ class P2GAnnotationCreationController:
         :returns: None
         """
         # Gather source annotations and cross-references
-        xrefs, protein_xrefs, source_annotations, isoform_annotations = get_source_annotations(isoform=isoform, taxon=taxon)
+        xrefs, protein_xrefs, source_annotations, isoform_annotations = get_source_annotations(
+            isoform=isoform, taxon=taxon
+        )
 
         # Convert source annotations to target format
         converted_target_annotations = [
@@ -128,8 +130,8 @@ class P2GAnnotationCreationController:
             converted_target_isoform_annotations = [
                 annotation_obj.to_gaf_2_2_tsv()
                 for annotation in isoform_annotations
-                if (annotation_obj := generate_annotation(annotation=annotation, xrefs=protein_xrefs,
-                                                          isoform=isoform)) is not None
+                if (annotation_obj := generate_annotation(annotation=annotation, xrefs=protein_xrefs, isoform=isoform))
+                is not None
             ]
 
             # Dump isoform annotations
