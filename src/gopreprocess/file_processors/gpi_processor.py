@@ -29,11 +29,16 @@ def eliminate_repeated_values(input_dict):
 
     # Create a new dictionary with only the unique values
     output_dict = {value: key for value, key in reversed_dict.items() if key is not None}
+    qc_output_dict = {value: key for value, key in reversed_dict.items() if key is None}
     filename = "output_dict.txt"
-
+    qc_filename = "removed_xrefs_output_dict.txt"
     # Write the dictionary to a file
     with open(filename, "w") as file:
         for key, value in output_dict.items():
+            file.write(f"{key} {value}\n")
+
+    with open(qc_filename, "w") as file:
+        for key, value in qc_output_dict.items():
             file.write(f"{key} {value}\n")
 
     return output_dict
@@ -107,6 +112,40 @@ class GpiProcessor:
                             continue
                         else:
                             if not row.get("id").startswith("MGI:"):
+                                continue
+                            for xid in row.get("xrefs"):
+                                # we only want 1:1 mappings between genes and each xref
+                                if xid.startswith("UniProtKB:"):
+                                    uniprot_ids[row.get("id")] = xid
+
+        # eliminate duplicate mappings
+        xrefs = eliminate_repeated_values(uniprot_ids)
+        return xrefs
+
+    @timer
+    def get_protein_xrefs(self) -> dict:
+        """
+        Parses the GPI using the GpiParser class.
+
+        Extracts column 9, the xrefs into a dictionary that contains the protein (PRO id) as the key and the xrefs as a
+        list of values.
+
+        :return: dictionary of protein ids and xrefs
+        """
+        p = GpiParser()
+        uniprot_ids = {}
+        with open(self.filepath, "r") as file:
+            for line in file:
+                original_line, gpi_object = p.parse_line(line)
+                if original_line.startswith("!"):
+                    continue
+                else:
+                    # parse_line returns a list of dictionaries for some reason.
+                    for row in gpi_object:
+                        if row.get("xrefs") is None:
+                            continue
+                        else:
+                            if not row.get("id").startswith("PR:"):
                                 continue
                             for xid in row.get("xrefs"):
                                 # we only want 1:1 mappings between genes and each xref

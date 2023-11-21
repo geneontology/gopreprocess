@@ -1,13 +1,13 @@
 """Module contains the CLI commands for the gopreprocess package."""
 
 import click
-from gopreprocess.file_processors.protein_to_go_processor import add_protein_to_go_files
 from gopreprocess.goa_annotation_creation_controller import P2GAnnotationCreationController
 from gopreprocess.ortho_annotation_creation_controller import AnnotationCreationController
 
 from src.utils.decorators import timer
 from src.utils.differ import compare_files
 from src.utils.download import download_file, download_files
+from src.utils.generate_gpad import get_gpad
 from src.utils.merge_gafs import merge_files_from_directory
 
 
@@ -120,9 +120,10 @@ def merge_files():
 
 
 @click.command()
-def get_goa_files():
-    """Downloads the protein to GO annotation files for concatenation with other GAF files."""
-    add_protein_to_go_files()
+def gpad_files():
+    """Merge all GAF files from a directory into one output file."""
+    resulting_file = get_gpad()
+    print("gpad file path", resulting_file)
 
 
 @cli.command(name="convert_g2p_annotations")
@@ -134,7 +135,7 @@ def get_goa_files():
     required=True,
     help="Whether or not to process an isoform file as well.",
 )
-def convert_g2p_annotations(isoform: bool, source_taxon: str):
+def convert_p2g_annotations(isoform: bool, source_taxon: str):
     """
     Converts annotations from one taxon to another using orthology.
 

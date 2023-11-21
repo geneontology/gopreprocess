@@ -1,7 +1,7 @@
 """Protein 2 GO AnnotationConverter class."""
 import copy
 import datetime
-from typing import Any, Optional, Union, List
+from typing import Any, List, Optional, Union
 
 import pystow
 from ontobio.model.association import Curie, GoAssociation
@@ -12,7 +12,7 @@ from src.utils.decorators import timer
 from src.utils.download import download_file
 
 
-def generate_annotation(annotation: GoAssociation, xrefs: dict) -> Union[GoAssociation, None]:
+def generate_annotation(annotation: GoAssociation, xrefs: dict, isoform: bool) -> Union[GoAssociation, None]:
     """
     Generate a new annotation based on the given protein 2 GO annotation.
 
@@ -25,11 +25,11 @@ def generate_annotation(annotation: GoAssociation, xrefs: dict) -> Union[GoAssoc
     :return: A new annotation.
     :rtype: GoAssociation
     """
-
     if str(annotation.subject.id) in xrefs.keys():
-        new_gene = Curie(namespace="MGI",
-                         identity=xrefs[str(annotation.subject.id)].replace("MGI:MGI:", "MGI:")
-                         )
+        if isoform:
+            new_gene = Curie(namespace="PR", identity=xrefs[str(annotation.subject.id)])
+        else:
+            new_gene = Curie(namespace="MGI", identity=xrefs[str(annotation.subject.id)].replace("MGI:MGI:", "MGI:"))
         new_annotation = copy.deepcopy(annotation)
         new_annotation.subject.id = new_gene
         new_annotation.subject.synonyms = []
@@ -65,14 +65,15 @@ def get_source_annotations(isoform: bool, taxon: str) -> tuple[dict, List[GoAsso
     source_annotations = gp.parse_p2g_gaf()
 
     if isoform:
+        protein_xrefs = gpi_processor.get_protein_xrefs()
         p2go_isoform_file = download_file(
             target_directory_name=f"GOA_{taxon}_ISOFORM", config_key=f"GOA_{taxon}_ISOFORM", gunzip=True
         )
         gp_isoform = GafProcessor(filepath=p2go_isoform_file)
         source_isoform_annotations = gp_isoform.parse_p2g_gaf()
-        return xrefs, source_annotations, source_isoform_annotations
+        return xrefs, protein_xrefs, source_annotations, source_isoform_annotations
     else:
-        return xrefs, source_annotations, None
+        return xrefs, xrefs, source_annotations, None
 
 
 def dump_annotations(annotations, isoform):
@@ -110,13 +111,15 @@ class P2GAnnotationCreationController:
         :returns: None
         """
         # Gather source annotations and cross-references
-        xrefs, source_annotations, isoform_annotations = get_source_annotations(isoform=isoform, taxon=taxon)
+        xrefs, protein_xrefs, source_annotations, isoform_annotations = get_source_annotations(
+            isoform=isoform, taxon=taxon
+        )
 
         # Convert source annotations to target format
         converted_target_annotations = [
             annotation_obj.to_gaf_2_2_tsv()
             for annotation in source_annotations
-            if (annotation_obj := generate_annotation(annotation=annotation, xrefs=xrefs)) is not None
+            if (annotation_obj := generate_annotation(annotation=annotation, xrefs=xrefs, isoform=isoform)) is not None
         ]
 
         # Dump non-isoform annotations
@@ -127,7 +130,8 @@ class P2GAnnotationCreationController:
             converted_target_isoform_annotations = [
                 annotation_obj.to_gaf_2_2_tsv()
                 for annotation in isoform_annotations
-                if (annotation_obj := generate_annotation(annotation=annotation, xrefs=xrefs)) is not None
+                if (annotation_obj := generate_annotation(annotation=annotation, xrefs=protein_xrefs, isoform=isoform))
+                is not None
             ]
 
             # Dump isoform annotations

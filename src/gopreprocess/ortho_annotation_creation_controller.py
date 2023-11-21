@@ -46,6 +46,7 @@ def dump_converted_annotations(
     """
     # using pandas in order to take advantage of pystow in terms of file location and handling
     df = pd.DataFrame(converted_target_annotations)
+    print(df.columns)
     df = df.applymap(convert_curie_to_string)
     # Deduplicate the rows
     df_deduplicated = df.drop_duplicates()
@@ -225,6 +226,7 @@ class AnnotationCreationController:
             namespaces=self.namespaces,
             uniprot_to_hgnc_map=uniprot_to_hgnc_map,
         )
+
         source_annotations = gp.parse_ortho_gaf()
 
         source_gene_set = set(source_genes.keys())

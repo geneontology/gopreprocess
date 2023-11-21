@@ -41,8 +41,8 @@ compare_rat:
 	poetry run compare -file1 Lori_rat.tsv -file2 mgi-rat-ortho.gaf -o compare_rat
 
 
-convert_g2p_annotations:
-	poetry run convert_g2p_annotations --source_taxon "NCBITaxon:9606" --isoform=True
+convert_p2g_annotations:
+	poetry run convert_p2g_annotations --source_taxon "NCBITaxon:10090" --isoform=True
 
 get_goa_files:
 	poetry run get_goa_files
@@ -50,4 +50,10 @@ get_goa_files:
 merge_gafs:
 	poetry run merge_files
 
+get_gpad:
+	poetry run merge_files
+	poetry run get_gpad_files
+
 merge_files: merge_gafs
+
+kit_and_kaboodle: download_human download_rat convert_human convert_rat convert_p2g_annotations merge_gafs get_gpad
