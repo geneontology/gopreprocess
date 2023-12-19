@@ -1,7 +1,7 @@
 """Protein 2 GO AnnotationConverter class."""
 import copy
 import datetime
-from typing import Any, List, Optional, Union
+from typing import Any, List, Optional, Union, Tuple
 
 import pystow
 from ontobio.model.association import Curie, GoAssociation
@@ -40,7 +40,7 @@ def generate_annotation(annotation: GoAssociation, xrefs: dict, isoform: bool) -
         return None
 
 
-def get_source_annotations(isoform: bool, taxon: str) -> tuple[dict, List[GoAssociation], Optional[Any]]:
+def get_source_annotations(isoform: bool, taxon: str) -> tuple[dict, dict, Any, Any] | tuple[dict, dict, Any, None]:
     """
     Get the source annotations from the protein 2 GO GAF file.
 
@@ -111,9 +111,7 @@ class P2GAnnotationCreationController:
         :returns: None
         """
         # Gather source annotations and cross-references
-        xrefs, protein_xrefs, source_annotations, isoform_annotations = get_source_annotations(
-            isoform=isoform, taxon=taxon
-        )
+        xrefs, protein_xrefs, source_annotations, isoform_annotations = get_source_annotations(isoform=isoform, taxon=taxon)
 
         # Convert source annotations to target format
         converted_target_annotations = [
