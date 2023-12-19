@@ -4,12 +4,12 @@ import click
 from gopreprocess.goa_annotation_creation_controller import P2GAnnotationCreationController
 from gopreprocess.ortho_annotation_creation_controller import AnnotationCreationController
 
+from src.gopreprocess.file_processors.gpad_processor import GpadProcessor
 from src.utils.decorators import timer
 from src.utils.differ import compare_files
 from src.utils.download import download_file, download_files
 from src.utils.generate_gpad import generate_gpad_file
 from src.utils.merge_gafs import merge_files_from_directory
-from src.gopreprocess.file_processors.gpad_processor import GpadProcessor
 
 
 # Create a group for the CLI commands
@@ -151,10 +151,7 @@ def convert_p2g_annotations(isoform: bool, source_taxon: str):
 
 @cli.command(name="convert_noctua_gpad_1_2_to_2_0_annotations")
 def convert_noctua_gpad_1_2_to_2_0_annotations():
-    """
-    Converts annotations from one GPAD format 1.2 as output from noctua to another GPAD 2.0 using ontobio functions.
-
-    """
+    """Converts annotations from one GPAD format 1.2 as output from noctua to another using ontobio functions."""
     noctua_gpad = download_file(target_directory_name="MGI_NOCTUA", config_key="MGI_NOCTUA", gunzip=True)
     gpp = GpadProcessor(noctua_gpad)
     new_noctua_gpad_filepath = gpp.convert_noctua_gpad()

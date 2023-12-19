@@ -1,7 +1,7 @@
 """Protein 2 GO AnnotationConverter class."""
 import copy
 import datetime
-from typing import Any, List, Optional, Union, Tuple
+from typing import Any, Union
 
 import pystow
 from ontobio.model.association import Curie, GoAssociation
@@ -111,7 +111,9 @@ class P2GAnnotationCreationController:
         :returns: None
         """
         # Gather source annotations and cross-references
-        xrefs, protein_xrefs, source_annotations, isoform_annotations = get_source_annotations(isoform=isoform, taxon=taxon)
+        xrefs, protein_xrefs, source_annotations, isoform_annotations = get_source_annotations(
+            isoform=isoform, taxon=taxon
+        )
 
         # Convert source annotations to target format
         converted_target_annotations = [
