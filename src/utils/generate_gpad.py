@@ -66,7 +66,7 @@ def concatenate_files(file_path1, file_path2, output_file_path):
 
 
 @timer
-def get_gpad() -> tuple[Path, Path]:
+def generate_gpad_file() -> tuple[Path, Path]:
     """
     Parses the merged GAF file, as well as the MGI noctua file and reprocess as GPAD2.0 annotations.
 

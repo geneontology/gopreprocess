@@ -51,7 +51,7 @@ class GpadProcessor:
         file_suffix = self.gpad_filepath.stem.split("_")[0]
         header_filepath = pystow.join(
             key="GPAD_2_OUTPUT",
-            name=f"noctua_2_0_{file_suffix}.gpad",
+            name=f"mgi_noctua_2_0_{file_suffix}.gpad",
             ensure_exists=True,
         )
 

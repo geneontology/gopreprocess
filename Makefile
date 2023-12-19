@@ -40,6 +40,8 @@ compare_human:
 compare_rat:
 	poetry run compare -file1 Lori_rat.tsv -file2 mgi-rat-ortho.gaf -o compare_rat
 
+convert_gpad:
+	poetry run convert_gpad
 
 convert_p2g_annotations:
 	poetry run convert_p2g_annotations --source_taxon "NCBITaxon:10090" --isoform=True
@@ -52,7 +54,7 @@ merge_gafs:
 
 get_gpad:
 	poetry run merge_files
-	poetry run get_gpad_files
+	poetry run get_gpad_file
 
 merge_files: merge_gafs
 

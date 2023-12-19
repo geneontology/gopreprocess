@@ -18,5 +18,6 @@ GOA_taxon_10090:
   url: https://ftp.ebi.ac.uk/pub/databases/GO/goa/MOUSE/goa_mouse.gaf.gz
 GOA_taxon_10090_ISOFORM:
   url: https://ftp.ebi.ac.uk/pub/databases/GO/goa/MOUSE/goa_mouse_isoform.gaf.gz
+# TODO: change this to skyhook when running thru pipeline
 MGI_NOCTUA:
   url: http://snapshot.geneontology.org/products/upstream_and_raw_data/noctua_mgi.gpad.gz
