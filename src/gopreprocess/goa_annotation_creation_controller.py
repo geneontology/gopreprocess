@@ -12,8 +12,9 @@ from src.utils.decorators import timer
 from src.utils.download import download_file
 
 
-def generate_annotation(annotation: GoAssociation, xrefs: dict, isoform: bool,
-                        protein_xrefs) -> Union[GoAssociation, None]:
+def generate_annotation(
+    annotation: GoAssociation, xrefs: dict, isoform: bool, protein_xrefs: dict, parent_xrefs: dict
+) -> Union[GoAssociation, None]:
     """
     Generate a new annotation based on the given protein 2 GO annotation.
 
@@ -28,14 +29,20 @@ def generate_annotation(annotation: GoAssociation, xrefs: dict, isoform: bool,
     :param protein_xrefs: The protein xrefs dictionary from the parsed GPI file, mapping the protein of the target
     species to the set of UniProt ids for the source
     :type protein_xrefs: dict
+    :param parent_xrefs: The parent xrefs dictionary from the parsed GPI file, mapping the gene of the target
+    species to the set of UniProt ids for the source PR:Q9DAQ4-1 = MGI:MGI:1918911
+    :type parent_xrefs: dict
 
     :return: A new annotation.
     :rtype: GoAssociation
     """
     if str(annotation.subject.id) in protein_xrefs.keys():
+        print("subject id", str(annotation.subject.id))
+        # PR:Q9DAQ4-1 = UniProtKB:Q9DAQ4-1
         if isoform:
             pr_id = protein_xrefs[str(annotation.subject.id)]
-            mgi_id = protein_xrefs[pr_id]
+            # PR:Q9DAQ4-1 = MGI:MGI:1918911
+            mgi_id = parent_xrefs[pr_id]
             print("mgi_id", mgi_id, "pr_id", pr_id, "subject_id", str(annotation.subject.id))
             new_gene = Curie(namespace=mgi_id.split(":")[0], identity=mgi_id)
 
@@ -55,7 +62,9 @@ def generate_annotation(annotation: GoAssociation, xrefs: dict, isoform: bool,
         return None
 
 
-def get_source_annotations(isoform: bool, taxon: str) -> tuple[dict, dict, Any, Any] | tuple[dict, dict, Any, None]:
+def get_source_annotations(
+    isoform: bool, taxon: str
+) -> tuple[dict, dict, Any, Any, dict] | tuple[dict, dict, Any, None, dict]:
     """
     Get the source annotations from the protein 2 GO GAF file.
 
@@ -80,7 +89,7 @@ def get_source_annotations(isoform: bool, taxon: str) -> tuple[dict, dict, Any, 
     source_annotations = gp.parse_p2g_gaf()
 
     if isoform:
-        protein_xrefs = gpi_processor.get_protein_xrefs()
+        protein_xrefs, parent_xrefs = gpi_processor.get_protein_xrefs()
         p2go_isoform_file = download_file(
             target_directory_name=f"GOA_{taxon}_ISOFORM", config_key=f"GOA_{taxon}_ISOFORM", gunzip=True
         )
@@ -88,7 +97,7 @@ def get_source_annotations(isoform: bool, taxon: str) -> tuple[dict, dict, Any, 
         source_isoform_annotations = gp_isoform.parse_p2g_gaf()
         return xrefs, protein_xrefs, source_annotations, source_isoform_annotations
     else:
-        return xrefs, xrefs, source_annotations, None
+        return xrefs, xrefs, source_annotations, None, parent_xrefs
 
 
 def dump_annotations(annotations, isoform):
@@ -126,7 +135,7 @@ class P2GAnnotationCreationController:
         :returns: None
         """
         # Gather source annotations and cross-references
-        xrefs, protein_xrefs, source_annotations, isoform_annotations = get_source_annotations(
+        xrefs, protein_xrefs, source_annotations, isoform_annotations, parent_xrefs = get_source_annotations(
             isoform=isoform, taxon=taxon
         )
 
@@ -134,8 +143,16 @@ class P2GAnnotationCreationController:
         converted_target_annotations = [
             annotation_obj.to_gaf_2_2_tsv()
             for annotation in source_annotations
-            if (annotation_obj := generate_annotation(annotation=annotation, xrefs=xrefs, isoform=isoform,
-                                                      protein_xrefs=protein_xrefs)) is not None
+            if (
+                annotation_obj := generate_annotation(
+                    annotation=annotation,
+                    xrefs=xrefs,
+                    isoform=isoform,
+                    protein_xrefs=protein_xrefs,
+                    parent_xrefs=parent_xrefs,
+                )
+            )
+            is not None
         ]
 
         # Dump non-isoform annotations
@@ -146,8 +163,15 @@ class P2GAnnotationCreationController:
             converted_target_isoform_annotations = [
                 annotation_obj.to_gaf_2_2_tsv()
                 for annotation in isoform_annotations
-                if (annotation_obj := generate_annotation(annotation=annotation, xrefs=protein_xrefs, isoform=isoform,
-                                                          protein_xrefs=protein_xrefs))
+                if (
+                    annotation_obj := generate_annotation(
+                        annotation=annotation,
+                        xrefs=protein_xrefs,
+                        isoform=isoform,
+                        protein_xrefs=protein_xrefs,
+                        parent_xrefs=parent_xrefs,
+                    )
+                )
                 is not None
             ]
 
