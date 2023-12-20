@@ -27,10 +27,14 @@ def generate_annotation(annotation: GoAssociation, xrefs: dict, isoform: bool) -
     """
     if str(annotation.subject.id) in xrefs.keys():
         if isoform:
-            # TODO: this produces PR:MGI:MGI:98584
-            new_gene = Curie(namespace=str(annotation.subject.id).split(":")[0], identity=xrefs[str(annotation.subject.id)])
+            new_gene = Curie(
+                namespace=xrefs[str(annotation.subject.id)].split(":")[0], identity=xrefs[str(annotation.subject.id)]
+            )
         else:
-            new_gene = Curie(namespace=str(annotation.subject.id).split(":")[0], identity=xrefs[str(annotation.subject.id)].replace("MGI:MGI:", "MGI:"))
+            new_gene = Curie(
+                namespace=xrefs[str(annotation.subject.id)],
+                identity=xrefs[str(annotation.subject.id)].replace("MGI:MGI:", "MGI:"),
+            )
         new_annotation = copy.deepcopy(annotation)
         new_annotation.subject.id = new_gene
         new_annotation.subject.synonyms = []
