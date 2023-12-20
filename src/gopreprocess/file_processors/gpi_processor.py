@@ -118,6 +118,11 @@ class GpiProcessor:
                                 if xid.startswith("UniProtKB:"):
                                     uniprot_ids[row.get("id")] = xid
 
+        qc_filename = "xrefs"
+        with open(qc_filename, "w") as file:
+            for key, value in uniprot_ids.items():
+                file.write(f"{key} {value}\n")
+
         # eliminate duplicate mappings
         xrefs = eliminate_repeated_values(uniprot_ids)
         return xrefs
@@ -133,7 +138,7 @@ class GpiProcessor:
         :return: dictionary of protein ids and xrefs
         """
         p = GpiParser()
-        uniprot_ids = {}
+        xref_ids = {}
         with open(self.filepath, "r") as file:
             for line in file:
                 original_line, gpi_object = p.parse_line(line)
@@ -145,13 +150,22 @@ class GpiProcessor:
                         if row.get("xrefs") is None:
                             continue
                         else:
-                            if not row.get("id").startswith("PR:"):
-                                continue
-                            for xid in row.get("xrefs"):
-                                # we only want 1:1 mappings between genes and each xref
-                                if xid.startswith("UniProtKB:"):
-                                    uniprot_ids[row.get("id")] = xid
+                            if row.get("id").startswith("PR:"):
+                                # PR:Q9DAQ4-1 = MGI:MGI:1919087
+                                xref_ids[row.get("id")] = row.get("xrefs")
+                            else:
+                                # MGI:MGI:1919087 = UniProtKB:Q9DAQ4
+                                for xid in row.get("xrefs"):
+                                    # we only want 1:1 mappings between genes and each xref
+                                    if xid.startswith("UniProtKB:"):
+                                        xref_ids[row.get("id")] = xid
+
+        qc_filename = "xrefids.txt"
+        with open(qc_filename, "w") as file:
+            for key, value in xref_ids.items():
+                file.write(f"{key} {value}\n")
+
 
         # eliminate duplicate mappings
-        xrefs = eliminate_repeated_values(uniprot_ids)
+        xrefs = eliminate_repeated_values(xref_ids)
         return xrefs
