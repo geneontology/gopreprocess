@@ -42,6 +42,8 @@ class GpadProcessor:
                         continue  # skip the header
                     else:
                         gpad2_0_association = source_assoc.to_gpad_2_0_tsv()
+                        print(gpad2_0_association)
+
                         new_associations.append(gpad2_0_association)
         new_gpad_filepath = self.dump_annotations(new_associations)
         return new_gpad_filepath
@@ -51,7 +53,7 @@ class GpadProcessor:
         file_suffix = self.gpad_filepath.stem.split("_")[0]
         header_filepath = pystow.join(
             key="GPAD_2_OUTPUT",
-            name=f"noctua_2_0_{file_suffix}.gpad",
+            name=f"mgi_noctua_2_0_{file_suffix}.gpad",
             ensure_exists=True,
         )
 

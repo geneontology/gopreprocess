@@ -4,10 +4,11 @@ import click
 from gopreprocess.goa_annotation_creation_controller import P2GAnnotationCreationController
 from gopreprocess.ortho_annotation_creation_controller import AnnotationCreationController
 
+from src.gopreprocess.file_processors.gpad_processor import GpadProcessor
 from src.utils.decorators import timer
 from src.utils.differ import compare_files
 from src.utils.download import download_file, download_files
-from src.utils.generate_gpad import get_gpad
+from src.utils.generate_gpad import generate_gpad_file
 from src.utils.merge_gafs import merge_files_from_directory
 
 
@@ -120,9 +121,9 @@ def merge_files():
 
 
 @click.command()
-def gpad_files():
+def get_gpad_file():
     """Merge all GAF files from a directory into one output file."""
-    resulting_file = get_gpad()
+    resulting_file = generate_gpad_file()
     print("gpad file path", resulting_file)
 
 
@@ -146,6 +147,16 @@ def convert_p2g_annotations(isoform: bool, source_taxon: str):
     """
     converter = P2GAnnotationCreationController()
     converter.convert_annotations(isoform=isoform, taxon=source_taxon)
+
+
+@cli.command(name="convert_noctua_gpad_1_2_to_2_0_annotations")
+def convert_noctua_gpad_1_2_to_2_0_annotations():
+    """Converts annotations from one GPAD format 1.2 as output from noctua to another using ontobio functions."""
+    noctua_gpad = download_file(target_directory_name="MGI_NOCTUA", config_key="MGI_NOCTUA", gunzip=True)
+    gpp = GpadProcessor(noctua_gpad)
+    new_noctua_gpad_filepath = gpp.convert_noctua_gpad()
+    print("new noctua gpad filepath: ", new_noctua_gpad_filepath)
+    return new_noctua_gpad_filepath
 
 
 if __name__ == "__main__":

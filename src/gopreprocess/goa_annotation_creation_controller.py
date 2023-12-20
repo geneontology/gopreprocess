@@ -1,7 +1,7 @@
 """Protein 2 GO AnnotationConverter class."""
 import copy
 import datetime
-from typing import Any, List, Optional, Union
+from typing import Any, Union
 
 import pystow
 from ontobio.model.association import Curie, GoAssociation
@@ -27,20 +27,26 @@ def generate_annotation(annotation: GoAssociation, xrefs: dict, isoform: bool) -
     """
     if str(annotation.subject.id) in xrefs.keys():
         if isoform:
-            new_gene = Curie(namespace="PR", identity=xrefs[str(annotation.subject.id)])
+            new_gene = Curie(
+                namespace=xrefs[str(annotation.subject.id)].split(":")[0], identity=xrefs[str(annotation.subject.id)]
+            )
         else:
-            new_gene = Curie(namespace="MGI", identity=xrefs[str(annotation.subject.id)].replace("MGI:MGI:", "MGI:"))
+            new_gene = Curie(
+                namespace=xrefs[str(annotation.subject.id)],
+                identity=xrefs[str(annotation.subject.id)].replace("MGI:MGI:", "MGI:"),
+            )
         new_annotation = copy.deepcopy(annotation)
         new_annotation.subject.id = new_gene
         new_annotation.subject.synonyms = []
         new_annotation.object.taxon = Curie.from_str("NCBITaxon:10090")
-        new_annotation.provided_by = "GO_Central"
+        # retain provided_by from upstream
+        new_annotation.provided_by = annotation.provided_by
         return new_annotation
     else:
         return None
 
 
-def get_source_annotations(isoform: bool, taxon: str) -> tuple[dict, List[GoAssociation], Optional[Any]]:
+def get_source_annotations(isoform: bool, taxon: str) -> tuple[dict, dict, Any, Any] | tuple[dict, dict, Any, None]:
     """
     Get the source annotations from the protein 2 GO GAF file.
 
