@@ -160,8 +160,9 @@ class GpiProcessor:
                                         xref_ids[row.get("id")] = xid
                                 if row.get("id") == "PR:Q9DAL9":
                                     print(row)
-                                if row.get("encoded_by").startswith("MGI:"):
-                                    parent_xref_ids[row.get("id")] = row.get("encoded_by")
+                                for ebid in row.get("encoded_by"):
+                                    if ebid.startswith("MGI:"):
+                                        parent_xref_ids[row.get("id")] = ebid
 
         qc_filename = "xref_pr.txt"
         with open(qc_filename, "w") as file:
