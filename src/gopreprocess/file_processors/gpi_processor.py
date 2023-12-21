@@ -111,6 +111,7 @@ class GpiProcessor:
                         if row.get("xrefs") is None:
                             continue
                         else:
+                            # MGI:MGI:1914937 UniProtKB:Q9DAF8
                             if not row.get("id").startswith("MGI:"):
                                 continue
                             for xid in row.get("xrefs"):
@@ -118,7 +119,7 @@ class GpiProcessor:
                                 if xid.startswith("UniProtKB:"):
                                     uniprot_ids[row.get("id")] = xid
 
-        qc_filename = "xrefs"
+        qc_filename = "xrefs_mgi.txt"
         with open(qc_filename, "w") as file:
             for key, value in uniprot_ids.items():
                 file.write(f"{key} {value}\n")
@@ -128,7 +129,7 @@ class GpiProcessor:
         return xrefs
 
     @timer
-    def get_protein_xrefs(self) -> dict:
+    def get_protein_xrefs(self) -> (dict, dict):
         """
         Parses the GPI using the GpiParser class.
 
@@ -139,6 +140,7 @@ class GpiProcessor:
         """
         p = GpiParser()
         xref_ids = {}
+        parent_xref_ids = {}
         with open(self.filepath, "r") as file:
             for line in file:
                 original_line, gpi_object = p.parse_line(line)
@@ -151,21 +153,27 @@ class GpiProcessor:
                             continue
                         else:
                             if row.get("id").startswith("PR:"):
-                                # PR:Q9DAQ4-1 = MGI:MGI:1919087
-                                xref_ids[row.get("id")] = row.get("xrefs")
-                            else:
-                                # MGI:MGI:1919087 = UniProtKB:Q9DAQ4
+                                # PR:Q9DAQ4-1 = UniProtKB:Q9DAQ4-1
+                                # PR:Q9DAQ4-1 = MGI:MGI:87961
                                 for xid in row.get("xrefs"):
-                                    # we only want 1:1 mappings between genes and each xref
                                     if xid.startswith("UniProtKB:"):
                                         xref_ids[row.get("id")] = xid
+                                if row.get("id") == "PR:Q9DAL9":
+                                    print(row)
+                                for ebid in row.get("encoded_by"):
+                                    if ebid.startswith("MGI:"):
+                                        parent_xref_ids[row.get("id")] = ebid
 
-        qc_filename = "xrefids.txt"
+        qc_filename = "xref_pr.txt"
         with open(qc_filename, "w") as file:
             for key, value in xref_ids.items():
                 file.write(f"{key} {value}\n")
 
+        parents_filename = "parent_pr.txt"
+        with open(parents_filename, "w") as file:
+            for key, value in parent_xref_ids.items():
+                file.write(f"{key} {value}\n")
 
         # eliminate duplicate mappings
         xrefs = eliminate_repeated_values(xref_ids)
-        return xrefs
+        return xrefs, parent_xref_ids
