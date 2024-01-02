@@ -1,7 +1,7 @@
 """Protein 2 GO AnnotationConverter class."""
 import copy
 import datetime
-from typing import Any, Union, Tuple
+from typing import Any, Union
 
 import pystow
 from ontobio.model.association import Curie, GoAssociation
