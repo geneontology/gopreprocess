@@ -158,8 +158,6 @@ class GpiProcessor:
                                 for xid in row.get("xrefs"):
                                     if xid.startswith("UniProtKB:"):
                                         xref_ids[row.get("id")] = xid
-                                if row.get("id") == "PR:Q9DAL9":
-                                    print(row)
                                 for ebid in row.get("encoded_by"):
                                     if ebid.startswith("MGI:"):
                                         parent_xref_ids[row.get("id")] = ebid
