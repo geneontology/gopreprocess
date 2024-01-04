@@ -1,19 +1,19 @@
 MGI_GAF:
-  url: http://skyhook.berkeleybop.org/issue-325-gopreprocess/products/upstream_and_raw_data/mgi-src.gaf.gz
+  url: http://skyhook.berkeleybop.org/silver-issue-325-gopreprocess/products/upstream_and_raw_data/mgi-src.gaf.gz
 MGI_GPI:
   url: http://snapshot.geneontology.org/products/upstream_and_raw_data/mgi-src.gpi.gz
 ALLIANCE_ORTHO:
   url: https://fms.alliancegenome.org/download/ORTHOLOGY-ALLIANCE-JSON_COMBINED.json.gz
 RGD:
-  url: http://skyhook.berkeleybop.org/issue-325-gopreprocess/products/upstream_and_raw_data/rgd-src.gaf.gz
+  url: http://skyhook.berkeleybop.org/silver-issue-325-gopreprocess/products/upstream_and_raw_data/rgd-src.gaf.gz
 HUMAN:
-  url: http://skyhook.berkeleybop.org/issue-325-gopreprocess/products/upstream_and_raw_data/goa_human-src.gaf.gz
+  url: http://skyhook.berkeleybop.org/silver-issue-325-gopreprocess/products/upstream_and_raw_data/goa_human-src.gaf.gz
 HUMAN_ISO:
-  url: http://skyhook.berkeleybop.org/issue-325-gopreprocess/products/upstream_and_raw_data/goa_human_isoform-src.gaf.gz
+  url: http://skyhook.berkeleybop.org/silver-issue-325-gopreprocess/products/upstream_and_raw_data/goa_human_isoform-src.gaf.gz
 MGI_XREF:
   url: https://www.informatics.jax.org/downloads/reports/HOM_MouseHumanSequence.rpt
 GO:
-  url: http://skyhook.berkeleybop.org/issue-325-gopreprocess/ontology/go.json
+  url: http://skyhook.berkeleybop.org/silver-issue-325-gopreprocess/ontology/go.json
 GOA_taxon_10090:
   url: https://ftp.ebi.ac.uk/pub/databases/GO/goa/MOUSE/goa_mouse.gaf.gz
 GOA_taxon_10090_ISOFORM:
