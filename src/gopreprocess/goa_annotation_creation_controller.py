@@ -44,7 +44,7 @@ def generate_annotation(
             # PR:Q9DAQ4-1 = MGI:MGI:1918911
             mgi_id = parent_xrefs[pr_id]
             print("mgi_id", mgi_id, "pr_id", pr_id, "subject_id", str(annotation.subject.id))
-            new_gene = Curie(namespace=mgi_id.split(":")[0], identity=mgi_id)
+            new_gene = Curie(namespace=mgi_id.split(":")[0], identity=mgi_id.replace("MGI:MGI:", "MGI:"))
 
         else:
             new_gene = Curie(
