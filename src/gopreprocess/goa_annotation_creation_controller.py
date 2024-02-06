@@ -59,7 +59,7 @@ def generate_annotation(
 
         # gp_isoforms: self.subject_extensions[0].term
 
-        if str(new_annotation.subject_extensions[0].term) in protein_xrefs.keys():
+        if new_annotation.subject_extensions and str(new_annotation.subject_extensions[0].term) in protein_xrefs.keys():
             new_annotation.subject_extensions[0].term = Curie(
                 namespace=protein_xrefs[str(new_annotation.subject_extensions[0].term)].split(":")[0],
                 identity=protein_xrefs[str(new_annotation.subject_extensions[0].term)].split(":")[1],
