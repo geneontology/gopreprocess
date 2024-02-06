@@ -29,7 +29,7 @@ download_rat:
 	poetry run download -source_taxon "NCBITaxon:10116" -target_taxon "NCBITaxon:10090"
 
 convert_human:
-	poetry run convert_annotations --namespaces 'HUMAN','UniProtKB' --target_taxon "NCBITaxon:10090" --source_taxon "NCBITaxon:9606" --ortho_reference "GO_REF:0000096"
+	poetry run convert_annotations --namespaces 'HUMAN','UniProtKB' --target_taxon "NCBITaxon:10090" --source_taxon "NCBITaxon:9606" --ortho_reference "GO_REF:0000119"
 
 convert_rat:
 	poetry run convert_annotations
