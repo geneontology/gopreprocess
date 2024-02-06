@@ -64,7 +64,8 @@ def generate_annotation(
                 namespace=protein_xrefs[str(new_annotation.subject_extensions[0].term)].split(":")[0],
                 identity=protein_xrefs[str(new_annotation.subject_extensions[0].term)].split(":")[1],
             )
-            # print("protein_xrefs[str(new_annotation.subject_extensions[0].term)]", protein_xrefs[str(new_annotation.subject_extensions[0].term)])
+            # print("protein_xrefs[str(new_annotation.subject_extensions[0].term)]",
+            # protein_xrefs[str(new_annotation.subject_extensions[0].term)])
 
         # retain provided_by from upstream
         # new_annotation.provided_by = annotation.provided_by
