@@ -9,6 +9,8 @@ dev: install
 
 test: unit-tests lint spell
 
+# this takes a bit longer than not removing the .tox dir, but otherwise we get GH actions failures
+# due to the .tox dir being static as compared to the GH refreshed tox environment
 lint:
 	@echo "Checking for .tox directory..."
 	@if [ -d .tox ]; then \
