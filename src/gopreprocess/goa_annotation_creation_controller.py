@@ -1,4 +1,5 @@
 """Protein 2 GO AnnotationConverter class."""
+
 import copy
 import datetime
 from typing import Any, Union
@@ -37,13 +38,14 @@ def generate_annotation(
     :rtype: GoAssociation
     """
     if str(annotation.subject.id) in protein_xrefs.keys():
-        print("subject id", str(annotation.subject.id))
         # PR:Q9DAQ4-1 = UniProtKB:Q9DAQ4-1
         if isoform:
             pr_id = protein_xrefs[str(annotation.subject.id)]
+            print("pr_id", pr_id)
+            print("parent_xrefs", parent_xrefs[pr_id])
+            print("annotation.subject.id", annotation.subject.id)
             # PR:Q9DAQ4-1 = MGI:MGI:1918911
             mgi_id = parent_xrefs[pr_id]
-            print("mgi_id", mgi_id, "pr_id", pr_id, "subject_id", str(annotation.subject.id))
             new_gene = Curie(namespace=mgi_id.split(":")[0], identity=mgi_id.replace("MGI:MGI:", "MGI:"))
 
         else:
@@ -55,8 +57,18 @@ def generate_annotation(
         new_annotation.subject.id = new_gene
         new_annotation.subject.synonyms = []
         new_annotation.object.taxon = Curie.from_str("NCBITaxon:10090")
+
+        # gp_isoforms: self.subject_extensions[0].term
+
+        if new_annotation.subject_extensions and str(new_annotation.subject_extensions[0].term) in protein_xrefs.keys():
+            new_annotation.subject_extensions[0].term = Curie(
+                namespace=protein_xrefs[str(new_annotation.subject_extensions[0].term)].split(":")[0],
+                identity=protein_xrefs[str(new_annotation.subject_extensions[0].term)].split(":")[1],
+            )
+
         # retain provided_by from upstream
-        new_annotation.provided_by = annotation.provided_by
+        # new_annotation.provided_by = annotation.provided_by
+
         return new_annotation
     else:
         return None

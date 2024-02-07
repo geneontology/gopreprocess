@@ -1,4 +1,5 @@
 """Module contains the AllianceXrefProcessor class."""
+
 from src.utils.decorators import timer
 from src.utils.download import download_file
 

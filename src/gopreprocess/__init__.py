@@ -1,4 +1,5 @@
 """gopreprocess package."""
+
 import importlib_metadata
 
 try:
