@@ -10,7 +10,14 @@ dev: install
 test: unit-tests lint spell
 
 lint:
+	@echo "Checking for .tox directory..."
+	@if [ -d .tox ]; then \
+		echo "Removing .tox directory..."; \
+		rm -rf .tox; \
+	fi
+	@echo "Running lint-fix..."
 	poetry run tox -e lint-fix
+
 lint-fix: lint
 
 spell:
