@@ -1,4 +1,5 @@
 """Test the settings module."""
+
 import unittest
 from unittest import skip
 

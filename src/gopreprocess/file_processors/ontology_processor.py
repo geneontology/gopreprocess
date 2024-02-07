@@ -1,4 +1,5 @@
 """Module contains the Ontology processor class."""
+
 from ontobio.io import assocparser
 from ontobio.ontol_factory import OntologyFactory
 from ontobio.util.go_utils import GoAspector

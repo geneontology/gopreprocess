@@ -1,4 +1,5 @@
 """Module contains the GafProcessor class."""
+
 from pathlib import Path
 from typing import List
 

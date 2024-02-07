@@ -4,6 +4,7 @@ Module contains the AnnotationConverter class, which is responsible for converti
 As input, this package takes a GAF from one species and generates a GAF for another species (using Alliance orthology
 to map genes between species).
 """
+
 import copy
 import datetime
 from typing import List

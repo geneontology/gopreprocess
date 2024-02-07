@@ -1,4 +1,5 @@
 """Module contains decorators that can be used to decorate functions."""
+
 import time
 
 

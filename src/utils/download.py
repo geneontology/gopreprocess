@@ -1,4 +1,5 @@
 """Module contains functions for downloading files from the web."""
+
 from pathlib import Path
 
 import pystow

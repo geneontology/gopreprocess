@@ -1,4 +1,5 @@
 """Diff tool for comparing files coming out of the pipeline with those going in."""
+
 import csv
 import datetime
 from typing import List

@@ -1,4 +1,5 @@
 """Module that processes the settings for the application."""
+
 import logging
 from os import path
 

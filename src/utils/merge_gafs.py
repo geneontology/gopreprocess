@@ -1,4 +1,5 @@
 """Utils for merging files together."""
+
 from pystow import join
 
 from src.utils.settings import taxon_to_provider

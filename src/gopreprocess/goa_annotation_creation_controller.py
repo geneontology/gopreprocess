@@ -1,4 +1,5 @@
 """Protein 2 GO AnnotationConverter class."""
+
 import copy
 import datetime
 from typing import Any, Union

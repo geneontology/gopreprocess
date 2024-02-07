@@ -1,4 +1,5 @@
 """Methods to extract a GPAD 2.0 from merged GAFs."""
+
 import datetime
 from pathlib import Path
 
