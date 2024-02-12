@@ -41,7 +41,7 @@ convert_human:
 	poetry run convert_annotations --namespaces 'HUMAN','UniProtKB' --target_taxon "NCBITaxon:10090" --source_taxon "NCBITaxon:9606" --ortho_reference "GO_REF:0000119"
 
 convert_rat:
-	poetry run convert_annotations
+	poetry run convert_annotations --ortho_reference "GO_REF:0000096" --target_taxon "NCBITaxon:10090" --source_taxon "NCBITaxon:10116" --namespaces 'RGD'
 
 compare_human:
 	poetry run compare -file1 Lori_human.tsv -file2 mgi-human-ortho.gaf -o compare_human
