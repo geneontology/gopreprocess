@@ -13,7 +13,7 @@ HUMAN_ISO:
 MGI_XREF:
   url: https://www.informatics.jax.org/downloads/reports/HOM_MouseHumanSequence.rpt
 GO:
-  url: http://skyhook.berkeleybop.org/silver-issue-325-gopreprocess/ontology/go.json
+  url: https://snapshot.geneontology.org/ontology/go.json
 GOA_taxon_10090:
   url: https://ftp.ebi.ac.uk/pub/databases/GO/goa/MOUSE/goa_mouse.gaf.gz
 GOA_taxon_10090_ISOFORM:
