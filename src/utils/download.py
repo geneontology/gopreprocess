@@ -33,7 +33,7 @@ def download_files(source_taxon: str, target_taxon: str) -> tuple[Path, Path, Pa
     return ortho_path, source_gaf_path, target_gpi_path
 
 
-def download_with_retry(target_directory_name, config_key, gunzip=True, retries=3, timeout=60):
+def download_with_retry(target_directory_name, config_key, gunzip=True, retries=3):
     attempt = 0
     while attempt < retries:
         try:
@@ -57,13 +57,11 @@ def download_file(target_directory_name: str, config_key: str, gunzip=False) -> 
     if gunzip:
         file_path = pystow.ensure_gunzip(target_directory_name,
                                          url=get_url(config_key),
-                                         force=True,
-                                         download_kwargs={"timeout": 60})
+                                         force=True)
     else:
         file_path = pystow.ensure(target_directory_name,
                                   url=get_url(config_key),
-                                  force=True,
-                                  download_kwargs={"timeout": 60})
+                                  force=True)
     return file_path
 
 

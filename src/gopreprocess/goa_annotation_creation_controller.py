@@ -41,9 +41,9 @@ def generate_annotation(
         # PR:Q9DAQ4-1 = UniProtKB:Q9DAQ4-1
         if isoform:
             pr_id = protein_xrefs[str(annotation.subject.id)]
-            print("pr_id", pr_id)
-            print("parent_xrefs", parent_xrefs[pr_id])
-            print("annotation.subject.id", annotation.subject.id)
+            # print("pr_id", pr_id)
+            # print("parent_xrefs", parent_xrefs[pr_id])
+            # print("annotation.subject.id", annotation.subject.id)
             # PR:Q9DAQ4-1 = MGI:MGI:1918911
             mgi_id = parent_xrefs[pr_id]
             new_gene = Curie(namespace=mgi_id.split(":")[0], identity=mgi_id.replace("MGI:MGI:", "MGI:"))
