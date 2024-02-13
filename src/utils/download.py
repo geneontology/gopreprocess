@@ -1,7 +1,8 @@
 """Module contains functions for downloading files from the web."""
 
 from pathlib import Path
-
+from urllib.error import URLError
+import time
 import pystow
 
 from src.utils.decorators import timer
@@ -32,6 +33,18 @@ def download_files(source_taxon: str, target_taxon: str) -> tuple[Path, Path, Pa
     return ortho_path, source_gaf_path, target_gpi_path
 
 
+def download_with_retry(target_directory_name, config_key, gunzip=True, retries=3):
+    attempt = 0
+    while attempt < retries:
+        try:
+            return download_file(target_directory_name, config_key, gunzip)
+        except Exception as e:  # Broad exception catch due to the abstraction of download details
+            print(f"Download failed on attempt {attempt + 1} due to: {e}. Retrying...")
+            attempt += 1
+            time.sleep(5)  # Wait for 5 seconds before retrying
+    raise Exception(f"Failed to download file after {retries} attempts.")
+
+
 def download_file(target_directory_name: str, config_key: str, gunzip=False) -> Path:
     """
     Downloads a file from the given URL.
@@ -42,9 +55,13 @@ def download_file(target_directory_name: str, config_key: str, gunzip=False) -> 
 
     """
     if gunzip:
-        file_path = pystow.ensure_gunzip(target_directory_name, url=get_url(config_key), force=True)
+        file_path = pystow.ensure_gunzip(target_directory_name,
+                                         url=get_url(config_key),
+                                         force=True)
     else:
-        file_path = pystow.ensure(target_directory_name, url=get_url(config_key), force=True)
+        file_path = pystow.ensure(target_directory_name,
+                                  url=get_url(config_key),
+                                  force=True)
     return file_path
 
 
