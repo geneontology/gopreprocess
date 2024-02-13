@@ -1,8 +1,8 @@
 """Module contains functions for downloading files from the web."""
 
-from pathlib import Path
-from urllib.error import URLError
 import time
+from pathlib import Path
+
 import pystow
 
 from src.utils.decorators import timer
@@ -34,6 +34,16 @@ def download_files(source_taxon: str, target_taxon: str) -> tuple[Path, Path, Pa
 
 
 def download_with_retry(target_directory_name, config_key, gunzip=True, retries=3):
+    """
+    Download a file with retry attempts.
+
+    :param target_directory_name: The name of the directory to download the file to.
+    :param config_key: The key in the config file that contains the URL to download the file from.
+    :param gunzip: Whether to gunzip the file after downloading.
+    :param retries: The number of retry attempts.
+    :return: The file path of the downloaded file.
+
+    """
     attempt = 0
     while attempt < retries:
         try:
@@ -55,13 +65,9 @@ def download_file(target_directory_name: str, config_key: str, gunzip=False) -> 
 
     """
     if gunzip:
-        file_path = pystow.ensure_gunzip(target_directory_name,
-                                         url=get_url(config_key),
-                                         force=True)
+        file_path = pystow.ensure_gunzip(target_directory_name, url=get_url(config_key), force=True)
     else:
-        file_path = pystow.ensure(target_directory_name,
-                                  url=get_url(config_key),
-                                  force=True)
+        file_path = pystow.ensure(target_directory_name, url=get_url(config_key), force=True)
     return file_path
 
 
