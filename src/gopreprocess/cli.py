@@ -38,9 +38,7 @@ def cli():
     default="NCBITaxon:10116",
     help="Source taxon in curie format using NCBITaxon prefix, e.g. NCBITaxon:10116",
 )
-@click.option(
-    "--ortho_reference", help="Ortho reference in curie format, e.g. GO_REF:0000096"
-)
+@click.option("--ortho_reference", help="Ortho reference in curie format, e.g. GO_REF:0000096")
 def convert_annotations(namespaces, target_taxon, source_taxon, ortho_reference):
     """Converts annotations from one taxon to another using orthology."""
     print("namespaces: ", namespaces)
