@@ -331,6 +331,7 @@ class AnnotationCreationController:
                     new_annotation.object_extensions = []
                     new_annotation.subject_extensions = []
                     new_annotation.provided_by = "GO_Central"
+                    new_annotation.date = datetime.date.today()
                     new_annotation.subject.fullname = target_genes[taxon_to_provider[self.target_taxon] + ":" + gene][
                         "fullname"
                     ]
