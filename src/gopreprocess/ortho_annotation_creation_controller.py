@@ -335,6 +335,7 @@ class AnnotationCreationController:
                     new_annotation.subject_extensions = []
                     new_annotation.provided_by = "GO_Central"
 
+
                     Date = collections.namedtuple("Date", ["year", "month", "day", "time"])
 
                     # Format the date as YYYYMMDD, which is suitable for GAF date requirements

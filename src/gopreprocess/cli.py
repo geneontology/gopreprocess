@@ -37,14 +37,12 @@ def validate_merged_gafs(target_taxon: str):
     :type target_taxon: str
     """
     # Ontology Factory
-    ont = get_ontology_factory
-    config = AssocParserConfig(ontology=ont, rule_set="all")
+    config = AssocParserConfig(ontology=get_ontology_factory("GO"), rule_set="all")
     gaf_to_validate = join(
         key=taxon_to_provider[target_taxon],
         name=taxon_to_provider[target_taxon].lower() + "-merged.gaf",
         ensure_exists=True,
     )
-
     parser = GafParser(config=config)
     errors = []
     parser.parse(file=str(gaf_to_validate), skipheader=True)
