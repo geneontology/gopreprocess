@@ -5,6 +5,7 @@ As input, this package takes a GAF from one species and generates a GAF for anot
 to map genes between species).
 """
 
+import collections
 import copy
 import datetime
 from typing import List
@@ -333,7 +334,19 @@ class AnnotationCreationController:
                     new_annotation.subject_extensions = []
                     new_annotation.provided_by = "GO_Central"
 
-                    new_annotation.date = datetime.datetime.now().strftime("%Y-%m-%d")
+                    Date = collections.namedtuple("Date", ["year", "month", "day", "time"])
+
+                    # Format the date as YYYYMMDD, which is suitable for GAF date requirements
+                    gaf_date = datetime.now().strftime("%Y%m%d")
+
+                    # Extract year, month, and day components from the YYYYMMDD string
+                    year = gaf_date[:4]
+                    month = gaf_date[4:6]
+                    day = gaf_date[6:8]
+
+                    # Create a Date object, time is set to an empty string.
+                    date_object = Date(year=year, month=month, day=day, time="")
+                    new_annotation.date = date_object
 
                     new_annotation.subject.fullname = target_genes[taxon_to_provider[self.target_taxon] + ":" + gene][
                         "fullname"

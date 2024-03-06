@@ -1,5 +1,6 @@
 """Protein 2 GO AnnotationConverter class."""
 
+import collections
 import copy
 import datetime
 from typing import Any, Union
@@ -57,7 +58,20 @@ def generate_annotation(
         new_annotation.subject.id = new_gene
         new_annotation.subject.synonyms = []
         new_annotation.object.taxon = Curie.from_str("NCBITaxon:10090")
-        new_annotation.date = datetime.datetime.now().strftime("%Y-%m-%d")
+
+        Date = collections.namedtuple("Date", ["year", "month", "day", "time"])
+
+        # Format the date as YYYYMMDD, which is suitable for GAF date requirements
+        gaf_date = datetime.now().strftime("%Y%m%d")
+
+        # Extract year, month, and day components from the YYYYMMDD string
+        year = gaf_date[:4]
+        month = gaf_date[4:6]
+        day = gaf_date[6:8]
+
+        # Create a Date object, time is set to an empty string.
+        date_object = Date(year=year, month=month, day=day, time="")
+        new_annotation.date = date_object
 
         # gp_isoforms: self.subject_extensions[0].term
 
