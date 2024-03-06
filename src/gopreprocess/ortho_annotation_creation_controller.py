@@ -333,10 +333,9 @@ class AnnotationCreationController:
                     new_annotation.subject_extensions = []
                     new_annotation.provided_by = "GO_Central"
 
-                    current_date = datetime.datetime.now()
-                    # Format the date as YYYYMMDD
-                    formatted_date = current_date.strftime("%Y%m%d")
-                    new_annotation.date = formatted_date
+                    print(datetime.datetime.now().strftime("%Y%m%d"))
+                    new_annotation.date = str(datetime.datetime.now().strftime("%Y%m%d"))
+
                     new_annotation.subject.fullname = target_genes[taxon_to_provider[self.target_taxon] + ":" + gene][
                         "fullname"
                     ]

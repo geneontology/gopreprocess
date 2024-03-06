@@ -57,7 +57,8 @@ def generate_annotation(
         new_annotation.subject.id = new_gene
         new_annotation.subject.synonyms = []
         new_annotation.object.taxon = Curie.from_str("NCBITaxon:10090")
-        new_annotation.date = datetime.date.today()
+        print(datetime.datetime.now().strftime("%Y%m%d"))
+        new_annotation.date = str(datetime.datetime.now().strftime("%Y%m%d"))
 
         # gp_isoforms: self.subject_extensions[0].term
 
