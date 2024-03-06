@@ -226,6 +226,7 @@ class AnnotationCreationController:
             target_taxon=self.target_taxon,
             namespaces=self.namespaces,
             uniprot_to_hgnc_map=uniprot_to_hgnc_map,
+            source=None,
         )
 
         source_annotations = gp.parse_ortho_gaf()
@@ -330,8 +331,12 @@ class AnnotationCreationController:
                     new_annotation.object.taxon = Curie.from_str(self.target_taxon)
                     new_annotation.object_extensions = []
                     new_annotation.subject_extensions = []
-                    new_annotation.provided_by = taxon_to_provider[self.target_taxon]
-                    new_annotation.date = datetime.date.today()
+                    new_annotation.provided_by = "GO_Central"
+
+                    current_date = datetime.datetime.now()
+                    # Format the date as YYYYMMDD
+                    formatted_date = current_date.strftime("%Y%m%d")
+                    new_annotation.date = formatted_date
                     new_annotation.subject.fullname = target_genes[taxon_to_provider[self.target_taxon] + ":" + gene][
                         "fullname"
                     ]

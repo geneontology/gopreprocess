@@ -98,7 +98,7 @@ def get_source_annotations(
     xrefs = gpi_processor.get_xrefs()
 
     # assign the output of processing the source GAF to a source_annotations variable
-    gp = GafProcessor(filepath=p2go_file)
+    gp = GafProcessor(filepath=p2go_file, source="GOA")
     source_annotations = gp.parse_p2g_gaf()
 
     if isoform:
@@ -106,7 +106,7 @@ def get_source_annotations(
         p2go_isoform_file = download_file(
             target_directory_name=f"GOA_{taxon}_ISOFORM", config_key=f"GOA_{taxon}_ISOFORM", gunzip=True
         )
-        gp_isoform = GafProcessor(filepath=p2go_isoform_file)
+        gp_isoform = GafProcessor(filepath=p2go_isoform_file, source="GOA")
         source_isoform_annotations = gp_isoform.parse_p2g_gaf()
         return xrefs, protein_xrefs, source_annotations, source_isoform_annotations, parent_xrefs
     else:
