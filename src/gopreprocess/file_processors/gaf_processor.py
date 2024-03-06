@@ -68,6 +68,7 @@ class GafProcessor:
         taxon_to_provider: dict = None,
         target_taxon: str = None,
         uniprot_to_hgnc_map: dict = None,
+        source: str = None,
     ):
         """
         Initializes a GafProcessor object.
@@ -85,6 +86,7 @@ class GafProcessor:
         self.target_taxon = target_taxon
         self.uniprot_to_hgnc_map = uniprot_to_hgnc_map
         self.skipped = []
+        self.source=source
 
     @timer
     def parse_ortho_gaf(self):
@@ -95,7 +97,7 @@ class GafProcessor:
         """
         p = configure_parser()
         experimental_evidence_codes = get_experimental_eco_codes(EcoMap())
-        with open(self.filepath, "r") as file:
+        with (open(self.filepath, "r") as file):
             counter = 0
             for line in file:
                 annotation = p.parse_line(line)
@@ -108,11 +110,16 @@ class GafProcessor:
                         continue  # remove annotations that don't have a subject in the namespaces we're interested in
                     if str(source_assoc.evidence.type) not in experimental_evidence_codes:
                         continue
-                    if (
+                    if self.source == "GOA" and source_assoc.evidence.has_supporting_reference == "GO_REF:0000033" and (
                         source_assoc.provided_by == self.taxon_to_provider[self.target_taxon]
                         or source_assoc.provided_by == "GO_Central"
                     ):
-                        continue  # remove self-annotations
+                        continue
+                    if self.source is None and (
+                        source_assoc.provided_by == self.taxon_to_provider[self.target_taxon]
+                        or source_assoc.provided_by == "GO_Central"
+                    ):
+                        continue
                     has_reference = any(
                         reference.namespace == "PMID" for reference in source_assoc.evidence.has_supporting_reference
                     )
@@ -121,7 +128,6 @@ class GafProcessor:
                     if str(source_assoc.object.id) in ["GO:0005515", "GO:0005488"]:
                         continue
                     if source_assoc.subject.id.namespace == "UniProtKB":
-                        # TODO convert to report files
                         # check if the incoming HGNC identifier is in the map we made from UniProt to HGNC via
                         # the MGI xref file
                         if str(source_assoc.subject.id) not in self.uniprot_to_hgnc_map.keys():

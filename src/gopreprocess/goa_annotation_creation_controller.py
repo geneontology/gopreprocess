@@ -98,7 +98,7 @@ def get_source_annotations(
     xrefs = gpi_processor.get_xrefs()
 
     # assign the output of processing the source GAF to a source_annotations variable
-    gp = GafProcessor(filepath=p2go_file)
+    gp = GafProcessor(filepath=p2go_file, source="GOA")
     source_annotations = gp.parse_p2g_gaf()
 
     if isoform:
