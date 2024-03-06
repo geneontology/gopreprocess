@@ -1,15 +1,20 @@
 """Module contains the CLI commands for the gopreprocess package."""
 
 import click
+import sys
 from gopreprocess.goa_annotation_creation_controller import P2GAnnotationCreationController
 from gopreprocess.ortho_annotation_creation_controller import AnnotationCreationController
-
 from src.gopreprocess.file_processors.gpad_processor import GpadProcessor
-from src.utils.decorators import timer
 from src.utils.differ import compare_files
 from src.utils.download import download_file, download_files
 from src.utils.generate_gpad import generate_gpad_file
 from src.utils.merge_gafs import merge_files_from_directory
+from ontobio.io.assocparser import AssocParserConfig
+from ontobio.io.gafparser import GafParser
+from gopreprocess.file_processors.ontology_processor import get_ontology_factory
+from src.utils.decorators import timer
+from src.utils.settings import taxon_to_provider
+from pystow import join
 
 
 # Create a group for the CLI commands
@@ -18,6 +23,31 @@ from src.utils.merge_gafs import merge_files_from_directory
 def cli():
     """A CLI for preprocessing GO annotations."""
     pass
+
+
+@cli.command(name="validate_merged_gafs")
+@click.option("--target_taxon", "-target_taxon", type=str, required=True, help="The target taxon in curie format.")
+def validate_merged_gafs(target_taxon: str):
+    # Ontology Factory
+    ont = get_ontology_factory
+    config = AssocParserConfig(ontology=ont, rule_set="all")
+    gaf_to_validate = join(
+        key=taxon_to_provider[target_taxon],
+        name=taxon_to_provider[target_taxon].lower() + "-merged.gaf",
+        ensure_exists=True,
+    )
+
+    parser = GafParser(config=config)
+    errors = []
+    parser.parse(file=str(gaf_to_validate), skipheader=True)
+    for error_report in parser.report.messages:
+        if error_report.get("level") == "ERROR":
+            errors.append(error_report)
+    if errors:
+        print("Errors found in GAF file:")
+        for error in errors:
+            print(error)  # Or format error information as needed
+        sys.exit(1)  # Exit with a non-zero status to indicate failure
 
 
 @cli.command(name="convert_annotations")
