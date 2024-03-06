@@ -226,6 +226,7 @@ class AnnotationCreationController:
             target_taxon=self.target_taxon,
             namespaces=self.namespaces,
             uniprot_to_hgnc_map=uniprot_to_hgnc_map,
+            source=None
         )
 
         source_annotations = gp.parse_ortho_gaf()
