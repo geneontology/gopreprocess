@@ -226,7 +226,7 @@ class AnnotationCreationController:
             target_taxon=self.target_taxon,
             namespaces=self.namespaces,
             uniprot_to_hgnc_map=uniprot_to_hgnc_map,
-            source=None
+            source=None,
         )
 
         source_annotations = gp.parse_ortho_gaf()
@@ -335,7 +335,7 @@ class AnnotationCreationController:
 
                     current_date = datetime.datetime.now()
                     # Format the date as YYYYMMDD
-                    formatted_date = current_date.strftime('%Y%m%d')
+                    formatted_date = current_date.strftime("%Y%m%d")
                     new_annotation.date = formatted_date
                     new_annotation.subject.fullname = target_genes[taxon_to_provider[self.target_taxon] + ":" + gene][
                         "fullname"
