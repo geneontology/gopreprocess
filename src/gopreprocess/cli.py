@@ -1,20 +1,22 @@
 """Module contains the CLI commands for the gopreprocess package."""
 
-import click
 import sys
+
+import click
+from gopreprocess.file_processors.ontology_processor import get_ontology_factory
 from gopreprocess.goa_annotation_creation_controller import P2GAnnotationCreationController
 from gopreprocess.ortho_annotation_creation_controller import AnnotationCreationController
+from ontobio.io.assocparser import AssocParserConfig
+from ontobio.io.gafparser import GafParser
+from pystow import join
+
 from src.gopreprocess.file_processors.gpad_processor import GpadProcessor
+from src.utils.decorators import timer
 from src.utils.differ import compare_files
 from src.utils.download import download_file, download_files
 from src.utils.generate_gpad import generate_gpad_file
 from src.utils.merge_gafs import merge_files_from_directory
-from ontobio.io.assocparser import AssocParserConfig
-from ontobio.io.gafparser import GafParser
-from gopreprocess.file_processors.ontology_processor import get_ontology_factory
-from src.utils.decorators import timer
 from src.utils.settings import taxon_to_provider
-from pystow import join
 
 
 # Create a group for the CLI commands
@@ -28,6 +30,12 @@ def cli():
 @cli.command(name="validate_merged_gafs")
 @click.option("--target_taxon", "-target_taxon", type=str, required=True, help="The target taxon in curie format.")
 def validate_merged_gafs(target_taxon: str):
+    """
+    Validate a merged GAF file.
+
+    :param target_taxon: The target taxon in curie format.
+    :type target_taxon: str
+    """
     # Ontology Factory
     ont = get_ontology_factory
     config = AssocParserConfig(ontology=ont, rule_set="all")
