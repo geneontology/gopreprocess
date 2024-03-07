@@ -79,24 +79,23 @@ def check_errors(errors: list) -> int:
             error_counts[rule_message_key] = error_counts.get(rule_message_key, 0) + 1
 
         # Print error counts
-        for (rule, message), count in error_counts.items():
-            summary.append(f"Rule: {rule}, Message: '{message}', Errors: {count}")
+    for (rule, message), count in error_counts.items():
+        summary.append(f"Rule: {rule}, Message: '{message}', Errors: {count}")
 
         # Prepare validation report content
-        validation_report_content = {
-            "header": summary,
-            "errors": errors
-        }
+    validation_report_content = {
+        "header": summary,
+        "errors": errors
+    }
 
-        report_filepath = pystow.join(
-            key="GAF_OUTPUT",
-            name="validte_merged_gaf_report.json",
-            ensure_exists=True,
-        )
-        with open(report_filepath, "w") as file:
-            json.dump(validation_report_content, file, indent=2)
+    report_filepath = pystow.join(
+        key="GAF_OUTPUT",
+        name="validte_merged_gaf_report.json",
+        ensure_exists=True,
+    )
+    with open(report_filepath, "w") as file:
+        json.dump(validation_report_content, file, indent=2)
 
-        print("Validation report generated successfully.")
     # Calculate the percentile change in annotations
 
     percentile_change = 0
