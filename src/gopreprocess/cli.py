@@ -17,7 +17,7 @@ from src.utils.download import download_file, download_files
 from src.utils.generate_gpad import generate_gpad_file
 from src.utils.merge_gafs import merge_files_from_directory
 from src.utils.settings import taxon_to_provider
-
+import json
 
 # Create a group for the CLI commands
 @click.group()
@@ -46,7 +46,6 @@ def validate_merged_gafs(target_taxon: str):
     parser = GafParser(config=config)
     errors = []
     parser.parse(file=str(gaf_to_validate), skipheader=True)
-    print(parser.report.config)
     for error_report in parser.report.messages:
         if error_report.get("level") == "ERROR":
             errors.append(error_report)
@@ -69,26 +68,31 @@ def check_errors(errors: list) -> int:
     :return: The percentile change in annotations.
     :rtype: int
     """
+
     error_counts = {}
-    if errors:
-        print("Errors found in GAF file:")
-        for error in errors:
-            rule = error['rule']
-            message = error['message']
-            # Create a unique key for each rule+message combination
-            key = (rule, message)
+    summary = []
+    # Simulating the loop where you filter and append errors
+    for row in errors:
+        if row.get("level") == "ERROR":
+            errors.append(row)
+            rule_message_key = (row.get("rule"), row.get("message"))
+            error_counts[rule_message_key] = error_counts.get(rule_message_key, 0) + 1
 
-            # If this combination has not been seen before, initialize its count
-            if key not in error_counts:
-                error_counts[key] = 1
-            else:
-                # If it has been seen, increment the count
-                error_counts[key] += 1
-
-            # Print out the counts for each rule+message combination
+        # Print error counts
         for (rule, message), count in error_counts.items():
-            print(f"Rule {rule}, Message: '{message}', Number of Errors: {count}")
+            summary.append(f"Rule: {rule}, Message: '{message}', Errors: {count}")
 
+        # Prepare validation report content
+        validation_report_content = {
+            "header": summary,
+            "errors": errors
+        }
+
+        # Write validation report to JSON file
+        with open("validation_report.json", "w") as file:
+            json.dump(validation_report_content, file, indent=2)
+
+        print("Validation report generated successfully.")
     # Calculate the percentile change in annotations
 
     percentile_change = 0
