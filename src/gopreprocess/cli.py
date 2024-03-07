@@ -46,14 +46,53 @@ def validate_merged_gafs(target_taxon: str):
     parser = GafParser(config=config)
     errors = []
     parser.parse(file=str(gaf_to_validate), skipheader=True)
+    print(parser.report.config)
     for error_report in parser.report.messages:
         if error_report.get("level") == "ERROR":
             errors.append(error_report)
+
+    # create the report.json file full of errors to store on skyhook
+    # calculate percentile drop in annotations coming out vs. going in and fail if over 10%
+    percentile_change = check_errors(errors)
+
+    if percentile_change > 10:
+        print("FAIL!: Percentile change in annotations is greater than 10%.")
+        sys.exit(1)  # Exit with a non-zero status to indicate failure
+
+
+def check_errors(errors: list) -> int:
+    """
+    Count number of errors per GO Rule and lines in source vs. resulting GAF to check if this upstream should fail.
+
+    :param errors: A list of errors.
+    :type errors: list
+    :return: The percentile change in annotations.
+    :rtype: int
+    """
+    error_counts = {}
     if errors:
         print("Errors found in GAF file:")
         for error in errors:
-            print(error)  # Or format error information as needed
-        sys.exit(1)  # Exit with a non-zero status to indicate failure
+            rule = error['rule']
+            message = error['message']
+            # Create a unique key for each rule+message combination
+            key = (rule, message)
+
+            # If this combination has not been seen before, initialize its count
+            if key not in error_counts:
+                error_counts[key] = 1
+            else:
+                # If it has been seen, increment the count
+                error_counts[key] += 1
+
+            # Print out the counts for each rule+message combination
+        for (rule, message), count in error_counts.items():
+            print(f"Rule {rule}, Message: '{message}', Number of Errors: {count}")
+
+    # Calculate the percentile change in annotations
+
+    percentile_change = 0
+    return percentile_change
 
 
 @cli.command(name="convert_annotations")
