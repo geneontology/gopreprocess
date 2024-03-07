@@ -1,7 +1,7 @@
 """Module contains the CLI commands for the gopreprocess package."""
 
 import sys
-
+import pystow
 import click
 from gopreprocess.file_processors.ontology_processor import get_ontology_factory
 from gopreprocess.goa_annotation_creation_controller import P2GAnnotationCreationController
@@ -88,8 +88,12 @@ def check_errors(errors: list) -> int:
             "errors": errors
         }
 
-        # Write validation report to JSON file
-        with open("validation_report.json", "w") as file:
+        report_filepath = pystow.join(
+            key="GAF_OUTPUT",
+            name="validte_merged_gaf_report.json",
+            ensure_exists=True,
+        )
+        with open(report_filepath, "w") as file:
             json.dump(validation_report_content, file, indent=2)
 
         print("Validation report generated successfully.")
