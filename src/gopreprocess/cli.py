@@ -1,6 +1,7 @@
 """Module contains the CLI commands for the gopreprocess package."""
 
 import sys
+import os
 import pystow
 import click
 from gopreprocess.file_processors.ontology_processor import get_ontology_factory
@@ -52,10 +53,10 @@ def validate_merged_gafs(target_taxon: str):
 
     # create the report.json file full of errors to store on skyhook
     # calculate percentile drop in annotations coming out vs. going in and fail if over 10%
-    percentile_change = check_errors(errors)
+    error_file_length = check_errors(errors)
 
-    if percentile_change > 10:
-        print("FAIL!: Percentile change in annotations is greater than 10%.")
+    if error_file_length > 5000:
+        print("FAIL!: Errors in annotations is greater than 5000")
         sys.exit(1)  # Exit with a non-zero status to indicate failure
 
 
@@ -96,10 +97,9 @@ def check_errors(errors: list) -> int:
     with open(report_filepath, "w") as file:
         json.dump(validation_report_content, file, indent=2)
 
-    # Calculate the percentile change in annotations
+    print(summary)
+    return len(errors)
 
-    percentile_change = 0
-    return percentile_change
 
 
 @cli.command(name="convert_annotations")
