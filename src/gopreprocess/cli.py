@@ -2,6 +2,8 @@
 
 import sys
 import os
+from collections import defaultdict
+
 import pystow
 import click
 from gopreprocess.file_processors.ontology_processor import get_ontology_factory
@@ -28,6 +30,7 @@ def cli():
     pass
 
 
+@timer
 @cli.command(name="validate_merged_gafs")
 @click.option("--target_taxon", "-target_taxon", type=str, required=True, help="The target taxon in curie format.")
 def validate_merged_gafs(target_taxon: str):
@@ -44,22 +47,31 @@ def validate_merged_gafs(target_taxon: str):
         name=taxon_to_provider[target_taxon].lower() + "-merged.gaf",
         ensure_exists=True,
     )
+    print("gaf to validate: ", gaf_to_validate)
     parser = GafParser(config=config)
     errors = []
     parser.parse(file=str(gaf_to_validate), skipheader=True)
+    print("parsing complete")
     for error_report in parser.report.messages:
         if error_report.get("level") == "ERROR":
             errors.append(error_report)
 
     # create the report.json file full of errors to store on skyhook
     # calculate percentile drop in annotations coming out vs. going in and fail if over 10%
-    error_file_length = check_errors(errors)
+    #error_file_length = check_errors(errors)
 
-    if error_file_length > 5000:
-        print("FAIL!: Errors in annotations is greater than 5000")
+    if len(errors) > 5000:
+        print("FAIL!: first 10 errors of more than 5000 returned")
+        for item in errors[:10]:
+            print(item)
         sys.exit(1)  # Exit with a non-zero status to indicate failure
+    else:
+        print("PASS!: less than 5000 errors returned")
+        check_errors(errors)
+        sys.exit(0)
 
 
+@timer
 def check_errors(errors: list) -> int:
     """
     Count number of errors per GO Rule and lines in source vs. resulting GAF to check if this upstream should fail.
@@ -69,37 +81,20 @@ def check_errors(errors: list) -> int:
     :return: The percentile change in annotations.
     :rtype: int
     """
-
-    error_counts = {}
+    error_counts = defaultdict(int)
     summary = []
-    # Simulating the loop where you filter and append errors
+    # Assuming 'errors' is a list of dictionaries representing error entries
+
     for row in errors:
         if row.get("level") == "ERROR":
-            errors.append(row)
             rule_message_key = (row.get("rule"), row.get("message"))
-            error_counts[rule_message_key] = error_counts.get(rule_message_key, 0) + 1
+            error_counts[rule_message_key] += 1
 
-        # Print error counts
+    # Generate summary from error_counts
     for (rule, message), count in error_counts.items():
         summary.append(f"Rule: {rule}, Message: '{message}', Errors: {count}")
 
-        # Prepare validation report content
-    validation_report_content = {
-        "header": summary,
-        "errors": errors
-    }
-
-    report_filepath = pystow.join(
-        key="GAF_OUTPUT",
-        name="validte_merged_gaf_report.json",
-        ensure_exists=True,
-    )
-    with open(report_filepath, "w") as file:
-        json.dump(validation_report_content, file, indent=2)
-
     print(summary)
-    return len(errors)
-
 
 
 @cli.command(name="convert_annotations")
