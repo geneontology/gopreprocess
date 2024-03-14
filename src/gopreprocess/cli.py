@@ -1,8 +1,17 @@
 """Module contains the CLI commands for the gopreprocess package."""
 
+import sys
+import os
+from collections import defaultdict
+
+import pystow
 import click
+from gopreprocess.file_processors.ontology_processor import get_ontology_factory
 from gopreprocess.goa_annotation_creation_controller import P2GAnnotationCreationController
 from gopreprocess.ortho_annotation_creation_controller import AnnotationCreationController
+from ontobio.io.assocparser import AssocParserConfig
+from ontobio.io.gafparser import GafParser
+from pystow import join
 
 from src.gopreprocess.file_processors.gpad_processor import GpadProcessor
 from src.utils.decorators import timer
@@ -10,7 +19,8 @@ from src.utils.differ import compare_files
 from src.utils.download import download_file, download_files
 from src.utils.generate_gpad import generate_gpad_file
 from src.utils.merge_gafs import merge_files_from_directory
-
+from src.utils.settings import taxon_to_provider
+import json
 
 # Create a group for the CLI commands
 @click.group()
@@ -18,6 +28,73 @@ from src.utils.merge_gafs import merge_files_from_directory
 def cli():
     """A CLI for preprocessing GO annotations."""
     pass
+
+
+@timer
+@cli.command(name="validate_merged_gafs")
+@click.option("--target_taxon", "-target_taxon", type=str, required=True, help="The target taxon in curie format.")
+def validate_merged_gafs(target_taxon: str):
+    """
+    Validate a merged GAF file.
+
+    :param target_taxon: The target taxon in curie format.
+    :type target_taxon: str
+    """
+    # Ontology Factory
+    config = AssocParserConfig(ontology=get_ontology_factory("GO"), rule_set="all")
+    gaf_to_validate = join(
+        key=taxon_to_provider[target_taxon],
+        name=taxon_to_provider[target_taxon].lower() + "-merged.gaf",
+        ensure_exists=True,
+    )
+    print("gaf to validate: ", gaf_to_validate)
+    parser = GafParser(config=config)
+    errors = []
+    parser.parse(file=str(gaf_to_validate), skipheader=True)
+    print("parsing complete")
+    for error_report in parser.report.messages:
+        if error_report.get("level") == "ERROR":
+            errors.append(error_report)
+
+    # create the report.json file full of errors to store on skyhook
+    # calculate percentile drop in annotations coming out vs. going in and fail if over 10%
+    #error_file_length = check_errors(errors)
+
+    if len(errors) > 5000:
+        print("FAIL!: first 10 errors of more than 5000 returned")
+        for item in errors[:10]:
+            print(item)
+        sys.exit(1)  # Exit with a non-zero status to indicate failure
+    else:
+        print("PASS!: less than 5000 errors returned")
+        check_errors(errors)
+        sys.exit(0)
+
+
+@timer
+def check_errors(errors: list) -> int:
+    """
+    Count number of errors per GO Rule and lines in source vs. resulting GAF to check if this upstream should fail.
+
+    :param errors: A list of errors.
+    :type errors: list
+    :return: The percentile change in annotations.
+    :rtype: int
+    """
+    error_counts = defaultdict(int)
+    summary = []
+    # Assuming 'errors' is a list of dictionaries representing error entries
+
+    for row in errors:
+        if row.get("level") == "ERROR":
+            rule_message_key = (row.get("rule"), row.get("message"))
+            error_counts[rule_message_key] += 1
+
+    # Generate summary from error_counts
+    for (rule, message), count in error_counts.items():
+        summary.append(f"Rule: {rule}, Message: '{message}', Errors: {count}")
+
+    print(summary)
 
 
 @cli.command(name="convert_annotations")
