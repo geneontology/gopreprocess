@@ -103,6 +103,7 @@ class GpiProcessor:
         with open(self.filepath, "r") as file:
             for line in file:
                 original_line, gpi_object = p.parse_line(line)
+                print(gpi_object)
                 if original_line.startswith("!"):
                     continue
                 else:
