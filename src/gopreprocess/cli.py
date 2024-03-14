@@ -93,6 +93,7 @@ def check_errors(errors: list) -> int:
         summary.append(f"Rule: {rule}, Message: '{message}', Errors: {count}")
 
     print(summary)
+    click.echo(summary)
 
 
 @cli.command(name="convert_annotations")
