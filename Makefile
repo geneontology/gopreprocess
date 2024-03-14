@@ -3,7 +3,7 @@ SHELL := bash
 .SHELLFLAGS := -eu -o pipefail -c
 .DEFAULT_GOAL := help
 
-all: install test download_human download_rat convert_human convert_rat get_goa_files merge_gafs
+all: install test run
 
 dev: install
 
@@ -70,4 +70,4 @@ get_gpad:
 
 merge_files: merge_gafs
 
-kit_and_kaboodle: download_human download_rat convert_human convert_rat convert_p2g_annotations merge_gafs get_gpad
+run: download_human download_rat convert_human convert_rat convert_p2g_annotations merge_gafs validate_merged_gafs
