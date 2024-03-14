@@ -116,6 +116,7 @@ class GafProcessor:
                         and (
                             source_assoc.provided_by == self.taxon_to_provider[self.target_taxon]
                             or source_assoc.provided_by == "GO_Central"
+                            or source_assoc.provided_by == "GOC"
                         )
                     ):
                         continue
@@ -172,6 +173,7 @@ class GafProcessor:
                         and (
                             source_assoc.provided_by == self.taxon_to_provider[self.target_taxon]
                             or source_assoc.provided_by == "GO_Central"
+                            or source_assoc.provided_by == "GOC"
                         )
                     ):
                         continue
