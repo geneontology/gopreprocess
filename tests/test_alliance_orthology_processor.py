@@ -13,6 +13,7 @@ class TestOrthoProcessor(unittest.TestCase):
         """Test the files exist."""
         data_path = os.path.expanduser("tests/resources")
         file_path = Path(os.path.join(data_path, "test_ortho.json"))
+        print(file_path)
         self.assertTrue(file_path.exists())
 
 
