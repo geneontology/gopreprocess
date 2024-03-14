@@ -100,8 +100,6 @@ class GafProcessor:
         with open(self.filepath, "r") as file:
             counter = 0
             for line in file:
-                if "P60154" in line:
-                    print(line)
                 annotation = p.parse_line(line)
                 for source_assoc in annotation.associations:
                     if isinstance(source_assoc, dict):
