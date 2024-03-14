@@ -116,6 +116,7 @@ class GafProcessor:
                         and (
                             source_assoc.provided_by == self.taxon_to_provider[self.target_taxon]
                             or source_assoc.provided_by == "GO_Central"
+                            or source_assoc.provided_by == "GOC"
                         )
                     ):
                         continue
@@ -167,11 +168,20 @@ class GafProcessor:
                     if isinstance(source_assoc, dict):
                         continue  # skip the header
                     if (
-                        source_assoc.provided_by == "MGI"
-                        or source_assoc.provided_by == "GO_Central"
-                        or source_assoc.provided_by == "GOC"
+                        self.source == "GOA"
+                        and source_assoc.evidence.has_supporting_reference == "GO_REF:0000033"
+                        and (
+                            source_assoc.provided_by == self.taxon_to_provider[self.target_taxon]
+                            or source_assoc.provided_by == "GO_Central"
+                            or source_assoc.provided_by == "GOC"
+                        )
                     ):
-                        continue  # remove self-annotations
+                        continue
+                    if self.source is None and (
+                        source_assoc.provided_by == self.taxon_to_provider[self.target_taxon]
+                        or source_assoc.provided_by == "GO_Central"
+                    ):
+                        continue
                     if str(source_assoc.evidence.type) in experimental_evidence_codes:
                         continue  # no IBAs
                     if str(source_assoc.object.id) in ["GO:0005575", "GO:0008150", "GO:0003674"]:

@@ -1,10 +1,8 @@
 """Module contains the CLI commands for the gopreprocess package."""
 
 import sys
-import os
 from collections import defaultdict
 
-import pystow
 import click
 from gopreprocess.file_processors.ontology_processor import get_ontology_factory
 from gopreprocess.goa_annotation_creation_controller import P2GAnnotationCreationController
@@ -20,7 +18,7 @@ from src.utils.download import download_file, download_files
 from src.utils.generate_gpad import generate_gpad_file
 from src.utils.merge_gafs import merge_files_from_directory
 from src.utils.settings import taxon_to_provider
-import json
+
 
 # Create a group for the CLI commands
 @click.group()
@@ -58,7 +56,7 @@ def validate_merged_gafs(target_taxon: str):
 
     # create the report.json file full of errors to store on skyhook
     # calculate percentile drop in annotations coming out vs. going in and fail if over 10%
-    #error_file_length = check_errors(errors)
+    # error_file_length = check_errors(errors)
 
     if len(errors) > 5000:
         print("FAIL!: first 10 errors of more than 5000 returned")

@@ -8,7 +8,6 @@ to map genes between species).
 import collections
 import copy
 from datetime import datetime
-
 from typing import List
 
 import pandas as pd
@@ -334,7 +333,6 @@ class AnnotationCreationController:
                     new_annotation.object_extensions = []
                     new_annotation.subject_extensions = []
                     new_annotation.provided_by = "GO_Central"
-
 
                     Date = collections.namedtuple("Date", ["year", "month", "day", "time"])
 
