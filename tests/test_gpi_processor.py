@@ -22,10 +22,13 @@ def test_eliminate_repeated_values():
     assert eliminate_repeated_values(input_dict) == expected_output
 
 
-mock_gpi_lines = """!gpi-version: 1.2
-MGI\tMGI:1915609\t0610010K14Rik\tRIKEN cDNA 0610010K14 gene\tAMOT\tprotein_coding_gene\ttaxon:10090\tUniProtKB:Q4VCS5\tUniProtKB:test\tdb_subset=test
-MGI\tMGI:1915975\t1110032F04Rik\tRIKEN cDNA 1110032F04 gene\tAMOT\tprotein_coding_gene\ttaxon:10090\tUniProtKB:Q4VCS5\tUniProtKB:test\tdb_subset=test
-MGI\tMGI:1916647\t1700019A02Rik\tRIKEN cDNA 1700019A02 gene\tAMOT\tprotein_coding_gene\ttaxon:10090\tUniProtKB:Q4VCS5\tUniProtKB:A0A087WPV9\tdb_subset=test
+mock_gpi_lines = """!gpi-version: 2.0
+MGI:MGI:1918911\t0610005C13Rik\tRIKEN cDNA 0610005C13 gene\t\tSO:0002127\tNCBITaxon:10090\t\t\t\t\t
+MGI:MGI:1923503\t0610006L08Rik\tRIKEN cDNA 0610006L08 gene\t\tSO:0002127\tNCBITaxon:10090\t\t\t\t\t
+MGI:MGI:1915609\t0610010K14Rik\tRIKEN cDNA 0610010K14 gene\t\tSO:0001217\tNCBITaxon:10090\t\t\t\tUniProtKB:Q9DCT6\t
+PR:Q9D937\tm1810009A15Rik\tuncharacterized protein C11orf98 homolog (mouse)\tm1810009A15Rik\tPR:000000001\tNCBITaxon:10090\tMGI:MGI:1913526\t\t\tUniProtKB:Q9D937\t
+PR:Q9D727\tm2310039H08Rik\tuncharacterized protein C6orf226 homolog (mouse)\tm2310039H08Rik\tPR:000000001\tNCBITaxon:10090\tMGI:MGI:1914351\t\t\tUniProtKB:Q9D727\t
+
 """
 
 
@@ -50,14 +53,18 @@ def test_get_target_genes(mock_file_open):
     processor = GpiProcessor(filepath=Path("/fake/path"))
     target_genes = processor.get_target_genes()
     # Define your expected output based on the mock_gpi_lines and assert here
-    assert target_genes.get("MGI:MGI:1915609") == {
-                                    'fullname': ['RIKEN cDNA 0610010K14 gene'],
-                                    'id': 'MGI:MGI:1915609',
-                                    'label': '0610010K14Rik',
-                                    'type': ['protein_coding_gene']
-    }
+    assert target_genes.get("MGI:MGI:1918911") == {'id': 'MGI:MGI:1918911',
+                                                   'fullname': ['RIKEN cDNA 0610005C13 gene'],
+                                                   'label': '0610005C13Rik',
+                                                   'type': ['SO:0002127']}
     xrefs = processor.get_xrefs()
-    assert xrefs.get('UniProtKB:A0A087WPV9') == "MGI:MGI:1916647"
+    assert xrefs.get("UniProtKB:Q9DCT6") == 'MGI:MGI:1915609'
+    protein_xrefs, parent_xrefs = processor.get_protein_xrefs()
+    print(protein_xrefs)
+    assert protein_xrefs, parent_xrefs == (
+                             {'UniProtKB:Q9D937': 'PR:Q9D937', 'UniProtKB:Q9D727': 'PR:Q9D727'},
+                             {'PR:Q9D937': 'MGI:MGI:1913526', 'PR:Q9D727': 'MGI:MGI:1914351'}
+                            )
 
 
 
