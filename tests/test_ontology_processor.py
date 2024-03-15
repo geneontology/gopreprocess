@@ -1,7 +1,6 @@
 """testing ontology processor."""
 
 from unittest import skip
-
 from gopreprocess.file_processors.ontology_processor import get_GO_aspector, get_ontology_factory
 
 
@@ -25,3 +24,4 @@ def test_ontology_factory():
     go_onto = get_ontology_factory("GO_RELEASE")
     assert go_onto is not None
     print(go_onto[0:10])
+

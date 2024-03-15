@@ -1,10 +1,7 @@
 """testing GPI processor."""
-
 from pathlib import Path
 from unittest.mock import mock_open
-
 import pytest
-
 from src.gopreprocess.file_processors.gpi_processor import GpiProcessor, eliminate_repeated_values
 
 
