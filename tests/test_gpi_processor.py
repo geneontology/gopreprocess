@@ -1,8 +1,10 @@
 """testing GPI processor."""
 
-import pytest
-from unittest.mock import mock_open
 from pathlib import Path
+from unittest.mock import mock_open
+
+import pytest
+
 from src.gopreprocess.file_processors.gpi_processor import GpiProcessor, eliminate_repeated_values
 
 
@@ -60,17 +62,16 @@ def test_get_target_genes(mock_file_open):
     processor = GpiProcessor(filepath=Path("/fake/path"))
     target_genes = processor.get_target_genes()
     # Define your expected output based on the mock_gpi_lines and assert here
-    assert target_genes.get("MGI:MGI:1918911") == {'id': 'MGI:MGI:1918911',
-                                                   'fullname': ['RIKEN cDNA 0610005C13 gene'],
-                                                   'label': '0610005C13Rik',
-                                                   'type': ['SO:0002127']}
+    assert target_genes.get("MGI:MGI:1918911") == {
+        "id": "MGI:MGI:1918911",
+        "fullname": ["RIKEN cDNA 0610005C13 gene"],
+        "label": "0610005C13Rik",
+        "type": ["SO:0002127"],
+    }
     xrefs = processor.get_xrefs()
-    assert xrefs.get("UniProtKB:Q9DCT6") == 'MGI:MGI:1915609'
+    assert xrefs.get("UniProtKB:Q9DCT6") == "MGI:MGI:1915609"
     protein_xrefs, parent_xrefs = processor.get_protein_xrefs()
     assert protein_xrefs, parent_xrefs == (
-                             {'UniProtKB:Q9D937': 'PR:Q9D937', 'UniProtKB:Q9D727': 'PR:Q9D727'},
-                             {'PR:Q9D937': 'MGI:MGI:1913526', 'PR:Q9D727': 'MGI:MGI:1914351'}
-                            )
-
-
-
+        {"UniProtKB:Q9D937": "PR:Q9D937", "UniProtKB:Q9D727": "PR:Q9D727"},
+        {"PR:Q9D937": "MGI:MGI:1913526", "PR:Q9D727": "MGI:MGI:1914351"},
+    )
