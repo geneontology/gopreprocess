@@ -100,9 +100,7 @@ def check_errors(errors: list) -> int:
 @click.option(
     "--namespaces",
     default=["RGD", "UniProtKB"],
-    help="List of providers in the source GAF that should be "
-    "used to retrieve source annotations for conversion. "
-    "e.g. [RGD, HGNC, UniProtKB]",
+    help="List of providers in the source GAF that should be " "used to retrieve source annotations for conversion. " "e.g. [RGD, HGNC, UniProtKB]",
 )
 @click.option(
     "--target_taxon",

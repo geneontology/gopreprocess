@@ -24,12 +24,8 @@ def download_files(source_taxon: str, target_taxon: str) -> tuple[Path, Path, Pa
     :param: target_taxon (str): The target taxon to which the annotations will be converted via orthology.
     """
     ortho_path = pystow.ensure_gunzip("ALLIANCE", url=get_url("ALLIANCE_ORTHO"), autoclean=True)
-    source_gaf_path = pystow.ensure_gunzip(
-        taxon_to_provider[source_taxon], url=get_url(taxon_to_provider[source_taxon]), autoclean=True
-    )
-    target_gpi_path = pystow.ensure_gunzip(
-        taxon_to_provider[target_taxon], url=get_url(taxon_to_provider[target_taxon] + "_GPI"), autoclean=True
-    )
+    source_gaf_path = pystow.ensure_gunzip(taxon_to_provider[source_taxon], url=get_url(taxon_to_provider[source_taxon]), autoclean=True)
+    target_gpi_path = pystow.ensure_gunzip(taxon_to_provider[target_taxon], url=get_url(taxon_to_provider[target_taxon] + "_GPI"), autoclean=True)
     return ortho_path, source_gaf_path, target_gpi_path
 
 

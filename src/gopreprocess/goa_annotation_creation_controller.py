@@ -14,9 +14,7 @@ from src.utils.decorators import timer
 from src.utils.download import download_file, download_with_retry
 
 
-def generate_annotation(
-    annotation: GoAssociation, xrefs: dict, isoform: bool, protein_xrefs: dict, parent_xrefs: dict
-) -> Union[GoAssociation, None]:
+def generate_annotation(annotation: GoAssociation, xrefs: dict, isoform: bool, protein_xrefs: dict, parent_xrefs: dict) -> Union[GoAssociation, None]:
     """
     Generate a new annotation based on the given protein 2 GO annotation.
 
@@ -89,9 +87,7 @@ def generate_annotation(
         return None
 
 
-def get_source_annotations(
-    isoform: bool, taxon: str
-) -> tuple[dict, Any, Any, Any, Any] | tuple[dict, dict, Any, None, None]:
+def get_source_annotations(isoform: bool, taxon: str) -> tuple[dict, Any, Any, Any, Any] | tuple[dict, dict, Any, None, None]:
     """
     Get the source annotations from the protein 2 GO GAF file.
 
@@ -117,9 +113,7 @@ def get_source_annotations(
 
     if isoform:
         protein_xrefs, parent_xrefs = gpi_processor.get_protein_xrefs()
-        p2go_isoform_file = download_file(
-            target_directory_name=f"GOA_{taxon}_ISOFORM", config_key=f"GOA_{taxon}_ISOFORM", gunzip=True
-        )
+        p2go_isoform_file = download_file(target_directory_name=f"GOA_{taxon}_ISOFORM", config_key=f"GOA_{taxon}_ISOFORM", gunzip=True)
         gp_isoform = GafProcessor(filepath=p2go_isoform_file, source="GOA")
         source_isoform_annotations = gp_isoform.parse_p2g_gaf()
         return xrefs, protein_xrefs, source_annotations, source_isoform_annotations, parent_xrefs
@@ -162,9 +156,7 @@ class P2GAnnotationCreationController:
         :returns: None
         """
         # Gather source annotations and cross-references
-        xrefs, protein_xrefs, source_annotations, isoform_annotations, parent_xrefs = get_source_annotations(
-            isoform=isoform, taxon=taxon
-        )
+        xrefs, protein_xrefs, source_annotations, isoform_annotations, parent_xrefs = get_source_annotations(isoform=isoform, taxon=taxon)
 
         # Convert source annotations to target format
         converted_target_annotations = [

@@ -32,9 +32,7 @@ def convert_curie_to_string(x):
     return x
 
 
-def dump_converted_annotations(
-    converted_target_annotations: List[List[str]], source_taxon: str, target_taxon: str
-) -> None:
+def dump_converted_annotations(converted_target_annotations: List[List[str]], source_taxon: str, target_taxon: str) -> None:
     """
     Dumps the converted annotations to a TSV file.
 
@@ -109,20 +107,14 @@ def dump_converted_annotations(
         key=taxon_to_provider[target_taxon],
         obj=df_final,
         sep="\t",
-        name=taxon_to_provider[target_taxon].lower()
-        + "-"
-        + taxon_to_provider[source_taxon].lower()
-        + "-ortho-temp.gaf",
+        name=taxon_to_provider[target_taxon].lower() + "-" + taxon_to_provider[source_taxon].lower() + "-ortho-temp.gaf",
         to_csv_kwargs={"index": False, "header": False},
     )
 
     # we need to add the #gaf-version: 2.2 header to the file
     filepath = pystow.join(
         key=taxon_to_provider[target_taxon],
-        name=taxon_to_provider[target_taxon].lower()
-        + "-"
-        + taxon_to_provider[source_taxon].lower()
-        + "-ortho-temp.gaf",
+        name=taxon_to_provider[target_taxon].lower() + "-" + taxon_to_provider[source_taxon].lower() + "-ortho-temp.gaf",
         ensure_exists=True,
     )
 
@@ -253,9 +245,7 @@ class AnnotationCreationController:
                 for new_annotation in new_annotations:
                     converted_target_annotations.append(new_annotation.to_gaf_2_2_tsv())
 
-        dump_converted_annotations(
-            converted_target_annotations, source_taxon=self.source_taxon, target_taxon=self.target_taxon
-        )
+        dump_converted_annotations(converted_target_annotations, source_taxon=self.source_taxon, target_taxon=self.target_taxon)
 
     def generate_annotation(
         self,
@@ -291,11 +281,7 @@ class AnnotationCreationController:
 
         if str(annotation.subject.id) in source_genes.keys():
             for gene in source_genes[str(annotation.subject.id)]:
-                if (
-                    gene in transformed_source_genes
-                    and len(transformed_source_genes[gene]) > 1
-                    and go_aspector.is_biological_process(str(annotation.object.id))
-                ):
+                if gene in transformed_source_genes and len(transformed_source_genes[gene]) > 1 and go_aspector.is_biological_process(str(annotation.object.id)):
                     output = (
                         "NON_1TO1_BP"
                         + str(annotation.subject.id)
@@ -316,12 +302,8 @@ class AnnotationCreationController:
                         uniprot_curie = Curie(namespace=uniprot_id.split(":")[0], identity=uniprot_id.split(":")[1])
                         new_annotation.evidence.with_support_from = [ConjunctiveSet(elements=[uniprot_curie])]
                     else:
-                        new_annotation.evidence.with_support_from = [
-                            ConjunctiveSet(elements=[str(annotation.subject.id)])
-                        ]
-                    new_annotation.evidence.has_supporting_reference = [
-                        Curie(namespace="GO_REF", identity=self.ortho_reference)
-                    ]
+                        new_annotation.evidence.with_support_from = [ConjunctiveSet(elements=[str(annotation.subject.id)])]
+                    new_annotation.evidence.has_supporting_reference = [Curie(namespace="GO_REF", identity=self.ortho_reference)]
                     # if there is only one human ortholog of the mouse gene and the annotation is not a biological
                     # process, then we add it, else we skip it. inferred from sequence similarity
                     new_annotation.evidence.type = Curie(namespace="ECO", identity=iso_eco_code.split(":")[1])
@@ -348,21 +330,13 @@ class AnnotationCreationController:
                     date_object = Date(year=year, month=month, day=day, time="")
                     new_annotation.date = date_object
 
-                    new_annotation.subject.fullname = target_genes[taxon_to_provider[self.target_taxon] + ":" + gene][
-                        "fullname"
-                    ]
-                    new_annotation.subject.label = target_genes[taxon_to_provider[self.target_taxon] + ":" + gene][
-                        "label"
-                    ]
+                    new_annotation.subject.fullname = target_genes[taxon_to_provider[self.target_taxon] + ":" + gene]["fullname"]
+                    new_annotation.subject.label = target_genes[taxon_to_provider[self.target_taxon] + ":" + gene]["label"]
 
                     # have to convert these to curies in order for the conversion to
                     # GAF 2.2 type to return anything other than
                     # default 'gene_product' -- in ontobio, when this is a list, we just take the first item.
-                    new_annotation.subject.type = [
-                        map_gp_type_label_to_curie(
-                            target_genes[taxon_to_provider[self.target_taxon] + ":" + gene].get("type")[0]
-                        )
-                    ]
+                    new_annotation.subject.type = [map_gp_type_label_to_curie(target_genes[taxon_to_provider[self.target_taxon] + ":" + gene].get("type")[0])]
                     annotations.append(new_annotation)
 
         return annotations

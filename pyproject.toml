@@ -46,7 +46,7 @@ requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
 build-backend = "poetry_dynamic_versioning.backend"
 
 [tool.black]
-line-length = 120
+line-length = 170
 target-version = ["py39", "py310"]
 
 [tool.ruff]
@@ -57,7 +57,7 @@ extend-ignore = [
     "S101", # `Use of assert detected. It would be nice to keep this check for everything but the BDD tests.`
     "B008", # `Do not perform function calls in argument defaults.`
 ]
-line-length = 120
+line-length = 170
 
 # Allow autofix for all enabled rules (when `--fix`) is provided.
 fixable = ["ALL"]

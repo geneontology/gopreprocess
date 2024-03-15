@@ -1,2 +1,1 @@
 """Test the GPI processor."""
-

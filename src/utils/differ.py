@@ -21,8 +21,6 @@ def compare_files(file1, file2, output):
     :type file2: str
     :param output: The prefix that will be appended to all the output files/reports created by this script.
     :type output: str
-    :param group_by_columns: Name of the target/second file to compare
-    :type group_by_columns: List
 
     """
     pd.set_option("display.max_rows", 50000)
@@ -103,9 +101,7 @@ def compare_associations(assocs1, assocs2, output):
     assocs1_set = set(assoc1_list)
     assocs2_set = set(assoc2_list)
 
-    common_elements, elements_unique_to_set1, elements_unique_to_set2 = compare_association_sets(
-        assocs1_set, assocs2_set
-    )
+    common_elements, elements_unique_to_set1, elements_unique_to_set2 = compare_association_sets(assocs1_set, assocs2_set)
     common_file_path = output + "_common_elements.txt"
     unique_set1_file_path = output + "_" + "unique_to_set1.txt"
     unique_set2_file_path = output + "_" + "unique_to_set2.txt"
@@ -296,9 +292,7 @@ def read_gaf_csv(filename) -> pd:
     for eco_code in ecomapping.mappings():
         for ev in new_df["Evidence_code"]:
             if eco_code[2] == ev:
-                new_df["Evidence_code"] = new_df["Evidence_code"].replace(
-                    [eco_code[2]], ecomapping.ecoclass_to_coderef(eco_code[2])[0]
-                )
+                new_df["Evidence_code"] = new_df["Evidence_code"].replace([eco_code[2]], ecomapping.ecoclass_to_coderef(eco_code[2])[0])
     return new_df
 
 
@@ -315,29 +309,21 @@ def read_gpad_csv(filename, version) -> pd:
 
     """
     if version.startswith("1"):
-        data_frame = pd.read_csv(
-            filename, comment="!", header=None, na_filter=False, engine="python", delimiter="\t", names=gpad_1_2_format
-        ).fillna("")
-        df = data_frame.filter(
-            ["db", "subject", "qualifiers", "relation", "object", "evidence_code", "reference"], axis=1
-        )
+        data_frame = pd.read_csv(filename, comment="!", header=None, na_filter=False, engine="python", delimiter="\t", names=gpad_1_2_format).fillna("")
+        df = data_frame.filter(["db", "subject", "qualifiers", "relation", "object", "evidence_code", "reference"], axis=1)
         concat_column = df["db"] + ":" + df["subject"]
         df["concat_column"] = concat_column
         filtered_df = df.filter(["concat_column", "qualifiers", "relation", "object", "evidence_code", "reference"])
         filtered_df.rename(columns={"concat_column": "subject"}, inplace=True)
         new_df = filtered_df
     else:
-        data_frame = pd.read_csv(
-            filename, comment="!", sep="\t", header=None, na_filter=False, names=gpad_2_0_format
-        ).fillna("")
+        data_frame = pd.read_csv(filename, comment="!", sep="\t", header=None, na_filter=False, names=gpad_2_0_format).fillna("")
         new_df = data_frame.filter(["subject", "negation", "relation", "object", "evidence_code", "reference"], axis=1)
     ecomapping = ecomap.EcoMap()
     for eco_code in ecomapping.mappings():
         for ev in new_df["evidence_code"]:
             if eco_code[2] == ev:
-                new_df["evidence_code"] = new_df["evidence_code"].replace(
-                    [eco_code[2]], ecomapping.ecoclass_to_coderef(eco_code[2])[0]
-                )
+                new_df["evidence_code"] = new_df["evidence_code"].replace([eco_code[2]], ecomapping.ecoclass_to_coderef(eco_code[2])[0])
 
     # normalize ids
     config = assocparser.AssocParserConfig()

@@ -1,15 +1,15 @@
 """testing GPI processor."""
+
 from pathlib import Path
 from unittest.mock import mock_open
+
 import pytest
+
 from src.gopreprocess.file_processors.gpi_processor import GpiProcessor, eliminate_repeated_values
 
 
 def test_eliminate_repeated_values():
-    """
-    Test the eliminate_repeated_values function.
-
-    """
+    """Test the eliminate_repeated_values function."""
     input_dict = {
         "key1": "value1",
         "key2": "value1",  # Duplicate value
@@ -27,7 +27,6 @@ MGI:MGI:1923503\t0610006L08Rik\tRIKEN cDNA 0610006L08 gene\t\tSO:0002127\tNCBITa
 MGI:MGI:1915609\t0610010K14Rik\tRIKEN cDNA 0610010K14 gene\t\tSO:0001217\tNCBITaxon:10090\t\t\t\tUniProtKB:Q9DCT6\t
 PR:Q9D937\tm1810009A15Rik\tuncharacterized protein C11orf98 homolog (mouse)\tm1810009A15Rik\tPR:000000001\tNCBITaxon:10090\tMGI:MGI:1913526\t\t\tUniProtKB:Q9D937\t
 PR:Q9D727\tm2310039H08Rik\tuncharacterized protein C6orf226 homolog (mouse)\tm2310039H08Rik\tPR:000000001\tNCBITaxon:10090\tMGI:MGI:1914351\t\t\tUniProtKB:Q9D727\t
-
 """
 
 
