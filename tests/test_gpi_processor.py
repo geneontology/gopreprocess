@@ -38,6 +38,11 @@ def mock_file_open(mocker):
     """
     Mock the open function and return a mock object.
 
+    :param mocker: The pytest-mock fixture.
+    :type mocker: MockFixture
+    :return: A mock object for the open function - executes the function without file open nonsense, instead uses
+    the mock data structure above so we don't have to store fake files in another directory.
+
     """
     mock_open_obj = mock_open(read_data="".join(mock_gpi_lines))
     mocker.patch("builtins.open", mock_open_obj)
@@ -49,6 +54,8 @@ def test_get_target_genes(mock_file_open):
     """
     Test the get_target_genes method of the GpiProcessor.
 
+    :param mock_file_open: A mock object for the open function
+    :type mock_file_open: MagicMock
     """
     processor = GpiProcessor(filepath=Path("/fake/path"))
     target_genes = processor.get_target_genes()
@@ -60,7 +67,6 @@ def test_get_target_genes(mock_file_open):
     xrefs = processor.get_xrefs()
     assert xrefs.get("UniProtKB:Q9DCT6") == 'MGI:MGI:1915609'
     protein_xrefs, parent_xrefs = processor.get_protein_xrefs()
-    print(protein_xrefs)
     assert protein_xrefs, parent_xrefs == (
                              {'UniProtKB:Q9D937': 'PR:Q9D937', 'UniProtKB:Q9D727': 'PR:Q9D727'},
                              {'PR:Q9D937': 'MGI:MGI:1913526', 'PR:Q9D727': 'MGI:MGI:1914351'}
