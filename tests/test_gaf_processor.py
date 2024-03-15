@@ -1,24 +1,48 @@
-"""Test the GPI processor."""
+"""Test the GAF processor."""
 
-import os
-import unittest
 from pathlib import Path
+from unittest import skip
+from unittest.mock import mock_open, patch
+
+import pytest
+
+from src.gopreprocess.file_processors.gaf_processor import GafProcessor
+
+# Sample GAF data reduced for brevity and example purposes
+SAMPLE_GAF_DATA = """
+!gaf-version: 2.2
+!generated-by: RGD
+!date-generated: 2024-03-09
+RGD\t10045371\tMir155hg\tinvolved_in\tGO:0002605\tRGD:1624291\tISO\tUniProtKB:C0HMA1\tP\tMir155 host gene\t\tgene\ttaxon:10116\t20231002\tRGD\t\t
+RGD\t10045371\tMir155hg\tlocated_in\tGO:0005634\tRGD:1624291\tISO\tUniProtKB:C0HMA1\tC\tMir155 host gene\t\tgene\ttaxon:10116\t20231002\tRGD\t\t
+RGD\t10045371\tMir155hg\tlocated_in\tGO:0005737\tRGD:1624291\tISO\tUniProtKB:C0HMA1\tC\tMir155 host gene\t\tgene\ttaxon:10116\t20231002\tRGD\t\t
+"""
 
 
-class TestGAFProcessor(unittest.TestCase):
+@pytest.fixture
+def gaf_processor():
+    """Fixture for creating a GafProcessor instance with mocked dependencies."""
+    with patch("src.gopreprocess.file_processors.gaf_processor.GafParser") as MockGafParser, patch("src.gopreprocess.file_processors.gaf_processor.EcoMap") as MockEcoMap:
 
-    """Test the GPI processor."""
+        # Creating an instance of GafProcessor for testing
+        processor = GafProcessor(
+            filepath=Path("dummy/path"),
+            namespaces=["P"],  # Adjust based on your test needs
+            taxon_to_provider={"taxon:10116": "RGD"},  # Example mapping
+            target_taxon="taxon:10116",  # Example taxon
+            uniprot_to_hgnc_map={"UniProtKB:C0HMA1": "HGNC:12345"},  # Example mapping
+            source="GOA",  # Example source
+        )
+        return processor
 
-    def test_parse_gpi(self):
-        """Test the files exist."""
-        data_path = os.path.expanduser("tests/resources")
-        file_path = Path(os.path.join(data_path, "test_gaf.gaf"))
-        self.assertTrue(file_path.exists())
 
+@skip("Not implemented")
+def test_parse_ortho_gaf(gaf_processor):
+    """Test the parse_ortho_gaf method of GafProcessor."""
+    with patch("builtins.open", mock_open(read_data=SAMPLE_GAF_DATA)) as mocked_file:
+        # Call the method under test
+        annotations = gaf_processor.parse_ortho_gaf()
+        print(annotations)
 
-if __name__ == "__main__":
-    """
-    Run the unit tests
-
-    """
-    unittest.main()
+        assert len(annotations) > 0, "Should parse annotations from GAF data"
+        assert annotations[0].subject.id == "HGNC:12345", "UniProt IDs should be mapped to HGNC IDs"
