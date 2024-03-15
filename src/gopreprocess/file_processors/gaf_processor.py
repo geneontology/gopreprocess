@@ -110,17 +110,9 @@ class GafProcessor:
                         continue  # remove annotations that don't have a subject in the namespaces we're interested in
                     if str(source_assoc.evidence.type) not in experimental_evidence_codes:
                         continue
-                    if (
-                        self.source == "GOA"
-                        and source_assoc.evidence.has_supporting_reference == "GO_REF:0000033"
-                        and (
-                            source_assoc.provided_by == self.taxon_to_provider[self.target_taxon]
-                            or source_assoc.provided_by == "GO_Central"
-                            or source_assoc.provided_by == "GOC"
-                        )
-                    ):
-                        continue
-                    if self.source is None and (source_assoc.provided_by == self.taxon_to_provider[self.target_taxon] or source_assoc.provided_by == "GO_Central"):
+                    if self.source is None and (source_assoc.provided_by == self.taxon_to_provider[self.target_taxon]
+                                                or source_assoc.provided_by == "GO_Central"
+                                                or source_assoc.provided_by == "GOC"):
                         continue
                     has_reference = any(reference.namespace == "PMID" for reference in source_assoc.evidence.has_supporting_reference)
                     if not has_reference:
