@@ -46,11 +46,8 @@ def dump_converted_annotations(converted_target_annotations: List[List[str]], so
 
     """
 
-    click.echo()
     # using pandas in order to take advantage of pystow in terms of file location and handling
     df = pd.DataFrame(converted_target_annotations)
-    df.info()
-    click.echo(df.columns)
     df = df.applymap(convert_curie_to_string)
     # Deduplicate the rows
     df_deduplicated = df.drop_duplicates()
@@ -228,7 +225,6 @@ class AnnotationCreationController:
         )
 
         source_annotations = gp.parse_ortho_gaf()
-        print("source_annotations found", source_annotations[:10])
 
         source_gene_set = set(source_genes.keys())
 
@@ -237,10 +233,8 @@ class AnnotationCreationController:
         # GoAspector object.
         go_aspector = get_GO_aspector("GO")
         for annotation in source_annotations:
-            print(annotation)
             click.echo(annotation)
             if str(annotation.subject.id) in source_gene_set:
-                print("src gene found in source gene set", str(annotation.subject.id))
                 # generate the target annotation based on the source annotation
                 new_annotations = self.generate_annotation(
                     annotation=annotation,
@@ -251,8 +245,6 @@ class AnnotationCreationController:
                     transformed_source_genes=transformed,
                 )
                 for new_annotation in new_annotations:
-                    print("I found a new annotation")
-                    print(new_annotation.to_gaf_2_2_tsv())
                     click.echo(new_annotation.to_gaf_2_2_tsv())
                     converted_target_annotations.append(new_annotation.to_gaf_2_2_tsv())
 
@@ -361,7 +353,6 @@ class AnnotationCreationController:
                     # GAF 2.2 type to return anything other than
                     # default 'gene_product' -- in ontobio, when this is a list, we just take the first item.
                     new_annotation.subject.type = [map_gp_type_label_to_curie(target_genes[taxon_to_provider[self.target_taxon] + ":" + gene].get("type")[0])]
-                    print("new_annotation.subject.type", new_annotation.subject.type)
                     annotations.append(new_annotation)
 
         return annotations
