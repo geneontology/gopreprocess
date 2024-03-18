@@ -110,14 +110,9 @@ class GafProcessor:
                         continue  # remove annotations that don't have a subject in the namespaces we're interested in
                     if str(source_assoc.evidence.type) not in experimental_evidence_codes:
                         continue
-                    if (
-                        source_assoc.provided_by == self.taxon_to_provider[self.target_taxon]
-                        or source_assoc.provided_by == "GO_Central"
-                    ):
+                    if source_assoc.provided_by == self.taxon_to_provider[self.target_taxon] or source_assoc.provided_by == "GO_Central":
                         continue  # remove self-annotations
-                    has_reference = any(
-                        reference.namespace == "PMID" for reference in source_assoc.evidence.has_supporting_reference
-                    )
+                    has_reference = any(reference.namespace == "PMID" for reference in source_assoc.evidence.has_supporting_reference)
                     if not has_reference:
                         counter = counter + 1
                     if str(source_assoc.object.id) in ["GO:0005515", "GO:0005488"]:
@@ -132,9 +127,7 @@ class GafProcessor:
                             # if it's in the mapped dictionary, then we can replace the UniProt identifier with the
                             # HGNC identifier, formatting that as a Curie with separate Namespace and ID fields.
                             mapped_id = self.uniprot_to_hgnc_map[str(source_assoc.subject.id)]
-                            source_assoc.subject.id = Curie(
-                                namespace=mapped_id.split(":")[0], identity=mapped_id.split(":")[1]
-                            )
+                            source_assoc.subject.id = Curie(namespace=mapped_id.split(":")[0], identity=mapped_id.split(":")[1])
                     self.convertible_annotations.append(source_assoc)
         return self.convertible_annotations
 

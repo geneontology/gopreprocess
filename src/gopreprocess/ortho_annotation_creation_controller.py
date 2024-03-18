@@ -7,10 +7,11 @@ to map genes between species).
 
 import collections
 import copy
-import click
+import sys
 from datetime import datetime
 from typing import List
-import sys
+
+import click
 import pandas as pd
 import pystow
 from gopreprocess.file_processors.ontology_processor import get_GO_aspector
@@ -45,7 +46,6 @@ def dump_converted_annotations(converted_target_annotations: List[List[str]], so
     :type target_taxon: str
 
     """
-
     # using pandas in order to take advantage of pystow in terms of file location and handling
     df = pd.DataFrame(converted_target_annotations)
     df = df.applymap(convert_curie_to_string)
@@ -197,7 +197,6 @@ class AnnotationCreationController:
 
         source_genes = OrthoProcessor(target_genes, ortho_path, self.target_taxon, self.source_taxon).genes
 
-
         transformed = {}
         for key, values in source_genes.items():
             for value in values:
@@ -249,9 +248,7 @@ class AnnotationCreationController:
                     converted_target_annotations.append(new_annotation.to_gaf_2_2_tsv())
 
         if converted_target_annotations:
-            dump_converted_annotations(converted_target_annotations,
-                                       source_taxon=self.source_taxon,
-                                       target_taxon=self.target_taxon)
+            dump_converted_annotations(converted_target_annotations, source_taxon=self.source_taxon, target_taxon=self.target_taxon)
         else:
             print("FAIL!: no annotations to dump!")
             click.echo("No annotations were converted.")
@@ -291,9 +288,7 @@ class AnnotationCreationController:
 
         if str(annotation.subject.id) in source_genes.keys():
             for gene in source_genes[str(annotation.subject.id)]:
-                if (gene in transformed_source_genes
-                        and len(transformed_source_genes[gene]) > 1
-                        and go_aspector.is_biological_process(str(annotation.object.id))):
+                if gene in transformed_source_genes and len(transformed_source_genes[gene]) > 1 and go_aspector.is_biological_process(str(annotation.object.id)):
                     output = (
                         "NON_1TO1_BP"
                         + str(annotation.subject.id)
@@ -318,8 +313,7 @@ class AnnotationCreationController:
                     else:
                         new_annotation.evidence.with_support_from = [ConjunctiveSet(elements=[str(annotation.subject.id)])]
                         print("no HGNC to UniProt map", str(annotation.subject.id))
-                    new_annotation.evidence.has_supporting_reference = [Curie(namespace="GO_REF",
-                                                                              identity=self.ortho_reference)]
+                    new_annotation.evidence.has_supporting_reference = [Curie(namespace="GO_REF", identity=self.ortho_reference)]
                     # if there is only one human ortholog of the mouse gene and the annotation is not a biological
                     # process, then we add it, else we skip it. inferred from sequence similarity
                     new_annotation.evidence.type = Curie(namespace="ECO", identity=iso_eco_code.split(":")[1])
