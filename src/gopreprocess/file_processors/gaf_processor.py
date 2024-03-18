@@ -27,6 +27,23 @@ def get_experimental_eco_codes(ecomap) -> List[str]:
     return experimental_evidence_codes
 
 
+def get_p2g_experimental_eco_codes(ecomap) -> List[str]:
+    """
+    Retrieves a list of experimental evidence codes from the given EcoMap.
+
+    :param ecomap: The EcoMap object containing the evidence code mappings.
+    :type ecomap: EcoMap
+
+    :return: A list of experimental evidence codes.
+    :rtype: List[str]
+    """
+    experimental_evidence_codes = []
+    for code, _, eco_id in ecomap.derived_mappings():
+        if code in ["IBA"]:
+            experimental_evidence_codes.append(eco_id)
+    return experimental_evidence_codes
+
+
 def configure_parser() -> GafParser:
     """
     Configures and returns a GafParser object.
@@ -139,12 +156,7 @@ class GafProcessor:
         :return: None.
         """
         p = configure_parser()
-        ecomap = EcoMap()
-        experimental_evidence_codes = []
-        for code, _, eco_id in ecomap.derived_mappings():
-            # remove PANTHER annotations
-            if code in ["IBA"]:
-                experimental_evidence_codes.append(eco_id)
+        experimental_evidence_codes = get_p2g_experimental_eco_codes(EcoMap())
         with open(self.filepath, "r") as file:
             for line in file:
                 annotation = p.parse_line(line)
@@ -160,8 +172,6 @@ class GafProcessor:
                             or source_assoc.provided_by == "GOC"
                         )
                     ):
-                        continue
-                    if self.source is None and (source_assoc.provided_by == self.taxon_to_provider[self.target_taxon] or source_assoc.provided_by == "GO_Central"):
                         continue
                     if str(source_assoc.evidence.type) in experimental_evidence_codes:
                         continue  # no IBAs
