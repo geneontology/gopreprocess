@@ -7,9 +7,10 @@ to map genes between species).
 
 import collections
 import copy
+import click
 from datetime import datetime
 from typing import List
-
+import sys
 import pandas as pd
 import pystow
 from gopreprocess.file_processors.ontology_processor import get_GO_aspector
@@ -44,9 +45,9 @@ def dump_converted_annotations(converted_target_annotations: List[List[str]], so
     :type target_taxon: str
 
     """
+
     # using pandas in order to take advantage of pystow in terms of file location and handling
     df = pd.DataFrame(converted_target_annotations)
-    print(df.columns)
     df = df.applymap(convert_curie_to_string)
     # Deduplicate the rows
     df_deduplicated = df.drop_duplicates()
@@ -196,6 +197,7 @@ class AnnotationCreationController:
 
         source_genes = OrthoProcessor(target_genes, ortho_path, self.target_taxon, self.source_taxon).genes
 
+
         transformed = {}
         for key, values in source_genes.items():
             for value in values:
@@ -230,8 +232,8 @@ class AnnotationCreationController:
         # need in order to download and store the gene ontology JSON file used to create the closure in the
         # GoAspector object.
         go_aspector = get_GO_aspector("GO")
-
         for annotation in source_annotations:
+            click.echo(annotation)
             if str(annotation.subject.id) in source_gene_set:
                 # generate the target annotation based on the source annotation
                 new_annotations = self.generate_annotation(
@@ -243,9 +245,17 @@ class AnnotationCreationController:
                     transformed_source_genes=transformed,
                 )
                 for new_annotation in new_annotations:
+                    click.echo(new_annotation.to_gaf_2_2_tsv())
                     converted_target_annotations.append(new_annotation.to_gaf_2_2_tsv())
 
-        dump_converted_annotations(converted_target_annotations, source_taxon=self.source_taxon, target_taxon=self.target_taxon)
+        if converted_target_annotations:
+            dump_converted_annotations(converted_target_annotations,
+                                       source_taxon=self.source_taxon,
+                                       target_taxon=self.target_taxon)
+        else:
+            print("FAIL!: no annotations to dump!")
+            click.echo("No annotations were converted.")
+            sys.exit(1)  # Exit with a non-zero status to indicate failure
 
     def generate_annotation(
         self,
@@ -281,7 +291,9 @@ class AnnotationCreationController:
 
         if str(annotation.subject.id) in source_genes.keys():
             for gene in source_genes[str(annotation.subject.id)]:
-                if gene in transformed_source_genes and len(transformed_source_genes[gene]) > 1 and go_aspector.is_biological_process(str(annotation.object.id)):
+                if (gene in transformed_source_genes
+                        and len(transformed_source_genes[gene]) > 1
+                        and go_aspector.is_biological_process(str(annotation.object.id))):
                     output = (
                         "NON_1TO1_BP"
                         + str(annotation.subject.id)
@@ -294,16 +306,20 @@ class AnnotationCreationController:
                         + " "
                         + str(annotation.evidence.has_supporting_reference)
                     )
+                    print("greater than 1 BP")
                     annotation_skipped.append(output)
                 else:
                     new_annotation = copy.deepcopy(annotation)
                     if str(annotation.subject.id) in hgnc_to_uniprot_map.keys():
+                        print("HGNC to UniProt map", str(annotation.subject.id))
                         uniprot_id = hgnc_to_uniprot_map[str(annotation.subject.id)]  # convert back to UniProtKB ID
                         uniprot_curie = Curie(namespace=uniprot_id.split(":")[0], identity=uniprot_id.split(":")[1])
                         new_annotation.evidence.with_support_from = [ConjunctiveSet(elements=[uniprot_curie])]
                     else:
                         new_annotation.evidence.with_support_from = [ConjunctiveSet(elements=[str(annotation.subject.id)])]
-                    new_annotation.evidence.has_supporting_reference = [Curie(namespace="GO_REF", identity=self.ortho_reference)]
+                        print("no HGNC to UniProt map", str(annotation.subject.id))
+                    new_annotation.evidence.has_supporting_reference = [Curie(namespace="GO_REF",
+                                                                              identity=self.ortho_reference)]
                     # if there is only one human ortholog of the mouse gene and the annotation is not a biological
                     # process, then we add it, else we skip it. inferred from sequence similarity
                     new_annotation.evidence.type = Curie(namespace="ECO", identity=iso_eco_code.split(":")[1])

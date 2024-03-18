@@ -12,10 +12,11 @@ HUMAN_ISO:
   url: http://skyhook.berkeleybop.org/silver-issue-325-gopreprocess/products/upstream_and_raw_data/goa_human_isoform-src.gaf.gz
 MGI_XREF:
   url: https://www.informatics.jax.org/downloads/reports/HOM_MouseHumanSequence.rpt
+# drives the curation system - minerva outage causes this and happens weekly - Wednesday every other week
 GO:
   url: http://skyhook.berkeleybop.org/go-ontology-dev/ontology/go.json
 GO_RELEASE:
-  url: http://skyhook.berkeleybop.org/release/ontology/go.json
+  url: http://skyhook.berkeleybop.org/go-ontology-dev/ontology/go.json
 GOA_taxon_10090:
   url: https://ftp.ebi.ac.uk/pub/databases/GO/goa/MOUSE/goa_mouse.gaf.gz
 GOA_taxon_10090_ISOFORM:
