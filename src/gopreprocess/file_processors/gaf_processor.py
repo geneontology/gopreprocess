@@ -163,12 +163,13 @@ class GafProcessor:
                 for source_assoc in annotation.associations:
                     if isinstance(source_assoc, dict):
                         continue  # skip the header
+                    if self.source == "GOA" and source_assoc.provided_by == self.taxon_to_provider[self.target_taxon]:
+                        continue
                     if (
                         self.source == "GOA"
                         and source_assoc.evidence.has_supporting_reference == "GO_REF:0000033"
                         and (
-                            source_assoc.provided_by == self.taxon_to_provider[self.target_taxon]
-                            or source_assoc.provided_by == "GO_Central"
+                            source_assoc.provided_by == "GO_Central"
                             or source_assoc.provided_by == "GOC"
                         )
                     ):
