@@ -31,18 +31,9 @@ def cli():
 
 @timer
 @cli.command(name="validate")
-@click.option("--target_taxon", "-t", "target_taxon",
-              type=str,
-              required=True,
-              help="The target taxon in curie format.")
-@click.option("--file_key", "-k", "file_key",
-              type=str,
-              required=True,
-              help="File key for the validation process.")
-@click.option("--file_name", "-f", "file_name",
-              type=str,
-              required=True,
-              help="The file name to validate.")
+@click.option("--target_taxon", "-t", "target_taxon", type=str, required=True, help="The target taxon in curie format.")
+@click.option("--file_key", "-k", "file_key", type=str, required=True, help="File key for the validation process.")
+@click.option("--file_name", "-f", "file_name", type=str, required=True, help="The file name to validate.")
 def validate(target_taxon: str, file_key: str, file_name: str):
     """
     Validate a merged GAF file.
