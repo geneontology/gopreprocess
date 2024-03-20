@@ -62,7 +62,7 @@ merge_gafs:
 	poetry run merge_files
 
 validate_merged_gafs:
-	poetry run validate_merged_gafs --target_taxon "NCBITaxon:10090"
+	poetry run validate --target_taxon "NCBITaxon:10090"
 
 get_gpad:
 	poetry run merge_files

@@ -9,6 +9,7 @@ from gopreprocess.goa_annotation_creation_controller import P2GAnnotationCreatio
 from gopreprocess.ortho_annotation_creation_controller import AnnotationCreationController
 from ontobio.io.assocparser import AssocParserConfig
 from ontobio.io.gafparser import GafParser
+from ontobio.io.gpadparser import GpadParser
 from pystow import join
 
 from src.gopreprocess.file_processors.gpad_processor import GpadProcessor
@@ -29,24 +30,39 @@ def cli():
 
 
 @timer
-@cli.command(name="validate_merged_gafs")
-@click.option("--target_taxon", "-target_taxon", type=str, required=True, help="The target taxon in curie format.")
-def validate_merged_gafs(target_taxon: str):
+@cli.command(name="validate")
+@click.option("--target_taxon", "-t", "target_taxon", type=str, required=True, help="The target taxon in curie format.")
+@click.option("--file_key", "-k", "file_key", type=str, required=True, help="File key for the validation process.")
+@click.option("--file_name", "-f", "file_name", type=str, required=True, help="The file name to validate.")
+def validate(target_taxon: str, file_key: str, file_name: str):
     """
     Validate a merged GAF file.
 
+    :param file_key: The key of the file to validate.
+    :type file_key: str
+    :param file_name: The name of the file to validate.
+    :type file_name: str
     :param target_taxon: The target taxon in curie format.
     :type target_taxon: str
     """
     # Ontology Factory
     config = AssocParserConfig(ontology=get_ontology_factory("GO"), rule_set="all")
+    if file_key is None and file_name is None:
+        file_key = taxon_to_provider[target_taxon]
+        file_name = taxon_to_provider[target_taxon].lower() + "-merged.gaf"
+
     gaf_to_validate = join(
-        key=taxon_to_provider[target_taxon],
-        name=taxon_to_provider[target_taxon].lower() + "-merged.gaf",
+        key=file_key,
+        name=file_name,
         ensure_exists=True,
     )
-    print("gaf to validate: ", gaf_to_validate)
-    parser = GafParser(config=config)
+    print("file to validate: ", gaf_to_validate)
+    if "gpad" in file_name:
+        parser = GpadParser(config=config)
+    elif "gaf" in file_name:
+        parser = GafParser(config=config)
+    else:
+        raise ValueError("File must be a GAF or GPAD and filename must reflect this.")
     errors = []
     parser.parse(file=str(gaf_to_validate), skipheader=True)
     print("parsing complete")
@@ -92,7 +108,7 @@ def check_errors(errors: list) -> int:
     for (rule, message), count in error_counts.items():
         summary.append(f"Rule: {rule}, Message: '{message}', Errors: {count}")
 
-    print(summary)
+    print("Error summary:", summary)
     click.echo(summary)
 
 
