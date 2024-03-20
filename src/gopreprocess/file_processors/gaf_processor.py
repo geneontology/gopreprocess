@@ -168,10 +168,7 @@ class GafProcessor:
                     if (
                         self.source == "GOA"
                         and source_assoc.evidence.has_supporting_reference == "GO_REF:0000033"
-                        and (
-                            source_assoc.provided_by == "GO_Central"
-                            or source_assoc.provided_by == "GOC"
-                        )
+                        and (source_assoc.provided_by == "GO_Central" or source_assoc.provided_by == "GOC")
                     ):
                         continue
                     if str(source_assoc.evidence.type) in experimental_evidence_codes:
