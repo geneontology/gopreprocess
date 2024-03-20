@@ -24,3 +24,4 @@ GOA_taxon_10090_ISOFORM:
 # TODO: change this to skyhook when running thru pipeline
 MGI_NOCTUA:
   url: http://snapshot.geneontology.org/products/upstream_and_raw_data/noctua_mgi-src.gpad.gz
+
