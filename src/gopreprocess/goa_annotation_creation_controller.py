@@ -59,18 +59,6 @@ def generate_annotation(annotation: GoAssociation, xrefs: dict, isoform: bool, p
 
         Date = collections.namedtuple("Date", ["year", "month", "day", "time"])
 
-        # Format the date as YYYYMMDD, which is suitable for GAF date requirements
-        gaf_date = datetime.now().strftime("%Y%m%d")
-
-        # Extract year, month, and day components from the YYYYMMDD string
-        year = gaf_date[:4]
-        month = gaf_date[4:6]
-        day = gaf_date[6:8]
-
-        # Create a Date object, time is set to an empty string.
-        date_object = Date(year=year, month=month, day=day, time="")
-        new_annotation.date = date_object
-
         # gp_isoforms: self.subject_extensions[0].term
 
         if new_annotation.subject_extensions and str(new_annotation.subject_extensions[0].term) in protein_xrefs.keys():
