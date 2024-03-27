@@ -2,6 +2,9 @@ MGI_GAF:
   url: http://skyhook.berkeleybop.org/silver-issue-325-gopreprocess/products/upstream_and_raw_data/mgi-src.gaf.gz
 MGI_GPI:
   url: http://snapshot.geneontology.org/products/upstream_and_raw_data/mgi-src.gpi.gz
+# TODO: this should be really us grabbing the MGI GPI from their location, not snapshot (it can be old)
+# change to use the mgi go-site metadata location for this file.
+# use the "mirror" here (The branch that is used for grabbing the file from GOA)
 ALLIANCE_ORTHO:
   url: https://fms.alliancegenome.org/download/ORTHOLOGY-ALLIANCE-JSON_COMBINED.json.gz
 RGD:
@@ -14,14 +17,16 @@ MGI_XREF:
   url: https://www.informatics.jax.org/downloads/reports/HOM_MouseHumanSequence.rpt
 # drives the curation system - minerva outage causes this and happens weekly - Wednesday every other week
 GO:
-  url: http://skyhook.berkeleybop.org/go-ontology-dev/ontology/go.json
+  url: http://ontology-build.geneontology.org/go.json
+# TODO: get rid of GO_RELEASE, we don't need it now that we have the full-issue-325-gopreprocess pipeline set up.
 GO_RELEASE:
-  url: http://skyhook.berkeleybop.org/go-ontology-dev/ontology/go.json
+  url: http://ontology-build.geneontology.org/go.json
 GOA_taxon_10090:
   url: https://ftp.ebi.ac.uk/pub/databases/GO/goa/MOUSE/goa_mouse.gaf.gz
+# TODO: check if these are available in the mirror
 GOA_taxon_10090_ISOFORM:
   url: https://ftp.ebi.ac.uk/pub/databases/GO/goa/MOUSE/goa_mouse_isoform.gaf.gz
-# TODO: change this to skyhook when running thru pipeline
+  # TODO: check if these are available in the mirror
 MGI_NOCTUA:
   url: http://snapshot.geneontology.org/products/upstream_and_raw_data/noctua_mgi-src.gpad.gz
-
+# TODO: get rid of this file, we don't need it now that we have the full-issue-325-gopreprocess pipeline set up.
