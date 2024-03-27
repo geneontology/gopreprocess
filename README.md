@@ -10,7 +10,7 @@ all the automated annotations that the GO Consortium will consume for mouse (thi
 annotations that can be converted to mouse via orthology, and the mouse annotations created by Protein2GO):
 
 ```bash
-make all
+make run
 ```
 
 `make all` will download the necessary upstream files like the Human & Human Isoform annotations, the Rat annotations,
@@ -38,7 +38,7 @@ make convert_human
 To run the download of the Protein2GO annotations:
 
 ```bash
-make get_goa_files
+make convert_p2g_annotations
 ```
 
 to merge together the resulting GAFs:
@@ -47,20 +47,36 @@ to merge together the resulting GAFs:
 make merge_gafs
 ```
 
-This process is injected into the regular GO pipeline in a couple of different stages:
+to validate the resulting GAF:
+
+```bash
+make validate_merged_gafs 
+```
+
+This process is conducted by the silver-issue-325-gopreprocess GO pipeline repository branch's Jenkinsfile and
+the process is best summarized by the following stages:
 
 1) The Download GAFs stage - this is where the orthologs species files and the Alliance orthology file are downloaded
-2) The Create Ontology stage - this code needs an updated go.json file to run, so it is run after the ontology is
-   created
-3) The Generate automated annotations stage - this is where the orthology annotation conversion step is run and the
-   Protein2GO
-   files are downloaded and merged together.
+   and is executed via the pipeline jenkins file which calls `make download_rat` and `make download_human`
 
+2) The Generate automated annotations stage - this is where the orthologs species files are converted to mouse
+   annotations
+   and is executed via the pipeline jenkins file which calls `make convert_rat` and `make convert_human`. It also calls
+   `make convert_p2g_annotations` to download the Protein2GO annotations. Finally, it calls `make merge_gafs` to merge
+   the
+   resulting GAFs together and `make validate_merged_gafs` to validate the resulting GAF. If more than 3% of the
+   resulting
+   merged GAF is invalid, the `validate_merged_gafs` target will return a non-zero exit code and the pipeline will fail.
+
+![](docs/images/MGI_remainders_preprocess_pipeline_workflow.drawio.png)
 
 # run diff code to compare with an existing file
+
 ```bash
 poetry run compare -file1 file_path -file2 file_path -o file_output_prefix
 ```
-By default, this will compare subject_id (gene or gene product id), object_id (go term id), and evidence_code between the two files 
+
+By default, this will compare subject_id (gene or gene product id), object_id (go term id), and evidence_code between
+the two files
 reporting the matching associations, the associations unique to file1 and those unique to file2.
 
