@@ -20,7 +20,7 @@ def merge_files_from_directory(source_directory: str):
 
     target_file_output = join(
         key=taxon_to_provider[target_taxon],
-        name=taxon_to_provider[target_taxon].lower() + "-merged.gaf",
+        name=taxon_to_provider[target_taxon].lower() + "-p2go-homology.gaf",
         ensure_exists=True,
     )
 
