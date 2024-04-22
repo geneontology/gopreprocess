@@ -43,8 +43,6 @@ class GpadProcessor:
                         continue  # skip the header
                     else:
                         gpad2_0_association = source_assoc.to_gpad_2_0_tsv()
-                        print(gpad2_0_association)
-
                         new_associations.append(gpad2_0_association)
         new_gpad_filepath = self.dump_annotations(new_associations)
         return new_gpad_filepath

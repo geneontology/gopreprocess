@@ -174,7 +174,6 @@ class AnnotationCreationController:
         ortho_path, source_gaf_path, target_gpi_path = download_files(self.source_taxon, self.target_taxon)
         if self.source_taxon == "NCBITaxon:9606":
             human_iso_filepath = download_file(target_directory_name="HUMAN_ISO", config_key="HUMAN_ISO", gunzip=True)
-            print(human_iso_filepath, source_gaf_path)
             concatenate_gafs(file1=source_gaf_path, file2=human_iso_filepath, output_file=source_gaf_path)
 
         # target genes example:
