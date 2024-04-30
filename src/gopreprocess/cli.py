@@ -1,10 +1,8 @@
 """Module contains the CLI commands for the gopreprocess package."""
 
-
 import click
 from gopreprocess.goa_annotation_creation_controller import P2GAnnotationCreationController
 from gopreprocess.ortho_annotation_creation_controller import AnnotationCreationController
-
 
 from src.gopreprocess.file_processors.gpad_processor import GpadProcessor
 from src.utils.decorators import timer
@@ -21,12 +19,12 @@ def cli():
     """A CLI for preprocessing GO annotations."""
     pass
 
+
 @cli.command(name="convert_annotations")
 @click.option(
     "--namespaces",
     default=["RGD", "UniProtKB"],
-    help="List of providers in the source GAF that should be used to retrieve source annotations for conversion. "
-         "e.g. [RGD, HGNC, UniProtKB]",
+    help="List of providers in the source GAF that should be used to retrieve source annotations for conversion. " "e.g. [RGD, HGNC, UniProtKB]",
 )
 @click.option(
     "--target_taxon",

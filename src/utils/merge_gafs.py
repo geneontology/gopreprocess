@@ -1,21 +1,16 @@
 """Utils for merging files together."""
-<<<<<<< HEAD
+
+import gzip
 import sys
 from collections import defaultdict
-from src.utils.decorators import timer
+from pathlib import Path
+
 import pystow
+from gopreprocess.file_processors.ontology_processor import get_ontology_factory
 from ontobio.io.assocparser import AssocParserConfig
 from ontobio.io.gafparser import GafParser
-from gopreprocess.file_processors.ontology_processor import get_ontology_factory
-import gzip
-from pathlib import Path
-=======
 
-from pystow import join
-import gzip
-from pathlib import Path
-from src.utils.settings import taxon_to_provider
->>>>>>> main
+from src.utils.decorators import timer
 
 
 def merge_files_from_directory(source_directory: str):
@@ -25,7 +20,6 @@ def merge_files_from_directory(source_directory: str):
     :param source_directory: Directory containing .gaf files.
     :return: None
     """
-
     dir_path = pystow.join(source_directory, ensure_exists=True)
     source_directory = Path(dir_path)
 
@@ -36,7 +30,7 @@ def merge_files_from_directory(source_directory: str):
     headers = []
     data_lines = []
 
-    target_file_output = source_directory / f"mgi-p2go-homology.gaf.gz"
+    target_file_output = source_directory / "mgi-p2go-homology.gaf.gz"
 
     # Get all .gaf files in the directory
     gaf_files = list(Path(source_directory).glob("*.gaf"))
@@ -73,7 +67,6 @@ def dump_valid_file(headers, data_lines, target_file_output):
     :return: Path to the target file.
 
     """
-
     # Deduplicate headers
     unique_headers = list(set(headers))
 
