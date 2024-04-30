@@ -81,7 +81,7 @@ def generate_gpad_file() -> tuple[Path, Path]:
 
     merged_gaf_filepath = pystow.join(
         key="MGI",
-        name="mgi-p2go-homology.gaf.gaf",
+        name="mgi-p2go-homology.gaf",
         ensure_exists=True,
     )
     gpad_rows = []

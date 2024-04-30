@@ -3,7 +3,7 @@ name: Run tests and QC
 # Controls when the action will run.
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [ opened, synchronize, reopened ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python: ["3.9", "3.10"]
+        python: [ "3.9", "3.10", "3.11", "3.12" ]
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:

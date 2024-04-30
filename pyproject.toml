@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gopreprocess"
-version = "0.0.0.post330.dev0+2158c39"
+version = "0.0.0"
 description = "gopreprocess"
 authors = ["Sierra Moxon <smoxon@lbl.gov>"]
 license = "MIT"
@@ -36,7 +36,7 @@ validate = "src.gopreprocess.cli:validate"
 tests = ["pytest"]
 
 [tool.poetry-dynamic-versioning]
-enable = false
+enable = true
 vcs = "git"
 style = "pep440"
 

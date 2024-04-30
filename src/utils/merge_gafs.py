@@ -1,4 +1,5 @@
 """Utils for merging files together."""
+<<<<<<< HEAD
 import sys
 from collections import defaultdict
 from src.utils.decorators import timer
@@ -8,6 +9,13 @@ from ontobio.io.gafparser import GafParser
 from gopreprocess.file_processors.ontology_processor import get_ontology_factory
 import gzip
 from pathlib import Path
+=======
+
+from pystow import join
+import gzip
+from pathlib import Path
+from src.utils.settings import taxon_to_provider
+>>>>>>> main
 
 
 def merge_files_from_directory(source_directory: str):
@@ -24,16 +32,14 @@ def merge_files_from_directory(source_directory: str):
     if not source_directory.exists() or not source_directory.is_dir():
         raise ValueError(f"{source_directory} is not a valid directory.")
 
+    # Initialize lists to store headers and data lines
+    headers = []
+    data_lines = []
+
     target_file_output = source_directory / f"mgi-p2go-homology.gaf.gz"
 
     # Get all .gaf files in the directory
-    gaf_files = list(source_directory.glob("*.gaf"))
-
-    # List to store merged headers
-    headers = []
-
-    # List to store data lines
-    data_lines = []
+    gaf_files = list(Path(source_directory).glob("*.gaf"))
 
     config = AssocParserConfig(ontology=get_ontology_factory("GO"), rule_set="all")
     parser = GafParser(config=config)
@@ -75,7 +81,7 @@ def dump_valid_file(headers, data_lines, target_file_output):
     unique_headers.sort()
 
     # Write the merged file with gzip compression
-    with gzip.open(target_file_output, "wt") as out:
+    with gzip.open(target_file_output, "wt") as out:  # "wt" mode for writing text in a gzip file
         # Write the merged headers
         for header in unique_headers:
             out.write(header + "\n")
