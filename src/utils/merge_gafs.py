@@ -1,32 +1,28 @@
 """Utils for merging files together."""
-
-from pystow import join
+import pystow
 
 from src.utils.settings import taxon_to_provider
 
 
+import gzip
+from pathlib import Path
+
+
 def merge_files_from_directory(source_directory: str):
     """
-    Merge all .gaf files in the given directory into a single file.
+    Merge all .gaf files in the given directory into a single gzip-compressed file.
 
+    :param source_directory: Directory containing .gaf files.
     :return: None
     """
-    source_directory = join(
-        key=source_directory,
-        ensure_exists=True,
-    )
 
-    target_taxon = "NCBITaxon:10090"
-
-    target_file_output = join(
-        key=taxon_to_provider[target_taxon],
-        name=taxon_to_provider[target_taxon].lower() + "-merged.gaf",
-        ensure_exists=True,
-    )
-
-    # Ensure the directory exists
+    dir_path = pystow.join(source_directory, ensure_exists=True)
+    source_directory = Path(dir_path)
     if not source_directory.exists() or not source_directory.is_dir():
         raise ValueError(f"{source_directory} is not a valid directory.")
+
+    target_taxon = "NCBITaxon:10090"
+    target_file_output = source_directory / f"mgi-p2go-homology.gaf.gz"
 
     # Get all .gaf files in the directory
     gaf_files = list(source_directory.glob("*.gaf"))
@@ -53,8 +49,8 @@ def merge_files_from_directory(source_directory: str):
     # Sort headers just to ensure consistent ordering
     unique_headers.sort()
 
-    # Write the merged file
-    with open(target_file_output, "w") as out:
+    # Write the merged file with gzip compression
+    with gzip.open(target_file_output, "wt") as out:
         # Write the merged headers
         for header in unique_headers:
             out.write(header + "\n")

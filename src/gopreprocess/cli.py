@@ -1,5 +1,6 @@
 """Module contains the CLI commands for the gopreprocess package."""
-
+import gzip
+import shutil
 import sys
 from collections import defaultdict
 
@@ -19,6 +20,7 @@ from src.utils.download import download_file, download_files
 from src.utils.generate_gpad import generate_gpad_file
 from src.utils.merge_gafs import merge_files_from_directory
 from src.utils.settings import taxon_to_provider
+from src.utils.validate_gafs import validate
 
 
 # Create a group for the CLI commands
@@ -32,8 +34,8 @@ def cli():
 @timer
 @cli.command(name="validate")
 @click.option("--target_taxon", "-t", "target_taxon", type=str, required=True, help="The target taxon in curie format.")
-@click.option("--file_key", "-k", "file_key", type=str, required=True, help="File key for the validation process.")
-@click.option("--file_name", "-f", "file_name", type=str, required=True, help="The file name to validate.")
+@click.option("--file_key", "-k", "file_key", type=str, required=False, help="File key for the validation process.")
+@click.option("--file_name", "-f", "file_name", type=str, required=False, help="The file name to validate.")
 def validate(target_taxon: str, file_key: str, file_name: str):
     """
     Validate a merged GAF file.
@@ -45,45 +47,7 @@ def validate(target_taxon: str, file_key: str, file_name: str):
     :param target_taxon: The target taxon in curie format.
     :type target_taxon: str
     """
-    # Ontology Factory
-    config = AssocParserConfig(ontology=get_ontology_factory("GO"), rule_set="all")
-    if file_key is None and file_name is None:
-        file_key = taxon_to_provider[target_taxon]
-        file_name = taxon_to_provider[target_taxon].lower() + "-merged.gaf"
-
-    gaf_to_validate = join(
-        key=file_key,
-        name=file_name,
-        ensure_exists=True,
-    )
-    print("file to validate: ", gaf_to_validate)
-    if "gpad" in file_name:
-        parser = GpadParser(config=config)
-    elif "gaf" in file_name:
-        parser = GafParser(config=config)
-    else:
-        raise ValueError("File must be a GAF or GPAD and filename must reflect this.")
-    errors = []
-    parser.parse(file=str(gaf_to_validate), skipheader=True)
-    print("parsing complete")
-    for error_report in parser.report.messages:
-        if error_report.get("level") == "ERROR":
-            errors.append(error_report)
-
-    # create the report.json file full of errors to store on skyhook
-    # calculate percentile drop in annotations coming out vs. going in and fail if over 10%
-    # error_file_length = check_errors(errors)
-
-    if len(errors) > 5000:
-        print("FAIL!: first 10 errors of more than 5000 returned")
-        for item in errors[:10]:
-            print(item)
-        sys.exit(1)  # Exit with a non-zero status to indicate failure
-    else:
-        print("PASS!: less than 5000 errors returned")
-        check_errors(errors)
-        sys.exit(0)
-
+    validate(target_taxon, file_key, file_name)
 
 @timer
 def check_errors(errors: list) -> int:
@@ -116,7 +80,8 @@ def check_errors(errors: list) -> int:
 @click.option(
     "--namespaces",
     default=["RGD", "UniProtKB"],
-    help="List of providers in the source GAF that should be " "used to retrieve source annotations for conversion. " "e.g. [RGD, HGNC, UniProtKB]",
+    help="List of providers in the source GAF that should be used to retrieve source annotations for conversion. "
+         "e.g. [RGD, HGNC, UniProtKB]",
 )
 @click.option(
     "--target_taxon",
