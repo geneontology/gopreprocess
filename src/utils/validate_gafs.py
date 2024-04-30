@@ -3,16 +3,14 @@
 import gzip
 import shutil
 import sys
-
-import click
 from gopreprocess.file_processors.ontology_processor import get_ontology_factory
-
 from ontobio.io.assocparser import AssocParserConfig
 from ontobio.io.gafparser import GafParser
 from ontobio.io.gpadparser import GpadParser
 from pystow import join
-
 from src.utils.settings import taxon_to_provider
+
+
 def validate(target_taxon: str, file_key: str, file_name: str):
     """
     Validate a merged GAF file.
@@ -51,7 +49,14 @@ def validate(target_taxon: str, file_key: str, file_name: str):
     else:
         raise ValueError("File must be a GAF or GPAD and filename must reflect this.")
     errors = []
-    parser.parse(file=str(f_out), skipheader=True)
+
+    unzipped_gaf_to_validate = join(
+        key=file_key,
+        name=gaf_to_validate_out,
+        ensure_exists=True,
+    )
+    print("parsing...", unzipped_gaf_to_validate)
+    parser.parse(file=str(unzipped_gaf_to_validate), skipheader=True)
     print("parsing complete")
     for error_report in parser.report.messages:
         if error_report.get("level") == "ERROR":
