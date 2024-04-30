@@ -18,15 +18,9 @@ MGI_XREF:
 # drives the curation system - minerva outage causes this and happens weekly - Wednesday every other week
 GO:
   url: http://ontology-build.geneontology.org/go.json
-# TODO: get rid of GO_RELEASE, we don't need it now that we have the full-issue-325-gopreprocess pipeline set up.
-GO_RELEASE:
-  url: http://ontology-build.geneontology.org/go.json
 GOA_taxon_10090:
   url: https://ftp.ebi.ac.uk/pub/databases/GO/goa/MOUSE/goa_mouse.gaf.gz
 # TODO: check if these are available in the mirror
 GOA_taxon_10090_ISOFORM:
   url: https://ftp.ebi.ac.uk/pub/databases/GO/goa/MOUSE/goa_mouse_isoform.gaf.gz
   # TODO: check if these are available in the mirror
-MGI_NOCTUA:
-  url: http://snapshot.geneontology.org/products/upstream_and_raw_data/noctua_mgi-src.gpad.gz
-# TODO: get rid of this file, we don't need it now that we have the full-issue-325-gopreprocess pipeline set up.

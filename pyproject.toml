@@ -30,7 +30,6 @@ get_goa_files = "src.gopreprocess.cli:get_goa_files"
 convert_p2g_annotations = "src.gopreprocess.cli:convert_p2g_annotations"
 get_gpad_files = "src.gopreprocess.cli:get_gpad_file"
 convert_gpad = "src.gopreprocess.cli:convert_noctua_gpad_1_2_to_2_0_annotations"
-validate = "src.gopreprocess.cli:validate"
 
 [tool.poetry.extras]
 tests = ["pytest"]
