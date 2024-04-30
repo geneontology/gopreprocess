@@ -1,17 +1,10 @@
 """Module contains the CLI commands for the gopreprocess package."""
-import gzip
-import shutil
-import sys
-from collections import defaultdict
+
 
 import click
-from gopreprocess.file_processors.ontology_processor import get_ontology_factory
 from gopreprocess.goa_annotation_creation_controller import P2GAnnotationCreationController
 from gopreprocess.ortho_annotation_creation_controller import AnnotationCreationController
-from ontobio.io.assocparser import AssocParserConfig
-from ontobio.io.gafparser import GafParser
-from ontobio.io.gpadparser import GpadParser
-from pystow import join
+
 
 from src.gopreprocess.file_processors.gpad_processor import GpadProcessor
 from src.utils.decorators import timer
@@ -19,8 +12,6 @@ from src.utils.differ import compare_files
 from src.utils.download import download_file, download_files
 from src.utils.generate_gpad import generate_gpad_file
 from src.utils.merge_gafs import merge_files_from_directory
-from src.utils.settings import taxon_to_provider
-from src.utils.validate_gafs import validate
 
 
 # Create a group for the CLI commands
@@ -29,52 +20,6 @@ from src.utils.validate_gafs import validate
 def cli():
     """A CLI for preprocessing GO annotations."""
     pass
-
-
-@timer
-@cli.command(name="validate")
-@click.option("--target_taxon", "-t", "target_taxon", type=str, required=True, help="The target taxon in curie format.")
-@click.option("--file_key", "-k", "file_key", type=str, required=False, help="File key for the validation process.")
-@click.option("--file_name", "-f", "file_name", type=str, required=False, help="The file name to validate.")
-def validate(target_taxon: str, file_key: str, file_name: str):
-    """
-    Validate a merged GAF file.
-
-    :param file_key: The key of the file to validate.
-    :type file_key: str
-    :param file_name: The name of the file to validate.
-    :type file_name: str
-    :param target_taxon: The target taxon in curie format.
-    :type target_taxon: str
-    """
-    validate(target_taxon, file_key, file_name)
-
-@timer
-def check_errors(errors: list) -> int:
-    """
-    Count number of errors per GO Rule and lines in source vs. resulting GAF to check if this upstream should fail.
-
-    :param errors: A list of errors.
-    :type errors: list
-    :return: The percentile change in annotations.
-    :rtype: int
-    """
-    error_counts = defaultdict(int)
-    summary = []
-    # Assuming 'errors' is a list of dictionaries representing error entries
-
-    for row in errors:
-        if row.get("level") == "ERROR":
-            rule_message_key = (row.get("rule"), row.get("message"))
-            error_counts[rule_message_key] += 1
-
-    # Generate summary from error_counts
-    for (rule, message), count in error_counts.items():
-        summary.append(f"Rule: {rule}, Message: '{message}', Errors: {count}")
-
-    print("Error summary:", summary)
-    click.echo(summary)
-
 
 @cli.command(name="convert_annotations")
 @click.option(
