@@ -300,18 +300,18 @@ class AnnotationCreationController:
                         + " "
                         + str(annotation.evidence.has_supporting_reference)
                     )
-                    print("greater than 1 BP")
+                    # print("greater than 1 BP")
                     annotation_skipped.append(output)
                 else:
                     new_annotation = copy.deepcopy(annotation)
                     if str(annotation.subject.id) in hgnc_to_uniprot_map.keys():
-                        print("HGNC to UniProt map", str(annotation.subject.id))
+                        # print("HGNC to UniProt map", str(annotation.subject.id))
                         uniprot_id = hgnc_to_uniprot_map[str(annotation.subject.id)]  # convert back to UniProtKB ID
                         uniprot_curie = Curie(namespace=uniprot_id.split(":")[0], identity=uniprot_id.split(":")[1])
                         new_annotation.evidence.with_support_from = [ConjunctiveSet(elements=[uniprot_curie])]
                     else:
                         new_annotation.evidence.with_support_from = [ConjunctiveSet(elements=[str(annotation.subject.id)])]
-                        print("no HGNC to UniProt map", str(annotation.subject.id))
+                        # print("no HGNC to UniProt map", str(annotation.subject.id))
                     new_annotation.evidence.has_supporting_reference = [Curie(namespace="GO_REF", identity=self.ortho_reference)]
                     # if there is only one human ortholog of the mouse gene and the annotation is not a biological
                     # process, then we add it, else we skip it. inferred from sequence similarity
