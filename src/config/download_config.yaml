@@ -1,5 +1,3 @@
-MGI_GAF:
-  url: http://skyhook.berkeleybop.org/silver-issue-325-gopreprocess/products/upstream_and_raw_data/mgi-src.gaf.gz
 MGI_GPI:
   url: http://snapshot.geneontology.org/products/upstream_and_raw_data/mgi-src.gpi.gz
 # TODO: this should be really us grabbing the MGI GPI from their location, not snapshot (it can be old)
@@ -8,11 +6,11 @@ MGI_GPI:
 ALLIANCE_ORTHO:
   url: https://fms.alliancegenome.org/download/ORTHOLOGY-ALLIANCE-JSON_COMBINED.json.gz
 RGD:
-  url: http://skyhook.berkeleybop.org/silver-issue-325-gopreprocess/products/upstream_and_raw_data/rgd-src.gaf.gz
+  url: http://skyhook.berkeleybop.org/p2go-homology-upstream-file-generator/products/upstream_and_raw_data/rgd-src.gaf.gz
 HUMAN:
-  url: http://skyhook.berkeleybop.org/silver-issue-325-gopreprocess/products/upstream_and_raw_data/goa_human-src.gaf.gz
+  url: http://skyhook.berkeleybop.org/p2go-homology-upstream-file-generator/products/upstream_and_raw_data/goa_human-src.gaf.gz
 HUMAN_ISO:
-  url: http://skyhook.berkeleybop.org/silver-issue-325-gopreprocess/products/upstream_and_raw_data/goa_human_isoform-src.gaf.gz
+  url: http://skyhook.berkeleybop.org/p2go-homology-upstream-file-generator/products/upstream_and_raw_data/goa_human_isoform-src.gaf.gz
 MGI_XREF:
   url: https://www.informatics.jax.org/downloads/reports/HOM_MouseHumanSequence.rpt
 # drives the curation system - minerva outage causes this and happens weekly - Wednesday every other week
