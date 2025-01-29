@@ -14,10 +14,10 @@ from typing import List
 import click
 import pandas as pd
 import pystow
-from gopreprocess.file_processors.ontology_processor import get_GO_aspector
 from ontobio.model.association import ConjunctiveSet, Curie, GoAssociation, map_gp_type_label_to_curie
 from ontobio.util.go_utils import GoAspector
 
+from gopreprocess.file_processors.ontology_processor import get_GO_aspector
 from src.gopreprocess.file_processors.alliance_orthology_processor import OrthoProcessor
 from src.gopreprocess.file_processors.gaf_processor import GafProcessor
 from src.gopreprocess.file_processors.gpi_processor import GpiProcessor

@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pystow
 from ontobio.io.gpadparser import GpadParser
+
 from utils.decorators import timer
 
 

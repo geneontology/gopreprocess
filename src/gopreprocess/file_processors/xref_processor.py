@@ -19,7 +19,7 @@ class XrefProcessor:
     @timer
     def generate_gene_protein_map(self) -> tuple[dict[str, str], dict[str, str]]:
         """
-        processes a cross-reference file to generate two dictionaries: hgnc_to_uniprot_map and uniprot_to_hgnc_map.
+        Processes a cross-reference file to generate two dictionaries: hgnc_to_uniprot_map and uniprot_to_hgnc_map.
 
         These dictionaries establish a mapping between HGNC (HUGO Gene Nomenclature Committee) IDs and UniProtKB
         (Universal Protein Knowledgebase) IDs.
