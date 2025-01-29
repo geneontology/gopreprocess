@@ -6,10 +6,10 @@ from collections import defaultdict
 from pathlib import Path
 
 import pystow
-from gopreprocess.file_processors.ontology_processor import get_ontology_factory
 from ontobio.io.assocparser import AssocParserConfig
 from ontobio.io.gafparser import GafParser
 
+from gopreprocess.file_processors.ontology_processor import get_ontology_factory
 from src.utils.decorators import timer
 
 

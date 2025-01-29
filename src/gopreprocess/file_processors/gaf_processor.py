@@ -58,6 +58,7 @@ def configure_parser() -> GafParser:
 
 
 class GafProcessor:
+
     """
     A class for processing GAF (Gene Association Format) files.
 

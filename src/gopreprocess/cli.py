@@ -1,9 +1,9 @@
 """Module contains the CLI commands for the gopreprocess package."""
 
 import click
+
 from gopreprocess.goa_annotation_creation_controller import P2GAnnotationCreationController
 from gopreprocess.ortho_annotation_creation_controller import AnnotationCreationController
-
 from src.gopreprocess.file_processors.gpad_processor import GpadProcessor
 from src.utils.decorators import timer
 from src.utils.differ import compare_files

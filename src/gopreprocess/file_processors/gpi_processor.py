@@ -45,6 +45,7 @@ def eliminate_repeated_values(input_dict):
 
 
 class GpiProcessor:
+
     """
     A class for processing GPI (Gene Product Information) files.
 
