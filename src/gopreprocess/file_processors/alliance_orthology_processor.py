@@ -7,7 +7,6 @@ from src.utils.decorators import timer
 
 
 class OrthoProcessor:
-
     """
     Represents a processor for ortholog data between two taxa.
 

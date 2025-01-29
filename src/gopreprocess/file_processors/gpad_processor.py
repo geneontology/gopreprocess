@@ -9,7 +9,6 @@ from utils.decorators import timer
 
 
 class GpadProcessor:
-
     """
     A class for processing GPAD files.
 

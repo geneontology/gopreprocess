@@ -126,7 +126,6 @@ def dump_annotations(annotations, isoform):
 
 
 class P2GAnnotationCreationController:
-
     """Converts annotations from one species to another based on ortholog relationships between the two species."""
 
     def __init__(self):

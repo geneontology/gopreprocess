@@ -5,7 +5,6 @@ from src.utils.download import download_file
 
 
 class XrefProcessor:
-
     """
     Class that parses the Alliance cross-reference file and generates a map of HGNC IDs to UniProt IDs.
 

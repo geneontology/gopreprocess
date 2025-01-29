@@ -137,7 +137,6 @@ def dump_converted_annotations(converted_target_annotations: List[List[str]], so
 
 
 class AnnotationCreationController:
-
     """
     Converts annotations from one species to another based on ortholog relationships between the two species.
 
