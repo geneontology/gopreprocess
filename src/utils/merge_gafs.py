@@ -135,7 +135,7 @@ def validate_errors(parser):
             errors.append(error_report)
 
     # create the report.json file full of errors to store on skyhook
-    # calculate percentile drop in annotations coming out vs. going in and fail if over 10%
+    # calculate the percentile drop in annotations coming out vs. going in and fail if over 10%
     # error_file_length = check_errors(errors)
 
     if len(errors) > 5000:

@@ -74,7 +74,7 @@ def compare(file1, file2, output):
     Options:
       --output <output>: Prefix for output files/reports. (Default: comparison)
       --group-by-column <column>: Columns to group the comparison. (Multiple values allowed)
-      --restrict-to-decreases: Restrict to decreases only.
+      --restrict-to-decreases: Restrict to decrease only.
     """
     print("file1: ", file1)
     print("file2: ", file2)
@@ -93,15 +93,10 @@ def compare(file1, file2, output):
 )
 def download(source_taxon, target_taxon):
     """
-    Compare two GPAD or GAF files and report differences.
+    Download files for the specified source and target taxa.
+    :param: source_taxon: Source taxon in curie format.
+    :param: target_taxon: Target taxon in curie format.
 
-    <file1>: Name of the source file to compare.
-    <file2>: Name of the target/second file to compare.
-
-    Options:
-      --output <output>: Prefix for output files/reports. (Default: comparison)
-      --group-by-column <column>: Columns to group the comparison. (Multiple values allowed)
-      --restrict-to-decreases: Restrict to decreases only.
     """
     print("source_taxon: ", source_taxon)
     print("target_taxon: ", target_taxon)

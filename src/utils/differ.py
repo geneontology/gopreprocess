@@ -34,7 +34,7 @@ def generate_count_report(df_file1, df_file2, file1, file2, output):
     """
     Method to generate a report of the number of distinct values of each of the columns in a GAF or GPAD file.
 
-    Currently restricted to the following columns: subject, qualifiers, object, evidence_code
+    Currently restricted to the following columns: subject, qualifiers, object, evidence_code,
     and reference.
 
     :param df_file1: data frame representing a normalized columnar representation of file1
@@ -68,13 +68,13 @@ def compare_associations(assocs1, assocs2, output):
     Method takes two lists of GoAssociation objects and compares them to each other, reporting the differences.
 
     Differences are based on three main criteria:
-    1.  The subject, object, and evidence code act as a unit and must be the same between annotations
+    1.  The subject, object, and evidence code act as a unit and must be the same between annotations,
     or a difference is reported.
 
     :param assocs1: List of GoAssociation objects from the first file.
     :param assocs2: List of GoAssociation objects from the second file.
     :param output: Prefix of the reported files for reporting purposes.
-    :type output: str
+    :type output: Str
 
     """
     compare_report_file_path = output + "_compare_report"
