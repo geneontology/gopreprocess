@@ -123,7 +123,7 @@ def get_gpad_file():
     print("gpad file path", resulting_file)
 
 
-@cli.command(name="convert_g2p_annotations")
+@cli.command(name="convert_p2g_annotations")
 @click.option("--source_taxon", "-source_taxon", type=str, required=True, help="Source taxon in curie format.")
 @click.option(
     "--isoform",
