@@ -6,7 +6,7 @@ from pathlib import Path
 import pystow
 
 from src.utils.decorators import timer
-from src.utils.settings import get_url, taxon_to_provider
+from src.utils.settings import resolve_url, taxon_to_provider
 
 
 @timer
@@ -23,9 +23,9 @@ def download_files(source_taxon: str, target_taxon: str) -> tuple[Path, Path, Pa
     :param: source_taxon (str): The source taxon that provides the annotations.
     :param: target_taxon (str): The target taxon to which the annotations will be converted via orthology.
     """
-    ortho_path = pystow.ensure_gunzip("ALLIANCE", url=get_url("ALLIANCE_ORTHO"), autoclean=True)
-    source_gaf_path = pystow.ensure_gunzip(taxon_to_provider[source_taxon], url=get_url(taxon_to_provider[source_taxon]), autoclean=True)
-    target_gpi_path = pystow.ensure_gunzip(taxon_to_provider[target_taxon], url=get_url(taxon_to_provider[target_taxon] + "_GPI"), autoclean=True)
+    ortho_path = pystow.ensure_gunzip("ALLIANCE", url=resolve_url("ALLIANCE_ORTHO"), autoclean=True)
+    source_gaf_path = pystow.ensure_gunzip(taxon_to_provider[source_taxon], url=resolve_url(taxon_to_provider[source_taxon]), autoclean=True)
+    target_gpi_path = pystow.ensure_gunzip(taxon_to_provider[target_taxon], url=resolve_url(taxon_to_provider[target_taxon] + "_GPI"), autoclean=True)
     return ortho_path, source_gaf_path, target_gpi_path
 
 
@@ -61,9 +61,9 @@ def download_file(target_directory_name: str, config_key: str, gunzip=False) -> 
 
     """
     if gunzip:
-        file_path = pystow.ensure_gunzip(target_directory_name, url=get_url(config_key), force=True)
+        file_path = pystow.ensure_gunzip(target_directory_name, url=resolve_url(config_key), force=True)
     else:
-        file_path = pystow.ensure(target_directory_name, url=get_url(config_key), force=True)
+        file_path = pystow.ensure(target_directory_name, url=resolve_url(config_key), force=True)
     return file_path
 
 

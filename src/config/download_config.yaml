@@ -1,10 +1,25 @@
 MGI_GPI:
-  url: http://snapshot.geneontology.org/products/upstream_and_raw_data/mgi-src.gpi.gz
-# TODO: this should be really us grabbing the MGI GPI from their location, not snapshot (it can be old)
-# change to use the mgi go-site metadata location for this file.
-# use the "mirror" here (The branch that is used for grabbing the file from GOA)
+  # Resolved at run time from go-site dataset metadata, which owns which upstream
+  # is authoritative for this file. Previously pinned to snapshot.geneontology.org
+  # -- a GO serving site that this pipeline ultimately feeds (circular), and stale
+  # in practice: its GPI was generated 2026-05-20 while MGI's own was 2026-07-27.
+  # `url` is only the fallback if go-site metadata cannot be read.
+  url: https://www.informatics.jax.org/downloads/reports/mgi.gpi.gz
+  go_site_metadata: https://raw.githubusercontent.com/geneontology/go-site/master/metadata/datasets/mgi.yaml
+  dataset_id: mgi.gpi
 ALLIANCE_ORTHO:
-  url: https://fms.alliancegenome.org/download/ORTHOLOGY-ALLIANCE-JSON_COMBINED.json.gz
+  # The orthology TSV, not the JSON: the Alliance changed all JSON download
+  # formats to nested LinkML in 9.1.0 while the TSV layout is unchanged across
+  # releases (gopreprocess#78). `url` is only a fallback pin -- the URL is
+  # normally resolved at run time from the manifests below, because the
+  # advertised stable URL 404s on the production instance today and the
+  # working URL is release-versioned.
+  url: https://download.alliancegenome.org/9.0.0/downloads/ORTHOLOGY-ALLIANCE_TSV_COMBINED.tsv.gz
+  manifests:
+    - https://www.alliancegenome.org/api/downloads
+    - https://stage.alliancegenome.org/api/downloads
+  data_type: ORTHOLOGY-ALLIANCE
+  file_extension: tsv.gz
 RGD:
   url: http://skyhook.berkeleybop.org/p2go-homology-upstream-file-generator/products/upstream_and_raw_data/rgd-src.gaf.gz
 HUMAN:
