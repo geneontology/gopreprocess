@@ -111,6 +111,13 @@ GOA linkage was provable at all.
   `p2go-homology-upstream-file-generator`, which is what actually runs.
 - The uncompressed `.gaf` on the mirror is **stale since 2024-04-09**; only the
   `.gz` is covered by the publishing s3cmd glob.
+- **`ortho_annotation_creation_controller.py:51` uses `DataFrame.applymap`,
+  removed in pandas 2.1+.** `poetry.lock` pins pandas 2.2.1, where it still
+  exists but is deprecated, so production is fine — this breaks the moment
+  pandas is bumped. The replacement is `DataFrame.map`.
+- Running outside poetry needs the lockfile's numeric stack, not just latest:
+  `numpy==1.26.4`, `scipy==1.12.0`, `pandas==2.2.1`. Installing current versions
+  gets you pandas 3.x and the `applymap` failure above.
 
 ## Working here
 
@@ -126,3 +133,31 @@ Because `main` deploys to production unreviewed on the next Thursday, treat
 merges to `main` as releases: verify against real Alliance/GOA inputs, not just
 fixtures, and prefer changes that fail loudly over changes that degrade
 quietly.
+
+### Validating a change against production output
+
+Unit tests will not tell you whether output drifted — they run on fixtures.
+Reproduce the production chain locally and diff against the live product:
+
+```bash
+export PYSTOW_HOME=/tmp/gopreprocess-run
+poetry run download -source_taxon "NCBITaxon:9606" -target_taxon "NCBITaxon:10090"
+poetry run download -source_taxon "NCBITaxon:10116" -target_taxon "NCBITaxon:10090"
+make convert_human convert_rat convert_p2g_annotations merge_gafs
+# result: $PYSTOW_HOME/GAF_OUTPUT/mgi-p2go-homology.gaf.gz
+```
+
+Compare against `https://mirror.geneontology.io/mgi-p2go-homology.gaf.gz` (the
+current live product) by `GO_REF` counts, then as sets. Two things make the
+comparison trustworthy and are worth preserving:
+
+- The human and rat inputs come from skyhook paths that the pipeline stages, so
+  a local run reads **the same bytes the last production run used** — the only
+  variables are what you changed.
+- Normalise before diffing. Annotation dates are the run date, so they always
+  differ; and MGI renames gene symbols between GPI releases, which shows up as
+  spurious "lost" annotations unless you blank columns 3 and 10 too.
+
+A healthy run is ~620k annotations, ~232k under `GO_REF:0000119` and ~75k under
+`GO_REF:0000096`. Those two are the orthology-inferred half — if they collapse,
+the Alliance input changed shape.
