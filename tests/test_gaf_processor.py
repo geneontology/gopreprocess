@@ -23,7 +23,6 @@ RGD\t10045371\tMir155hg\tlocated_in\tGO:0005737\tRGD:1624291\tISO\tUniProtKB:C0H
 def gaf_processor():
     """Fixture for creating a GafProcessor instance with mocked dependencies."""
     with patch("src.gopreprocess.file_processors.gaf_processor.GafParser") as MockGafParser, patch("src.gopreprocess.file_processors.gaf_processor.EcoMap") as MockEcoMap:
-
         # Creating an instance of GafProcessor for testing
         processor = GafProcessor(
             filepath=Path("dummy/path"),
