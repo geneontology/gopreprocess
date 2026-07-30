@@ -49,6 +49,9 @@ line-length = 170
 target-version = ["py39", "py310"]
 
 [tool.ruff]
+line-length = 170
+
+[tool.ruff.lint]
 extend-ignore = [
     "D211", # `no-blank-line-before-class`
     "D212", # `multi-line-summary-first-line`
@@ -57,7 +60,6 @@ extend-ignore = [
     "B008", # `Do not perform function calls in argument defaults.`
     "F841", # `local variable 'x' is assigned to but never used`
 ]
-line-length = 170
 
 # Allow autofix for all enabled rules (when `--fix`) is provided.
 fixable = ["ALL"]
