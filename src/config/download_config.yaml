@@ -12,9 +12,11 @@ ALLIANCE_ORTHO:
   # formats to nested LinkML in 9.1.0 while the TSV layout is unchanged across
   # releases (gopreprocess#78). `url` is only a fallback pin -- the URL is
   # normally resolved at run time from the manifests below, because the
-  # advertised stable URL 404s on the production instance today and the
-  # working URL is release-versioned.
-  url: https://download.alliancegenome.org/9.0.0/downloads/ORTHOLOGY-ALLIANCE_TSV_COMBINED.tsv.gz
+  # advertised stable URL has moved and 404ed between releases while the
+  # release-versioned URL kept working. CAVEAT: the pin is release-versioned,
+  # so a resolution failure degrades to this release's data; bump it when the
+  # Alliance ships a release (gopreprocess#85).
+  url: https://download.alliancegenome.org/9.1.0/downloads/ORTHOLOGY-ALLIANCE_TSV_COMBINED.tsv.gz
   manifests:
     - https://www.alliancegenome.org/api/downloads
     - https://stage.alliancegenome.org/api/downloads
