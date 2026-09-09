@@ -76,8 +76,12 @@ config `url` as a fallback pin (see `resolve_url` in `src/utils/settings.py`):
 
 - `ALLIANCE_ORTHO` — the orthology **TSV**, resolved from the Alliance
   `/api/downloads` manifest. The TSV layout is stable across releases where the
-  JSON is not; the manifest's advertised `stableURL` 404s on the production
-  instance today, so resolution falls through to the release-versioned `s3Url`.
+  JSON is not; the manifest's advertised `stableURL` has 404ed on the
+  production instance in the past (fixed as of Alliance 9.1.0), which is why
+  resolution also tries the release-versioned `s3Url`. The config's fallback
+  `url` pin is itself release-versioned — a resolution failure silently
+  degrades to that release's data, so bump the pin when the Alliance ships a
+  release (#85).
 - `MGI_GPI` — resolved from **go-site dataset metadata** (`mgi.yaml`, `mgi.gpi`),
   which owns which upstream is authoritative; currently MGI's own file. Was
   pinned to `snapshot.geneontology.org` — circular, and its copy ran ~2 months
